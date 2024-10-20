@@ -1,9 +1,10 @@
+import 'package:facebook/features/auth/auth_screen.dart';
 import 'package:facebook/features/home/screens/home_screen.dart';
 import 'package:facebook/providers/user_provider.dart';
 import 'package:facebook/router.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:get/get.dart';
 import 'constants/global_variables.dart';
 
 void main() {
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'Facebook',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       onGenerateRoute: (settings) => generateRoute(settings),
-      home: const HomeScreen(),
+      home: const AuthScreen(),
     );
   }
 }
