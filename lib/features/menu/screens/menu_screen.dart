@@ -1,3 +1,4 @@
+import 'package:facebook/controllers/auth_controller/logout_controller.dart';
 import 'package:facebook/features/friends/screens/friends_screen.dart';
 import 'package:facebook/features/menu/widgets/menu_choice.dart';
 import 'package:facebook/features/menu/widgets/shortcut.dart';
@@ -6,6 +7,8 @@ import 'package:flutter/material.dart';
 
 import '../../memory/screens/memory_screen.dart';
 import '../../personal-page/screens/personal_page_screen.dart';
+
+import 'package:get/get.dart';
 
 class MenuScreen extends StatefulWidget {
   static double offset = 0;
@@ -19,6 +22,8 @@ class MenuScreen extends StatefulWidget {
 }
 
 class _MenuScreenState extends State<MenuScreen> {
+  LogoutController logoutController = Get.put(LogoutController());
+
   ScrollController scrollController =
       ScrollController(initialScrollOffset: MenuScreen.offset);
   ScrollController headerScrollController = ScrollController();
@@ -1747,7 +1752,7 @@ class _MenuScreenState extends State<MenuScreen> {
                             width: 0.5,
                           ),
                         ),
-                        onPressed: () {},
+                        onPressed: () => logoutController.logout(),
                         child: const Text(
                           'Đăng xuất',
                           style: TextStyle(

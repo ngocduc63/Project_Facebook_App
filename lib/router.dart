@@ -1,3 +1,4 @@
+import 'package:facebook/features/auth/auth_screen.dart';
 import 'package:facebook/features/comment/screens/comment_screen.dart';
 import 'package:facebook/features/friends/screens/friends_screen.dart';
 import 'package:facebook/features/friends/screens/friends_search_screen.dart';
@@ -17,6 +18,10 @@ import 'package:flutter/material.dart';
 
 Route<dynamic> generateRoute(RouteSettings routeSettings) {
   switch (routeSettings.name) {
+     case AuthScreen.routeName:
+      return MaterialPageRoute(
+        builder: (context) => const AuthScreen(),
+      );
     case HomeScreen.routeName:
       return MaterialPageRoute(
         builder: (context) => const HomeScreen(),

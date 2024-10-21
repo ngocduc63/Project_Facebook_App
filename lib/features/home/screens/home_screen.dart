@@ -1,3 +1,4 @@
+import 'package:facebook/constants/router_constants.dart';
 import 'package:facebook/features/dating/screens/dating_screen.dart';
 import 'package:facebook/features/home/widgets/home_app_bar.dart';
 import 'package:facebook/features/market_place/screens/market_place_screen.dart';
@@ -8,7 +9,7 @@ import 'package:facebook/features/watch/screens/watch_screen.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
-  static const String routeName = '/home';
+  static const String routeName = RouterConstants.routerHome;
   const HomeScreen({super.key});
 
   @override

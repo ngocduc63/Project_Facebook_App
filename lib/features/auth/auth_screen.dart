@@ -1,14 +1,16 @@
 // ignore_for_file: avoid_unnecessary_containers, prefer_const_constructors
 
 import 'package:facebook/constants/global_variables.dart';
-import 'package:facebook/controllers/login_controller.dart';
+import 'package:facebook/constants/router_constants.dart';
+import 'package:facebook/controllers/auth_controller/login_controller.dart';
 import 'package:facebook/features/auth/widgets/input_fields.dart';
 import 'package:facebook/features/auth/widgets//submit_button.dart';
+import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AuthScreen extends StatefulWidget {
-  static const String routeName = '/auth';
+  static const String routeName = RouterConstants.routerAuth;
   const AuthScreen({super.key});
 
   @override
@@ -19,16 +21,6 @@ class _AuthScreenState extends State<AuthScreen> {
   LoginController loginController = Get.put(LoginController());
 
   var isLogin = true.obs;
-
-  void _checkLoginStatus() async {
-    // Kiểm tra trạng thái đăng nhập, ví dụ kiểm tra token trong SharedPreferences
-    // bool isLoggedIn = await checkLogin(); // Hàm kiểm tra trạng thái đăng nhập
-
-    // if (isLoggedIn) {
-    //   // Điều hướng đến HomeScreen nếu đã đăng nhập
-    //   Get.off(() => const HomeScreen());
-    // }
-  }
 
   @override
   Widget build(BuildContext context) {

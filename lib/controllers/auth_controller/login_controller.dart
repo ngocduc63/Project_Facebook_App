@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:facebook/features/auth/auth_screen.dart';
 import 'package:facebook/features/home/screens/home_screen.dart';
 import 'package:facebook/utils/api_endpoints.dart';
 import 'package:flutter/material.dart';
