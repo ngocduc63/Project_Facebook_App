@@ -1,3 +1,4 @@
+import 'package:facebook/features/SplashCcreen/screens/splash_screen.dart';
 import 'package:facebook/features/auth/auth_screen.dart';
 import 'package:facebook/features/home/screens/home_screen.dart';
 import 'package:facebook/providers/user_provider.dart';
@@ -39,24 +40,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       onGenerateRoute: (settings) => generateRoute(settings),
-      home: FutureBuilder(
-        future: _checkToken(), // Gọi hàm kiểm tra token
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator()); // Hiển thị loading
-          } else if (snapshot.hasError) {
-            // Xử lý lỗi nếu cần
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            // Kiểm tra kết quả
-            if (snapshot.data == true) {
-              return const HomeScreen(); // Nếu có token, chuyển đến Home
-            } else {
-              return const AuthScreen(); // Nếu không có token, chuyển đến Auth
-            }
-          }
-        },
-      ),
+      home: const SplashScreen(),
     );
   }
 }
