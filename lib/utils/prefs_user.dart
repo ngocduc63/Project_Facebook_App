@@ -1,4 +1,5 @@
 import 'package:facebook/constants/app_constants.dart';
+import 'package:facebook/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -61,16 +62,32 @@ class UserServicePref {
   }
 
   Map<String, dynamic>? get tokenAsJson {
-  if (_token != null) {
-    try {
-      return jsonDecode(_token!);
-    } catch (e) {
-      print("Error parsing JSON: $e");
-      return null;
+    if (_token != null) {
+      try {
+        return jsonDecode(_token!);
+      } catch (e) {
+        print("Error parsing JSON: $e");
+        return null;
+      }
     }
+    return null;
   }
-  return null;
-}
+
+  UserModel? get getUserInfo {
+    if (_user != null) {
+      try {
+        final userBody = jsonDecode(_user!);
+
+        if (userBody != null) { 
+          return UserModel.fromJson(userBody);
+        }
+      } catch (e) {
+        print("Error parsing JSON: $e");
+        return null;
+      }
+    }
+    return null;
+  }
 
   String? get token => _token;
   String? get apiKey => _apiKey;

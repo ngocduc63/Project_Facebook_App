@@ -1,5 +1,7 @@
+import 'package:facebook/constants/app_constants.dart';
+
 class ApiEndPoints {
-    static const String baseUrl = 'http://192.168.0.106:3055/api/';
+    static const String baseUrl = '${ApiConfig.api}/api/';
     static _AuthEndPOints authEndpoints = _AuthEndPOints();
 }
 

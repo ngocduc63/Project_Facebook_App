@@ -30,12 +30,14 @@ class LoginController extends GetxController {
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
+        final userData = jsonEncode(json['metadata']['user']);
+        final tokenData = jsonEncode(json['metadata']['tokens']);
 
-        await userServicePref.saveToken(json['metadata']['token'].toString());
+        await userServicePref.saveToken(tokenData);
         await userServicePref
             .saveApiKey(json['metadata']['apikey']['key'].toString());
         await userServicePref
-            .saveUser(json['metadata']['user'].toString());
+            .saveUser(userData);
 
         emailController.clear();
         passwordController.clear();

@@ -1,3 +1,4 @@
+import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/features/news-feed/widgets/add_story_card.dart';
 import 'package:facebook/features/news-feed/widgets/post_card.dart';
 import 'package:facebook/features/news-feed/widgets/story_card.dart';
@@ -5,6 +6,7 @@ import 'package:facebook/models/post.dart';
 import 'package:facebook/models/story.dart';
 import 'package:facebook/models/user.dart';
 import 'package:facebook/providers/user_provider.dart';
+import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -691,6 +693,11 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
         NewsFeedScreen.offset = scrollController.offset;
       }
     });
+
+    UserServicePref userServicePref =  UserServicePref();
+    final userInfo = userServicePref.getUserInfo;
+    print('USER INFO: $userInfo');
+
     return SingleChildScrollView(
       controller: scrollController,
       child: Column(
@@ -705,7 +712,7 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
                     right: 10,
                   ),
                   child: CircleAvatar(
-                    backgroundImage: AssetImage(user.avatar),
+                    backgroundImage: NetworkImage('${ApiConfig.linkImage}${userInfo?.avatar}'),
                     radius: 20,
                   ),
                 ),

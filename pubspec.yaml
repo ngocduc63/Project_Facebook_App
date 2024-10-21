@@ -23,6 +23,10 @@ dependencies:
   get: ^4.6.6
   http: ^1.2.2
 
+  build_runner: ^2.0.6
+  json_serializable: ^6.0.1
+  json_annotation: ^4.0.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
