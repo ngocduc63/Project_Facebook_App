@@ -1,16 +1,16 @@
 import 'dart:convert';
 import 'package:facebook/features/home/screens/home_screen.dart';
 import 'package:facebook/utils/api_endpoints.dart';
+import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 class LoginController extends GetxController {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  UserServicePref userServicePref = UserServicePref();
   var isLoadingAuth = false.obs;
 
   Future<void> loginWithEmail() async {
@@ -30,19 +30,21 @@ class LoginController extends GetxController {
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
-        final SharedPreferences? prefs = await _prefs;
 
-        await prefs?.setString('token', json['metadata']['token'].toString());
-        await prefs?.setString('api_key', json['metadata']['apikey']['key'].toString());
+        await userServicePref.saveToken(json['metadata']['token'].toString());
+        await userServicePref
+            .saveApiKey(json['metadata']['apikey']['key'].toString());
+        await userServicePref
+            .saveUser(json['metadata']['user'].toString());
 
         emailController.clear();
         passwordController.clear();
 
         Get.off(HomeScreen());
+        isLoadingAuth.value = false;
       } else {
         throw jsonDecode(response.body) ?? "Login error";
       }
-      isLoadingAuth.value = false;
     } catch (e) {
       Get.back();
 

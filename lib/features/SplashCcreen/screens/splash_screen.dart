@@ -21,9 +21,10 @@ class SplashScreenState extends State<SplashScreen> {
 
   Future<void> checkTokenAndNavigate() async {
     final UserServicePref userServicePref = UserServicePref();
+    
     await userServicePref.loadAuthApp();
     await Future.delayed(const Duration(microseconds: 1500));
-    // Điều hướng đến màn hình tương ứng
+
     if (userServicePref.hasToken) {
       Get.offNamed(RouterConstants.routerHome);
     } else {
@@ -38,9 +39,9 @@ class SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/logo.png', height: 100), // Thay thế bằng đường dẫn logo của bạn
+            Image.asset('assets/logo.png', height: 100),
             const SizedBox(height: 20),
-            const CircularProgressIndicator(color: GlobalVariables.secondaryColor, strokeWidth: 3,), // Hiển thị loading
+            const CircularProgressIndicator(color: GlobalVariables.secondaryColor, strokeWidth: 3,),
           ],
         ),
       ),
