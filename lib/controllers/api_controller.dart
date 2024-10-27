@@ -102,8 +102,8 @@ class ApiController {
   // Function to refresh the token
   Future<void> _refreshToken() async {
     try {
-      final response = await _dio.post('/auth/refresh-token', data: {
-        'refreshToken': 'your_refresh_token_here',
+      final response = await _dio.put('/access/refresh-token', data: {
+        'refreshToken': tokens?['refreshToken'],
       });
       
       // Update the token if refresh is successful

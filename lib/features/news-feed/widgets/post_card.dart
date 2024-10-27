@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/enum_common.dart';
 import 'package:facebook/constants/global_variables.dart';
+import 'package:facebook/controllers/user_controller/user_controller.dart';
 import 'package:facebook/features/comment/screens/comment_screen.dart';
 import 'package:facebook/features/news-feed/screen/image_fullscreen.dart';
 import 'package:facebook/features/news-feed/screen/multiple_images_post_screen.dart';
@@ -25,13 +26,95 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   bool postVisible = true;
+  bool isLoadingLike = false;
   List<String> icons = [];
   Emotion? reactions;
   double leftImageHeight = 0;
+  UserController userController = UserController();
+  Map<String, dynamic> userHasLike = {
+    'image': 'assets/images/like.png',
+    'color': Colors.black87,
+    'text': 'Thích',
+    'isLiked': false,
+  };
+
+  Future<void> handelLike() async {
+    setState(() {
+      isLoadingLike = true;
+    });
+
+    if (!userHasLike['isLiked']) {
+      final check =
+          await userController.likePostController(widget.post.id, Emotion.like);
+
+      if (check) {
+        await setUserHasLike(Emotion.like);
+      }
+    } else {
+      final check =
+          await userController.unLikePostController(widget.post.id);
+
+      if (check) {
+        await setUserHasLike(null);
+      }
+    }
+
+    setState(() {
+      isLoadingLike = false;
+    });
+  }
+
+  Future<void> setUserHasLike(Emotion? react) async {
+    setState(() {
+      final reaction = react?.value;
+      if (reaction == Emotion.like.value) {
+        userHasLike['image'] = 'assets/images/reactions/like.png';
+        userHasLike['text'] = 'Thích';
+        userHasLike['color'] = GlobalVariables.secondaryColor;
+        userHasLike['isLiked'] = true;
+      } else if (reaction == Emotion.haha.value) {
+        userHasLike['image'] = 'assets/images/reactions/haha.png';
+        userHasLike['text'] = 'Haha';
+        userHasLike['color'] = const Color.fromARGB(247, 226, 195, 18);
+        userHasLike['isLiked'] = true;
+      } else if (reaction == Emotion.love.value) {
+        userHasLike['image'] = 'assets/images/reactions/love.png';
+        userHasLike['text'] = 'Yêu thích';
+        userHasLike['color'] = Colors.red;
+        userHasLike['isLiked'] = true;
+      } else if (reaction == Emotion.lovelove.value) {
+        userHasLike['image'] = 'assets/images/reactions/care.png';
+        userHasLike['text'] = 'Thương Thương';
+        userHasLike['color'] = Colors.red;
+        userHasLike['isLiked'] = true;
+      } else if (reaction == Emotion.wow.value) {
+        userHasLike['image'] = 'assets/images/reactions/wow.png';
+        userHasLike['text'] = 'Wow';
+        userHasLike['color'] = const Color.fromARGB(247, 226, 195, 18);
+        userHasLike['isLiked'] = true;
+      } else if (reaction == Emotion.sad.value) {
+        userHasLike['image'] = 'assets/images/reactions/sad.png';
+        userHasLike['text'] = 'Buồn';
+        userHasLike['color'] = const Color.fromARGB(247, 226, 195, 18);
+        userHasLike['isLiked'] = true;
+      } else if (reaction == Emotion.angry.value) {
+        userHasLike['image'] = 'assets/images/reactions/angry.png';
+        userHasLike['text'] = 'Tức giận';
+        userHasLike['color'] = Colors.deepOrange;
+        userHasLike['isLiked'] = true;
+      } else {
+        userHasLike['image'] = 'assets/images/like.png';
+        userHasLike['text'] = 'Thích';
+        userHasLike['color'] = Colors.black87;
+        userHasLike['isLiked'] = false;
+      }
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    setUserHasLike(widget.post.reaction);
     // List<int> list = [
     //   widget.post.like != null ? widget.post.like! : 0,
     //   widget.post.haha != null ? widget.post.haha! : 0,
@@ -46,8 +129,9 @@ class _PostCardState extends State<PostCard> {
     // for (int i = 0; i < list.length; i++) {
     //   sum += list[i];
     // }
+
     setState(() {
-      reactions = Emotion.like;
+      reactions = null;
       // String tmp = sum.toString();
       // int x = 0;
       // for (int i = tmp.length - 1; i > 0; i--) {
@@ -57,8 +141,6 @@ class _PostCardState extends State<PostCard> {
       // }
       // reactions = '${tmp[0]}$reactions';
       icons = [];
-      icons.add('assets/images/reactions/like.png');
-      icons.add('assets/images/reactions/haha.png');
 
       if (reactions == Emotion.like) {
         icons.add('assets/images/reactions/like.png');
@@ -138,8 +220,8 @@ class _PostCardState extends State<PostCard> {
                           ),
                           child: CircleAvatar(
                             radius: 20,
-                            backgroundImage:
-                                CachedNetworkImageProvider('${ApiConfig.linkImage}${widget.post.user.avatar}'),
+                            backgroundImage: CachedNetworkImageProvider(
+                                '${ApiConfig.linkImage}${widget.post.user.avatar}'),
                           ),
                         ),
                         Padding(
@@ -1605,86 +1687,101 @@ class _PostCardState extends State<PostCard> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            SizedBox(
-                              width: 42,
-                              child: Stack(
-                                children: [
-                                  const SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                  ),
-                                  Positioned(
-                                    top: 2,
-                                    left: 18,
-                                    child: Image.asset(
-                                      icons[1],
-                                      width: 20,
-                                    ),
-                                  ),
-                                  Positioned(
-                                    top: 0,
-                                    left: 0,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: Colors.white,
-                                            width: 2,
-                                          )),
-                                      child: Image.asset(
-                                        icons[0],
-                                        width: 20,
+                            icons.isNotEmpty?
+                                 Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 42,
+                                        child: Stack(
+                                          children: [
+                                            SizedBox(
+                                              width: 24,
+                                              height: 24,
+                                            ),
+                                            Positioned(
+                                              top: 2,
+                                              left: 18,
+                                              child: Image.asset(
+                                                icons[1],
+                                                width: 20,
+                                              ),
+                                            ),
+                                            Positioned(
+                                              top: 0,
+                                              left: 0,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(
+                                                    color: Colors.white,
+                                                    width: 2,
+                                                  ),
+                                                ),
+                                                child: Image.asset(
+                                                  icons[0],
+                                                  width: 20,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Text(
-                              reactions!.value,
-                              style: const TextStyle(
-                                color: Colors.black54,
-                                fontSize: 14,
-                              ),
-                            ),
+                                       // Khoảng cách giữa văn bản và biểu tượng kiểm tra
+                                       const SizedBox(
+                                          width:
+                                              4), // Khoảng cách giữa biểu tượng và văn bản
+                                      Text(
+                                        widget.post.numLike.toString(),
+                                        style: TextStyle(
+                                          color: Colors.black54,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                          width:
+                                              4),
+                                    ],
+                                  )
+                                : Container(),
                           ],
                         ),
-                        // Row(
-                        //   children: [
-                        //     widget.post.numComment != null
-                        //         ? Text(
-                        //             '${widget.post.numComment} bình luận',
-                        //             style: const TextStyle(
-                        //               fontSize: 14,
-                        //               fontWeight: FontWeight.w400,
-                        //               color: Colors.black54,
-                        //             ),
-                        //           )
-                        //         : const SizedBox(),
-                        //     (widget.post.numComment != null &&
-                        //             widget.post.numShare != null)
-                        //         ? const Padding(
-                        //             padding:
-                        //                 EdgeInsets.symmetric(horizontal: 5),
-                        //             child: Icon(
-                        //               Icons.circle,
-                        //               size: 3,
-                        //               color: Colors.black54,
-                        //             ),
-                        //           )
-                        //         : const SizedBox(),
-                        //     widget.post.numShare != null
-                        //         ? Text(
-                        //             '${widget.post.numShare} lượt chia sẻ',
-                        //             style: const TextStyle(
-                        //               fontSize: 14,
-                        //               fontWeight: FontWeight.w400,
-                        //               color: Colors.black54,
-                        //             ),
-                        //           )
-                        //         : const SizedBox(),
-                        //   ],
-                        // ),
+                        Row(
+                          children: [
+                            widget.post.numComment != null
+                                ? Text(
+                                    '${widget.post.numComment} bình luận',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.black54,
+                                    ),
+                                  )
+                                : const SizedBox(),
+                            (widget.post.numComment != null &&
+                                    widget.post.numShare != null)
+                                ? const Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 5),
+                                    child: Icon(
+                                      Icons.circle,
+                                      size: 3,
+                                      color: Colors.black54,
+                                    ),
+                                  )
+                                : const SizedBox(),
+                            widget.post.numShare != null
+                                ? Text(
+                                    '${widget.post.numShare} lượt chia sẻ',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.black54,
+                                    ),
+                                  )
+                                : const SizedBox(),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -1703,31 +1800,43 @@ class _PostCardState extends State<PostCard> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     InkWell(
-                      onTap: () {},
+                      onTap: () async {
+                        await handelLike(); // Gọi hàm xử lý khi nhấn
+                      },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           vertical: 11.5,
                         ),
                         alignment: Alignment.center,
                         width: (MediaQuery.of(context).size.width) / 3,
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ImageIcon(
-                              AssetImage('assets/images/like.png'),
-                              size: 24,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: 10),
-                              child: Text(
-                                'Thích',
-                                style: TextStyle(
-                                  fontSize: 15,
+                        child: isLoadingLike
+                            ? SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: const CircularProgressIndicator(
+                                  color: GlobalVariables.secondaryColor,
                                 ),
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    userHasLike['image'],
+                                    width: 24,
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 10),
+                                    child: Text(
+                                      userHasLike['text'],
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: userHasLike['color'],
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
                       ),
                     ),
                     InkWell(

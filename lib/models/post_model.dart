@@ -21,6 +21,7 @@ class PostModel {
   final String? checkin;
   @JsonKey(name: 'likeCategory')
   final Emotion? reaction;
+  final List<Map<String, dynamic>>? reactions;
   final String? layout; // classic, column, quote, frame
   @JsonKey(name: 'post_type')
   final String? type; 
@@ -43,6 +44,7 @@ class PostModel {
     // this.text,
     this.checkin,
     this.reaction,
+    this.reactions,
     this.layout,
     this.type,
     this.hasLiked,
