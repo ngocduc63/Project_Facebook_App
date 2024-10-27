@@ -9,6 +9,7 @@ import 'package:facebook/features/comment/screens/comment_screen.dart';
 import 'package:facebook/features/news-feed/screen/image_fullscreen.dart';
 import 'package:facebook/features/news-feed/screen/multiple_images_post_screen.dart';
 import 'package:facebook/features/news-feed/widgets/post_content.dart';
+import 'package:facebook/features/news-feed/widgets/reaction_button.dart';
 import 'package:facebook/models/post_model.dart';
 import 'package:facebook/utils/convert_time.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,6 @@ class _PostCardState extends State<PostCard> {
   bool postVisible = true;
   bool isLoadingLike = false;
   List<String> icons = [];
-  Emotion? reactions;
   double leftImageHeight = 0;
   UserController userController = UserController();
   Map<String, dynamic> userHasLike = {
@@ -38,7 +38,7 @@ class _PostCardState extends State<PostCard> {
     'isLiked': false,
   };
 
-  Future<void> handelLike() async {
+  Future<void> handleLike(var selectedValue) async {
     setState(() {
       isLoadingLike = true;
     });
@@ -51,8 +51,7 @@ class _PostCardState extends State<PostCard> {
         await setUserHasLike(Emotion.like);
       }
     } else {
-      final check =
-          await userController.unLikePostController(widget.post.id);
+      final check = await userController.unLikePostController(widget.post.id);
 
       if (check) {
         await setUserHasLike(null);
@@ -111,6 +110,7 @@ class _PostCardState extends State<PostCard> {
     });
   }
 
+
   @override
   void initState() {
     super.initState();
@@ -131,31 +131,30 @@ class _PostCardState extends State<PostCard> {
     // }
 
     setState(() {
-      reactions = null;
-      // String tmp = sum.toString();
-      // int x = 0;
-      // for (int i = tmp.length - 1; i > 0; i--) {
-      //   x++;
-      //   reactions = '${tmp[i]}$reactions';
-      //   if (x == 3) reactions = '.$reactions';
-      // }
-      // reactions = '${tmp[0]}$reactions';
+      final reactions = widget.post.reactions;
       icons = [];
+      if (reactions != null && reactions.isNotEmpty) {
+        reactions.sort((a, b) => b['count'].compareTo(a['count']));
 
-      if (reactions == Emotion.like) {
-        icons.add('assets/images/reactions/like.png');
-      } else if (reactions == Emotion.haha) {
-        icons.add('assets/images/reactions/haha.png');
-      } else if (reactions == Emotion.love) {
-        icons.add('assets/images/reactions/love.png');
-      } else if (reactions == Emotion.lovelove) {
-        icons.add('assets/images/reactions/care.png');
-      } else if (reactions == Emotion.wow) {
-        icons.add('assets/images/reactions/wow.png');
-      } else if (reactions == Emotion.sad) {
-        icons.add('assets/images/reactions/sad.png');
-      } else if (reactions == Emotion.angry) {
-        icons.add('assets/images/reactions/angry.png');
+        var topReations = reactions.take(3);
+
+        for (var reaction in topReations) {
+          if (reaction['type'] == Emotion.like.value) {
+            icons.add('assets/images/reactions/like.png');
+          } else if (reaction['type'] == Emotion.haha.value) {
+            icons.add('assets/images/reactions/haha.png');
+          } else if (reaction['type'] == Emotion.love.value) {
+            icons.add('assets/images/reactions/love.png');
+          } else if (reaction['type'] == Emotion.lovelove.value) {
+            icons.add('assets/images/reactions/care.png');
+          } else if (reaction['type'] == Emotion.wow.value) {
+            icons.add('assets/images/reactions/wow.png');
+          } else if (reaction['type'] == Emotion.sad.value) {
+            icons.add('assets/images/reactions/sad.png');
+          } else if (reaction['type'] == Emotion.angry.value) {
+            icons.add('assets/images/reactions/angry.png');
+          }
+        }
       }
     });
     _calculateImageDimension();
@@ -1687,47 +1686,94 @@ class _PostCardState extends State<PostCard> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            icons.isNotEmpty?
-                                 Row(
+                            icons.isNotEmpty
+                                ? Row(
                                     children: [
                                       SizedBox(
-                                        width: 42,
+                                        width: icons.length < 3
+                                            ? icons.length * 20
+                                            : 60,
+                                        height: 24,
                                         child: Stack(
                                           children: [
-                                            SizedBox(
-                                              width: 24,
-                                              height: 24,
-                                            ),
-                                            Positioned(
-                                              top: 2,
-                                              left: 18,
-                                              child: Image.asset(
-                                                icons[1],
-                                                width: 20,
-                                              ),
-                                            ),
-                                            Positioned(
-                                              top: 0,
-                                              left: 0,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                    color: Colors.white,
-                                                    width: 2,
+                                            // Kiểm tra và hiển thị hình ảnh đầu tiên nếu có
+                                            if (icons.isNotEmpty)
+                                              Positioned(
+                                                top: 0,
+                                                left: 0,
+                                                child: Container(
+                                                  width: 20,
+                                                  height: 20,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(
+                                                      color: Colors.white,
+                                                      width: 2,
+                                                    ),
+                                                  ),
+                                                  child: Image.asset(
+                                                    icons[0],
+                                                    width: 20,
+                                                    height: 20,
+                                                    fit: BoxFit
+                                                        .cover, // Đảm bảo ảnh không vượt quá kích thước
                                                   ),
                                                 ),
-                                                child: Image.asset(
-                                                  icons[0],
+                                              ),
+
+                                            // Kiểm tra và hiển thị hình ảnh thứ hai nếu có
+                                            if (icons.length > 1)
+                                              Positioned(
+                                                top: 2,
+                                                left: 18,
+                                                child: Container(
                                                   width: 20,
+                                                  height: 20,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(
+                                                      color: Colors.white,
+                                                      width: 2,
+                                                    ),
+                                                  ),
+                                                  child: Image.asset(
+                                                    icons[1],
+                                                    width: 20,
+                                                    height: 20,
+                                                    fit: BoxFit.cover,
+                                                  ),
                                                 ),
                                               ),
-                                            ),
+
+                                            // Kiểm tra và hiển thị hình ảnh thứ ba nếu có
+                                            if (icons.length > 2)
+                                              Positioned(
+                                                top: 4,
+                                                left: 36,
+                                                child: Container(
+                                                  width: 20,
+                                                  height: 20,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(
+                                                      color: Colors.white,
+                                                      width: 2,
+                                                    ),
+                                                  ),
+                                                  child: Image.asset(
+                                                    icons[2],
+                                                    width: 20,
+                                                    height: 20,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                              ),
                                           ],
                                         ),
                                       ),
-                                       // Khoảng cách giữa văn bản và biểu tượng kiểm tra
-                                       const SizedBox(
+
+                                      // Khoảng cách giữa văn bản và biểu tượng kiểm tra
+                                      const SizedBox(
                                           width:
                                               4), // Khoảng cách giữa biểu tượng và văn bản
                                       Text(
@@ -1738,9 +1784,7 @@ class _PostCardState extends State<PostCard> {
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      const SizedBox(
-                                          width:
-                                              4),
+                                      const SizedBox(width: 4),
                                     ],
                                   )
                                 : Container(),
@@ -1799,45 +1843,55 @@ class _PostCardState extends State<PostCard> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    InkWell(
-                      onTap: () async {
-                        await handelLike(); // Gọi hàm xử lý khi nhấn
+                    // InkWell(
+                    //   onTap: () async {
+                    //     await handleLike(null); // Gọi hàm xử lý khi nhấn
+                    //   },
+                    //   onLongPress: () => {
+
+                    //   },
+                    //   child: Container(
+                    //     padding: const EdgeInsets.symmetric(
+                    //       vertical: 11.5,
+                    //     ),
+                    //     alignment: Alignment.center,
+                    //     width: (MediaQuery.of(context).size.width) / 3,
+                    //     child: isLoadingLike
+                    //         ? SizedBox(
+                    //             height: 24,
+                    //             width: 24,
+                    //             child: const CircularProgressIndicator(
+                    //               color: GlobalVariables.secondaryColor,
+                    //             ),
+                    //           )
+                    //         : Row(
+                    //             mainAxisAlignment: MainAxisAlignment.center,
+                    //             children: [
+                    //               Image.asset(
+                    //                 userHasLike['image'],
+                    //                 width: 24,
+                    //               ),
+                    //               Padding(
+                    //                 padding: const EdgeInsets.only(left: 10),
+                    //                 child: Text(
+                    //                   userHasLike['text'],
+                    //                   style: TextStyle(
+                    //                     fontSize: 15,
+                    //                     color: userHasLike['color'],
+                    //                     fontWeight: FontWeight.bold,
+                    //                   ),
+                    //                 ),
+                    //               ),
+                    //             ],
+                    //           ),
+                    //   ),
+                    // ),
+                    ReactionButton(
+                      initialReaction: widget.post.reaction ?? Emotion.none,
+                      onReactionChanged: (reaction) {
+                        print(reaction.name);
                       },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 11.5,
-                        ),
-                        alignment: Alignment.center,
-                        width: (MediaQuery.of(context).size.width) / 3,
-                        child: isLoadingLike
-                            ? SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: const CircularProgressIndicator(
-                                  color: GlobalVariables.secondaryColor,
-                                ),
-                              )
-                            : Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Image.asset(
-                                    userHasLike['image'],
-                                    width: 24,
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.only(left: 10),
-                                    child: Text(
-                                      userHasLike['text'],
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: userHasLike['color'],
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                      ),
+                      userHasLike: userHasLike,
                     ),
                     InkWell(
                       onTap: () {},

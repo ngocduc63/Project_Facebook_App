@@ -6,7 +6,8 @@ enum Emotion {
   love('LOVE'),
   lovelove('LOVELOVE'),
   angry('ANGRY'),
-  wow('WOW');
+  wow('WOW'),
+  none('none');
 
   final String value;
 
