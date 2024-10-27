@@ -5,8 +5,8 @@ part 'user_model.g.dart';
 
 @JsonSerializable()
 class UserModel {
-  // @JsonKey(name: '_id')
-  // final String id;
+  @JsonKey(name: '_id')
+  final String id;
   final String name;
   final String avatar;
   bool? verified;
@@ -21,7 +21,7 @@ class UserModel {
   final String? pageType;
   final String? address;
   UserModel({
-    // required this.id,
+    required this.id,
     required this.name,
     required this.avatar,
     this.verified,
@@ -45,7 +45,7 @@ class UserModel {
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
 
   UserModel copyWith({
-    // String? id,
+    String? id,
     String? name,
     String? avatar,
     bool? verified,
@@ -61,7 +61,7 @@ class UserModel {
     String? address,
   }) {
     return UserModel(
-      // id: id ?? this.id,
+      id: id ?? this.id,
       name: name ?? this.name,
       avatar: avatar ?? this.avatar,
       verified: verified ?? this.verified,

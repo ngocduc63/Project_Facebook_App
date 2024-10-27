@@ -1,18 +1,22 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:facebook/constants/app_constants.dart';
+import 'package:facebook/constants/enum_common.dart';
 import 'package:facebook/constants/global_variables.dart';
 import 'package:facebook/features/comment/screens/comment_screen.dart';
 import 'package:facebook/features/news-feed/screen/image_fullscreen.dart';
 import 'package:facebook/features/news-feed/screen/multiple_images_post_screen.dart';
 import 'package:facebook/features/news-feed/widgets/post_content.dart';
-import 'package:facebook/models/post.dart';
+import 'package:facebook/models/post_model.dart';
+import 'package:facebook/utils/convert_time.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../personal-page/screens/personal_page_screen.dart';
 
 class PostCard extends StatefulWidget {
-  final Post post;
+  final PostModel post;
   const PostCard({super.key, required this.post});
 
   @override
@@ -22,65 +26,53 @@ class PostCard extends StatefulWidget {
 class _PostCardState extends State<PostCard> {
   bool postVisible = true;
   List<String> icons = [];
-  String reactions = '0';
+  Emotion? reactions;
   double leftImageHeight = 0;
+
   @override
   void initState() {
     super.initState();
-    List<int> list = [
-      widget.post.like != null ? widget.post.like! : 0,
-      widget.post.haha != null ? widget.post.haha! : 0,
-      widget.post.love != null ? widget.post.love! : 0,
-      widget.post.lovelove != null ? widget.post.lovelove! : 0,
-      widget.post.wow != null ? widget.post.wow! : 0,
-      widget.post.sad != null ? widget.post.sad! : 0,
-      widget.post.angry != null ? widget.post.angry! : 0
-    ];
-    list.sort((a, b) => b - a);
-    int sum = 0;
-    for (int i = 0; i < list.length; i++) {
-      sum += list[i];
-    }
+    // List<int> list = [
+    //   widget.post.like != null ? widget.post.like! : 0,
+    //   widget.post.haha != null ? widget.post.haha! : 0,
+    //   widget.post.love != null ? widget.post.love! : 0,
+    //   widget.post.lovelove != null ? widget.post.lovelove! : 0,
+    //   widget.post.wow != null ? widget.post.wow! : 0,
+    //   widget.post.sad != null ? widget.post.sad! : 0,
+    //   widget.post.angry != null ? widget.post.angry! : 0
+    // ];
+    // list.sort((a, b) => b - a);
+    // int sum = 0;
+    // for (int i = 0; i < list.length; i++) {
+    //   sum += list[i];
+    // }
     setState(() {
-      reactions = '';
-      String tmp = sum.toString();
-      int x = 0;
-      for (int i = tmp.length - 1; i > 0; i--) {
-        x++;
-        reactions = '${tmp[i]}$reactions';
-        if (x == 3) reactions = '.$reactions';
-      }
-      reactions = '${tmp[0]}$reactions';
+      reactions = Emotion.like;
+      // String tmp = sum.toString();
+      // int x = 0;
+      // for (int i = tmp.length - 1; i > 0; i--) {
+      //   x++;
+      //   reactions = '${tmp[i]}$reactions';
+      //   if (x == 3) reactions = '.$reactions';
+      // }
+      // reactions = '${tmp[0]}$reactions';
       icons = [];
-      if (list[0] == widget.post.like) {
-        icons.add('assets/images/reactions/like.png');
-      } else if (list[0] == widget.post.haha) {
-        icons.add('assets/images/reactions/haha.png');
-      } else if (list[0] == widget.post.love) {
-        icons.add('assets/images/reactions/love.png');
-      } else if (list[0] == widget.post.lovelove) {
-        icons.add('assets/images/reactions/care.png');
-      } else if (list[0] == widget.post.wow) {
-        icons.add('assets/images/reactions/wow.png');
-      } else if (list[0] == widget.post.sad) {
-        icons.add('assets/images/reactions/sad.png');
-      } else if (list[0] == widget.post.angry) {
-        icons.add('assets/images/reactions/angry.png');
-      }
+      icons.add('assets/images/reactions/like.png');
+      icons.add('assets/images/reactions/haha.png');
 
-      if (list[1] == widget.post.like) {
+      if (reactions == Emotion.like) {
         icons.add('assets/images/reactions/like.png');
-      } else if (list[1] == widget.post.haha) {
+      } else if (reactions == Emotion.haha) {
         icons.add('assets/images/reactions/haha.png');
-      } else if (list[1] == widget.post.love) {
+      } else if (reactions == Emotion.love) {
         icons.add('assets/images/reactions/love.png');
-      } else if (list[1] == widget.post.lovelove) {
+      } else if (reactions == Emotion.lovelove) {
         icons.add('assets/images/reactions/care.png');
-      } else if (list[1] == widget.post.wow) {
+      } else if (reactions == Emotion.wow) {
         icons.add('assets/images/reactions/wow.png');
-      } else if (list[1] == widget.post.sad) {
+      } else if (reactions == Emotion.sad) {
         icons.add('assets/images/reactions/sad.png');
-      } else if (list[1] == widget.post.angry) {
+      } else if (reactions == Emotion.angry) {
         icons.add('assets/images/reactions/angry.png');
       }
     });
@@ -89,16 +81,21 @@ class _PostCardState extends State<PostCard> {
 
   _calculateImageDimension() async {
     Completer<Size> completer = Completer();
-    Image image = Image.asset(widget.post.image![0]);
-    image.image.resolve(const ImageConfiguration()).addListener(
+
+    // Sử dụng CachedNetworkImage
+    CachedNetworkImageProvider imageProvider = CachedNetworkImageProvider(
+        '${ApiConfig.linkImage}${widget.post.image![0]}');
+
+    imageProvider.resolve(ImageConfiguration()).addListener(
       ImageStreamListener(
-        (ImageInfo image, bool synchronousCall) {
-          var myImage = image.image;
+        (ImageInfo imageInfo, bool synchronousCall) {
+          var myImage = imageInfo.image;
           Size size = Size(myImage.width.toDouble(), myImage.height.toDouble());
           completer.complete(size);
         },
       ),
     );
+
     await completer.future.then((value) {
       setState(() {
         if (widget.post.image!.length > 2 && widget.post.image!.length < 5) {
@@ -142,7 +139,7 @@ class _PostCardState extends State<PostCard> {
                           child: CircleAvatar(
                             radius: 20,
                             backgroundImage:
-                                AssetImage(widget.post.user.avatar),
+                                CachedNetworkImageProvider('${ApiConfig.linkImage}${widget.post.user.avatar}'),
                           ),
                         ),
                         Padding(
@@ -188,7 +185,7 @@ class _PostCardState extends State<PostCard> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
-                                    widget.post.time,
+                                    convertToTimeAgo(widget.post.time),
                                     style: const TextStyle(
                                         color: Colors.black54, fontSize: 14),
                                   ),
@@ -207,14 +204,15 @@ class _PostCardState extends State<PostCard> {
                                     width: 5,
                                   ),
                                   Icon(
-                                    widget.post.shareWith == 'public'
-                                        ? Icons.public
-                                        : widget.post.shareWith == 'friends'
-                                            ? Icons.people
-                                            : widget.post.shareWith ==
-                                                    'friends-of-frends'
-                                                ? Icons.groups
-                                                : Icons.lock,
+                                    Icons.public,
+                                    // widget.post.shareWith == 'public'
+                                    //     ? Icons.public
+                                    //     : widget.post.shareWith == 'friends'
+                                    //         ? Icons.people
+                                    //         : widget.post.shareWith ==
+                                    //                 'friends-of-frends'
+                                    //             ? Icons.groups
+                                    //             : Icons.lock,
                                     color: Colors.black54,
                                     size: 14,
                                   ),
@@ -883,7 +881,7 @@ class _PostCardState extends State<PostCard> {
                         Navigator.pushNamed(context, ImageFullScreen.routeName,
                             arguments: widget.post);
                       },
-                      child: Image.asset((widget.post.image != null)
+                      child: Image.network((widget.post.image != null)
                           ? widget.post.image![0]
                           : widget.post.video![0]),
                     )
@@ -903,8 +901,8 @@ class _PostCardState extends State<PostCard> {
                                       arguments: widget.post,
                                     );
                                   },
-                                  child: Image.asset(
-                                    widget.post.image![0],
+                                  child: Image.network(
+                                    '${ApiConfig.linkImage}${widget.post.image![0]}',
                                     width: (widget.post.image!.length > 2 &&
                                             widget.post.image!.length < 5)
                                         ? MediaQuery.of(context).size.width *
@@ -937,8 +935,8 @@ class _PostCardState extends State<PostCard> {
                                           arguments: widget.post,
                                         );
                                       },
-                                      child: Image.asset(
-                                        widget.post.image![1],
+                                      child: Image.network(
+                                        '${ApiConfig.linkImage}${widget.post.image![1]}',
                                         width:
                                             MediaQuery.of(context).size.width /
                                                 2 *
@@ -1013,8 +1011,8 @@ class _PostCardState extends State<PostCard> {
                                             },
                                             child: Stack(
                                               children: [
-                                                Image.asset(
-                                                  widget.post.image![i],
+                                                Image.network(
+                                                  '${ApiConfig.linkImage}${widget.post.image![i]}',
                                                   width: widget.post.image!
                                                                   .length >
                                                               2 &&
@@ -1171,8 +1169,8 @@ class _PostCardState extends State<PostCard> {
                                           },
                                           child: Stack(
                                             children: [
-                                              Image.asset(
-                                                widget.post.image![i],
+                                              Image.network(
+                                                '${ApiConfig.linkImage}${widget.post.image![i]}',
                                                 width: (MediaQuery.of(context)
                                                             .size
                                                             .width -
@@ -1236,8 +1234,8 @@ class _PostCardState extends State<PostCard> {
                                             arguments: widget.post,
                                           );
                                         },
-                                        child: Image.asset(
-                                          widget.post.image![0],
+                                        child: Image.network(
+                                          '${ApiConfig.linkImage}${widget.post.image![0]}',
                                           width: double.infinity,
                                           height: min(200, leftImageHeight),
                                           fit: BoxFit.cover,
@@ -1306,8 +1304,8 @@ class _PostCardState extends State<PostCard> {
                                                 },
                                                 child: Stack(
                                                   children: [
-                                                    Image.asset(
-                                                      widget.post.image![i],
+                                                    Image.network(
+                                                      '${ApiConfig.linkImage}${widget.post.image![i]}',
                                                       width: (MediaQuery.of(
                                                                       context)
                                                                   .size
@@ -1394,8 +1392,8 @@ class _PostCardState extends State<PostCard> {
                                                   arguments: widget.post,
                                                 );
                                               },
-                                              child: Image.asset(
-                                                widget.post.image![0],
+                                              child: Image.network(
+                                                '${ApiConfig.linkImage}${widget.post.image![0]}',
                                                 width: (MediaQuery.of(context)
                                                             .size
                                                             .width -
@@ -1428,8 +1426,8 @@ class _PostCardState extends State<PostCard> {
                                                       arguments: widget.post,
                                                     );
                                                   },
-                                                  child: Image.asset(
-                                                    widget.post.image![1],
+                                                  child: Image.network(
+                                                    '${ApiConfig.linkImage}${widget.post.image![1]}',
                                                     width:
                                                         (MediaQuery.of(context)
                                                                     .size
@@ -1509,9 +1507,8 @@ class _PostCardState extends State<PostCard> {
                                                         },
                                                         child: Stack(
                                                           children: [
-                                                            Image.asset(
-                                                              widget.post
-                                                                  .image![i],
+                                                            Image.network(
+                                                              '${ApiConfig.linkImage}${widget.post.image![i]}',
                                                               width: (MediaQuery.of(
                                                                               context)
                                                                           .size
@@ -1644,7 +1641,7 @@ class _PostCardState extends State<PostCard> {
                               ),
                             ),
                             Text(
-                              reactions,
+                              reactions!.value,
                               style: const TextStyle(
                                 color: Colors.black54,
                                 fontSize: 14,
@@ -1652,42 +1649,42 @@ class _PostCardState extends State<PostCard> {
                             ),
                           ],
                         ),
-                        Row(
-                          children: [
-                            widget.post.comment != null
-                                ? Text(
-                                    '${widget.post.comment} bình luận',
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.black54,
-                                    ),
-                                  )
-                                : const SizedBox(),
-                            (widget.post.comment != null &&
-                                    widget.post.share != null)
-                                ? const Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 5),
-                                    child: Icon(
-                                      Icons.circle,
-                                      size: 3,
-                                      color: Colors.black54,
-                                    ),
-                                  )
-                                : const SizedBox(),
-                            widget.post.share != null
-                                ? Text(
-                                    '${widget.post.share} lượt chia sẻ',
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.black54,
-                                    ),
-                                  )
-                                : const SizedBox(),
-                          ],
-                        ),
+                        // Row(
+                        //   children: [
+                        //     widget.post.numComment != null
+                        //         ? Text(
+                        //             '${widget.post.numComment} bình luận',
+                        //             style: const TextStyle(
+                        //               fontSize: 14,
+                        //               fontWeight: FontWeight.w400,
+                        //               color: Colors.black54,
+                        //             ),
+                        //           )
+                        //         : const SizedBox(),
+                        //     (widget.post.numComment != null &&
+                        //             widget.post.numShare != null)
+                        //         ? const Padding(
+                        //             padding:
+                        //                 EdgeInsets.symmetric(horizontal: 5),
+                        //             child: Icon(
+                        //               Icons.circle,
+                        //               size: 3,
+                        //               color: Colors.black54,
+                        //             ),
+                        //           )
+                        //         : const SizedBox(),
+                        //     widget.post.numShare != null
+                        //         ? Text(
+                        //             '${widget.post.numShare} lượt chia sẻ',
+                        //             style: const TextStyle(
+                        //               fontSize: 14,
+                        //               fontWeight: FontWeight.w400,
+                        //               color: Colors.black54,
+                        //             ),
+                        //           )
+                        //         : const SizedBox(),
+                        //   ],
+                        // ),
                       ],
                     ),
                   ),

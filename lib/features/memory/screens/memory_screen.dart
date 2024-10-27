@@ -222,7 +222,7 @@ class _MemoryScreenState extends State<MemoryScreen> {
                       right: 10,
                     ),
                   ),
-                  PostCard(post: posts[i]),
+                  // PostCard(post: posts[i]),
                   Row(
                     children: [
                       const SizedBox(

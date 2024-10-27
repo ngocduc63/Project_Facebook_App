@@ -1,8 +1,12 @@
+import 'dart:developer';
+
 import 'package:facebook/constants/app_constants.dart';
+import 'package:facebook/controllers/api_controller.dart';
 import 'package:facebook/features/news-feed/widgets/add_story_card.dart';
 import 'package:facebook/features/news-feed/widgets/post_card.dart';
 import 'package:facebook/features/news-feed/widgets/story_card.dart';
 import 'package:facebook/models/post.dart';
+import 'package:facebook/models/post_model.dart';
 import 'package:facebook/models/story.dart';
 import 'package:facebook/models/user.dart';
 import 'package:facebook/providers/user_provider.dart';
@@ -21,6 +25,8 @@ class NewsFeedScreen extends StatefulWidget {
 
 class _NewsFeedScreenState extends State<NewsFeedScreen> {
   Color colorNewPost = Colors.transparent;
+  final ApiController _apiController = ApiController();
+
   final stories = [
     Story(
       user: User(
@@ -667,12 +673,42 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
     ),
   ];
 
+  List<PostModel> postsNew = [];
+  bool isLoading = true;
+  int page = 1;
+  int limit = 20;
+
   ScrollController scrollController =
       ScrollController(initialScrollOffset: NewsFeedScreen.offset);
 
   @override
   void initState() {
     super.initState();
+    _fetchPosts();
+  }
+
+  Future<void> _fetchPosts() async {
+    try {
+      final response = await _apiController.get(ApiConfig.getPostsForUser, {
+        'page': page,
+        'limit': limit,
+      });
+
+      List<PostModel> postsNewdata = (response.data['metadata']['posts'] as List)
+          .map((post) => PostModel.fromJson(post))
+          .toList();
+
+      setState(() {
+        postsNew = postsNewdata;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      // Xử lý lỗi
+      print('Error fetching posts: $e');
+    }
   }
 
   @override
@@ -683,7 +719,7 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final User user = Provider.of<UserProvider>(context).user;
+    // final User user = Provider.of<UserProvider>(context).user;
     scrollController.addListener(() {
       if (widget.parentScrollController.hasClients) {
         widget.parentScrollController.jumpTo(
@@ -694,9 +730,8 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
       }
     });
 
-    UserServicePref userServicePref =  UserServicePref();
+    UserServicePref userServicePref = UserServicePref();
     final userInfo = userServicePref.getUserInfo;
-    print('USER INFO: $userInfo');
 
     return SingleChildScrollView(
       controller: scrollController,
@@ -712,7 +747,8 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
                     right: 10,
                   ),
                   child: CircleAvatar(
-                    backgroundImage: NetworkImage('${ApiConfig.linkImage}${userInfo?.avatar}'),
+                    backgroundImage: NetworkImage(
+                        '${ApiConfig.linkImage}${userInfo?.avatar}'),
                     radius: 20,
                   ),
                 ),
@@ -802,23 +838,22 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
             height: 5,
             color: Colors.black26,
           ),
-          Column(
-            children: posts
-                .map((e) => Column(
-                      children: [
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        PostCard(post: e),
-                        Container(
-                          width: double.infinity,
-                          height: 5,
-                          color: Colors.black26,
-                        ),
-                      ],
-                    ))
-                .toList(),
-          ),
+          if (!isLoading)
+            ...postsNew.map(
+              (e) => Column(
+                children: [
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  PostCard(post: e),
+                  Container(
+                    width: double.infinity,
+                    height: 5,
+                    color: Colors.black26,
+                  ),
+                ],
+              ),
+            ).toList(),
         ],
       ),
     );

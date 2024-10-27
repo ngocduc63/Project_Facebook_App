@@ -1799,9 +1799,9 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                 Column(
                   children: [
                     const SizedBox(height: 10),
-                    PostCard(
-                      post: user.posts![i],
-                    ),
+                    // PostCard(
+                    //   post: user.posts![i],
+                    // ),
                     Container(
                       width: double.infinity,
                       height: 5,

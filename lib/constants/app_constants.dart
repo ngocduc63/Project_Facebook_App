@@ -5,6 +5,7 @@ class AppConstants {
 }
 
 class ApiConfig {
-  static const String api = 'http://192.168.0.106:3055';
-  static const String linkImage = '$api/api/user/image/';
+  static const String api = 'http://192.168.0.101:3055/api';
+  static const String linkImage = '$api/user/image/';
+  static const String getPostsForUser = '$api/post/posts-for-user';
 }
