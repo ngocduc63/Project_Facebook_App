@@ -64,14 +64,12 @@ class _PostCardState extends State<PostCard> {
   }
 
   Future<void> handleChangeLike(Emotion likeCategory) async {
+    final check = await userController.updateLikePostController(
+        widget.post.id, likeCategory);
 
-      final check =
-          await userController.updateLikePostController(widget.post.id, likeCategory);
-
-      if (check) {
-        await setUserHasLike(likeCategory);
-      }
-   
+    if (check) {
+      await setUserHasLike(likeCategory);
+    }
   }
 
   Future<void> setUserHasLike(Emotion? react) async {
@@ -121,26 +119,11 @@ class _PostCardState extends State<PostCard> {
     });
   }
 
-
   @override
   void initState() {
     super.initState();
-    setUserHasLike(widget.post.reaction);
-    // List<int> list = [
-    //   widget.post.like != null ? widget.post.like! : 0,
-    //   widget.post.haha != null ? widget.post.haha! : 0,
-    //   widget.post.love != null ? widget.post.love! : 0,
-    //   widget.post.lovelove != null ? widget.post.lovelove! : 0,
-    //   widget.post.wow != null ? widget.post.wow! : 0,
-    //   widget.post.sad != null ? widget.post.sad! : 0,
-    //   widget.post.angry != null ? widget.post.angry! : 0
-    // ];
-    // list.sort((a, b) => b - a);
-    // int sum = 0;
-    // for (int i = 0; i < list.length; i++) {
-    //   sum += list[i];
-    // }
 
+    setUserHasLike(widget.post.reaction);
     setState(() {
       final reactions = widget.post.reactions;
       icons = [];
@@ -1854,49 +1837,6 @@ class _PostCardState extends State<PostCard> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // InkWell(
-                    //   onTap: () async {
-                    //     await handleLike(null); // Gọi hàm xử lý khi nhấn
-                    //   },
-                    //   onLongPress: () => {
-
-                    //   },
-                    //   child: Container(
-                    //     padding: const EdgeInsets.symmetric(
-                    //       vertical: 11.5,
-                    //     ),
-                    //     alignment: Alignment.center,
-                    //     width: (MediaQuery.of(context).size.width) / 3,
-                    //     child: isLoadingLike
-                    //         ? SizedBox(
-                    //             height: 24,
-                    //             width: 24,
-                    //             child: const CircularProgressIndicator(
-                    //               color: GlobalVariables.secondaryColor,
-                    //             ),
-                    //           )
-                    //         : Row(
-                    //             mainAxisAlignment: MainAxisAlignment.center,
-                    //             children: [
-                    //               Image.asset(
-                    //                 userHasLike['image'],
-                    //                 width: 24,
-                    //               ),
-                    //               Padding(
-                    //                 padding: const EdgeInsets.only(left: 10),
-                    //                 child: Text(
-                    //                   userHasLike['text'],
-                    //                   style: TextStyle(
-                    //                     fontSize: 15,
-                    //                     color: userHasLike['color'],
-                    //                     fontWeight: FontWeight.bold,
-                    //                   ),
-                    //                 ),
-                    //               ),
-                    //             ],
-                    //           ),
-                    //   ),
-                    // ),
                     ReactionButton(
                       initialReaction: widget.post.reaction ?? Emotion.none,
                       onReactionChanged: (reaction) {
