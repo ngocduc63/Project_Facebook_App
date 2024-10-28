@@ -58,4 +58,5 @@ const _$EmotionEnumMap = {
   Emotion.lovelove: 'LOVELOVE',
   Emotion.angry: 'ANGRY',
   Emotion.wow: 'WOW',
+  Emotion.none: 'none',
 };

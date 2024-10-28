@@ -1,6 +1,9 @@
+import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/enum_common.dart';
+import 'package:facebook/controllers/api_controller.dart';
 import 'package:facebook/features/comment/widgets/single_comment.dart';
 import 'package:facebook/models/comment.dart';
+import 'package:facebook/models/comment_model.dart';
 import 'package:facebook/models/post_model.dart';
 import 'package:facebook/models/user.dart';
 import 'package:flutter/material.dart';
@@ -14,13 +17,12 @@ class CommentScreen extends StatefulWidget {
   State<CommentScreen> createState() => _CommentScreenState();
 }
 
-enum SortingOption { fit, newest, all }
-
 class _CommentScreenState extends State<CommentScreen> {
+  ApiController _apiController = ApiController();
   List<String> icons = [];
   String reactions = '0';
   bool isInWidgetTree = true;
-  SortingOption _sortingOption = SortingOption.fit;
+  final List<CommentModel> listCommnets = [];
 
   final List<Comment> comments = [
     Comment(
@@ -94,9 +96,28 @@ class _CommentScreenState extends State<CommentScreen> {
     ),
   ];
 
+  Future<void> _fetchComments(String? parentId) async {
+    final response = await _apiController.get(ApiConfig.getComments, {
+      "postId": widget.post.id,
+      "parentId": parentId
+    });
+
+    
+    List<CommentModel> data =
+        (response.data['metadata'] as List)
+            .map((comment) => CommentModel.fromJson(comment))
+            .toList();
+
+    setState(() {
+      listCommnets.addAll(data);
+    });
+  }
+
+
   @override
   void initState() {
     setState(() {
+      _fetchComments("");
       final reactions = widget.post.reactions;
       icons = [];
       if (reactions != null && reactions.isNotEmpty) {
@@ -294,9 +315,9 @@ class _CommentScreenState extends State<CommentScreen> {
                               child: SingleChildScrollView(
                                 child: Column(
                                   children: [
-                                    for (int i = 0; i < comments.length; i++)
+                                    for (int i = 0; i < listCommnets.length; i++)
                                       SingleComment(
-                                        comment: comments[i],
+                                        comment: listCommnets[i],
                                         level: 0,
                                       ),
                                   ],

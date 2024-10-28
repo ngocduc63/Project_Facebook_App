@@ -1,10 +1,14 @@
 import 'dart:math';
 
-import 'package:facebook/models/comment.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:facebook/constants/app_constants.dart';
+import 'package:facebook/controllers/auth_controller/login_controller.dart';
+import 'package:facebook/models/comment_model.dart';
+import 'package:facebook/utils/convert_time.dart';
 import 'package:flutter/material.dart';
 
 class SingleComment extends StatefulWidget {
-  final Comment comment;
+  final CommentModel comment;
   final int level;
   const SingleComment({super.key, required this.comment, required this.level});
 
@@ -27,9 +31,7 @@ class _SingleCommentState extends State<SingleComment> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      
-    });
+    setState(() {});
   }
 
   @override
@@ -62,7 +64,8 @@ class _SingleCommentState extends State<SingleComment> {
                   shape: BoxShape.circle,
                 ),
                 child: CircleAvatar(
-                  backgroundImage: AssetImage(widget.comment.user.avatar),
+                  backgroundImage: CachedNetworkImageProvider(
+                      '${ApiConfig.linkImage}${widget.comment.user.avatar}'),
                   radius: widget.level > 0 ? 15 : 20,
                 ),
               ),
@@ -84,7 +87,7 @@ class _SingleCommentState extends State<SingleComment> {
                                 overflow: TextOverflow.visible,
                               ),
                             ).width +
-                            20,
+                            30,
                       ),
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
@@ -191,7 +194,7 @@ class _SingleCommentState extends State<SingleComment> {
                 width: widget.level == 0 ? 50 : 40,
               ),
               Text(
-                widget.comment.time,
+                convertToTimeAgo(widget.comment.time),
                 style: const TextStyle(fontSize: 16, color: Colors.black54),
               ),
               const SizedBox(
@@ -202,7 +205,7 @@ class _SingleCommentState extends State<SingleComment> {
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.black54,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(
@@ -210,7 +213,7 @@ class _SingleCommentState extends State<SingleComment> {
               ),
             ],
           ),
-          if (widget.comment.replies.isNotEmpty && !viewReplies)
+          if (widget.comment.countChild! > 0 && !viewReplies)
             Padding(
               padding: const EdgeInsets.only(top: 5, left: 40),
               child: InkWell(
@@ -220,7 +223,7 @@ class _SingleCommentState extends State<SingleComment> {
                   });
                 },
                 child: Text(
-                  'Xem ${widget.comment.replies.length} phản hồi',
+                  'Xem ${widget.comment.countChild} phản hồi',
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
@@ -228,12 +231,12 @@ class _SingleCommentState extends State<SingleComment> {
                 ),
               ),
             ),
-          if (viewReplies)
-            for (int i = 0; i < widget.comment.replies.length; i++)
-              SingleComment(
-                comment: widget.comment.replies[i],
-                level: widget.level + 1,
-              ),
+          // if (viewReplies)
+          //   for (int i = 0; i < widget.comment.replies.length; i++)
+          //     SingleComment(
+          //       comment: widget.comment.replies[i],
+          //       level: widget.level + 1,
+          //     ),
         ],
       ),
     );
