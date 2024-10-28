@@ -1,83 +1,21 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:facebook/constants/app_constants.dart';
+import 'package:facebook/models/post_model.dart';
 import 'package:flutter/material.dart';
 
-import '../../../models/post.dart';
 import '../../comment/screens/comment_screen.dart';
 import '../screen/image_fullscreen.dart';
 
 class SingleImage extends StatelessWidget {
-  final Post post;
+  final PostModel post;
   const SingleImage({super.key, required this.post});
 
   @override
   Widget build(BuildContext context) {
     List<String> icons = [];
     String reactions = '0';
-    List<int> list = [
-      post.like != null ? post.like! : 0,
-      post.haha != null ? post.haha! : 0,
-      post.love != null ? post.love! : 0,
-      post.lovelove != null ? post.lovelove! : 0,
-      post.wow != null ? post.wow! : 0,
-      post.sad != null ? post.sad! : 0,
-      post.angry != null ? post.angry! : 0
-    ];
-    list.sort((a, b) => b - a);
-    int sum = 0;
-    for (int i = 0; i < list.length; i++) {
-      sum += list[i];
-    }
     reactions = '';
-    String tmp = sum.toString();
-    int x = 0;
-    for (int i = tmp.length - 1; i > 0; i--) {
-      x++;
-      reactions = '${tmp[i]}$reactions';
-      if (x == 3) reactions = '.$reactions';
-    }
-    reactions = '${tmp[0]}$reactions';
-    icons = [];
-    if (list[0] > 0) {
-      if (list[0] == post.like) {
-        icons.add('assets/images/reactions/like.png');
-      } else if (list[0] == post.haha) {
-        icons.add('assets/images/reactions/haha.png');
-      } else if (list[0] == post.love) {
-        icons.add('assets/images/reactions/love.png');
-      } else if (list[0] == post.lovelove) {
-        icons.add('assets/images/reactions/care.png');
-      } else if (list[0] == post.wow) {
-        icons.add('assets/images/reactions/wow.png');
-      } else if (list[0] == post.sad) {
-        icons.add('assets/images/reactions/sad.png');
-      } else if (list[0] == post.angry) {
-        icons.add('assets/images/reactions/angry.png');
-      }
-    }
-
-    if (list[1] > 0) {
-      if (list[1] == post.like &&
-          icons[0] != 'assets/images/reactions/like.png') {
-        icons.add('assets/images/reactions/like.png');
-      } else if (list[1] == post.haha &&
-          icons[0] != 'assets/images/reactions/haha.png') {
-        icons.add('assets/images/reactions/haha.png');
-      } else if (list[1] == post.love &&
-          icons[0] != 'assets/images/reactions/love.png') {
-        icons.add('assets/images/reactions/love.png');
-      } else if (list[1] == post.lovelove &&
-          icons[0] != 'assets/images/reactions/care.png') {
-        icons.add('assets/images/reactions/care.png');
-      } else if (list[1] == post.wow &&
-          icons[0] != 'assets/images/reactions/wow.png') {
-        icons.add('assets/images/reactions/wow.png');
-      } else if (list[1] == post.sad &&
-          icons[0] != 'assets/images/reactions/sad.png') {
-        icons.add('assets/images/reactions/sad.png');
-      } else if (list[1] == post.angry &&
-          icons[0] != 'assets/images/reactions/angry.png') {
-        icons.add('assets/images/reactions/angry.png');
-      }
-    }
+    
     return Column(
       children: [
         GestureDetector(
@@ -85,8 +23,8 @@ class SingleImage extends StatelessWidget {
             Navigator.pushNamed(context, ImageFullScreen.routeName,
                 arguments: post);
           },
-          child: Image.asset(
-            post.image![0],
+          child: Image.network(
+            '${ApiConfig.linkImage}${post.image![0]}',
             fit: BoxFit.cover,
           ),
         ),
@@ -161,9 +99,9 @@ class SingleImage extends StatelessWidget {
                 ),
                 Row(
                   children: [
-                    post.comment != null
+                    post.numComment != null
                         ? Text(
-                            '${post.comment} bình luận',
+                            '${post.numComment} bình luận',
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
@@ -171,7 +109,7 @@ class SingleImage extends StatelessWidget {
                             ),
                           )
                         : const SizedBox(),
-                    (post.comment != null && post.share != null)
+                    (post.numComment != null && post.numShare != null)
                         ? const Padding(
                             padding: EdgeInsets.symmetric(horizontal: 5),
                             child: Icon(
@@ -181,9 +119,9 @@ class SingleImage extends StatelessWidget {
                             ),
                           )
                         : const SizedBox(),
-                    post.share != null
+                    post.numShare != null
                         ? Text(
-                            '${post.share} lượt chia sẻ',
+                            '${post.numShare} lượt chia sẻ',
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
@@ -197,6 +135,7 @@ class SingleImage extends StatelessWidget {
             ),
           ),
         ),
+        
         Container(
           margin: const EdgeInsets.only(
             top: 5,

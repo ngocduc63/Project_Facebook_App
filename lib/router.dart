@@ -11,6 +11,7 @@ import 'package:facebook/features/news-feed/screen/multiple_images_post_screen.d
 import 'package:facebook/features/news-feed/widgets/story_details.dart';
 import 'package:facebook/features/personal-page/screens/personal_page_screen.dart';
 import 'package:facebook/models/post.dart';
+import 'package:facebook/models/post_model.dart';
 import 'package:facebook/models/product.dart';
 import 'package:facebook/models/story.dart';
 import 'package:facebook/models/user.dart';
@@ -76,7 +77,7 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
         },
       );
     case ImageFullScreen.routeName:
-      final Post post = routeSettings.arguments as Post;
+      final PostModel post = routeSettings.arguments as PostModel;
       return PageRouteBuilder(
         opaque: false,
         pageBuilder: (context, animation, secondaryAnimation) =>
@@ -91,7 +92,7 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
         },
       );
     case MultipleImagesPostScreen.routeName:
-      final Post post = routeSettings.arguments as Post;
+      final PostModel post = routeSettings.arguments as PostModel;
       return PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
             MultipleImagesPostScreen(

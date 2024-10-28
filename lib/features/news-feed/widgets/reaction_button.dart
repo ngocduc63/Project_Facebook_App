@@ -177,7 +177,6 @@ class _ReactionButtonState extends State<ReactionButton> {
             isLoadingLike = true;
           });
 
-          widget.handleLike!();
           if (_reactionView) {
             onCloseOverlay();
             setState(() {
@@ -195,6 +194,8 @@ class _ReactionButtonState extends State<ReactionButton> {
             if (widget.onReactionChanged != null) {
               widget.onReactionChanged!(_reaction);
             }
+            
+            widget.handleLike!();
           }
           
           setState(() {

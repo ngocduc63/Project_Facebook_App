@@ -73,6 +73,11 @@ class PostModel {
     Emotion? reaction,
     String? layout,
     String? type,
+    bool? hasLiked,
+    bool? isFriend,
+    int? numComment,
+    int? numLike,
+    int? numShare,
   }) {
     return PostModel(
       id: id ?? this.id,
@@ -86,6 +91,11 @@ class PostModel {
       reaction: reaction ?? this.reaction,
       layout: layout ?? this.layout,
       type: type ?? this.type,
+      hasLiked: hasLiked ?? this.hasLiked,
+      isFriend: isFriend ?? this.isFriend,
+      numLike: numLike ?? this.numLike,
+      numComment: numComment ?? this.numComment,
+      numShare: numShare ?? this.numShare,
     );
   }
 }
