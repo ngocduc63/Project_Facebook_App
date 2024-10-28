@@ -56,7 +56,7 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
         },
       );
     case CommentScreen.routeName:
-      final Post post = routeSettings.arguments as Post;
+      final PostModel post = routeSettings.arguments as PostModel;
       return PageRouteBuilder(
         opaque: false,
         pageBuilder: (context, animation, secondaryAnimation) => CommentScreen(
