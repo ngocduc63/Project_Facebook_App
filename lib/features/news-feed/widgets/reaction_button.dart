@@ -1,4 +1,5 @@
 import 'package:facebook/constants/enum_common.dart';
+import 'package:facebook/constants/global_variables.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
@@ -10,11 +11,13 @@ class ReactionButton extends StatefulWidget {
     this.initialReaction,
     this.onReactionChanged,
     this.userHasLike,
+    this.handleLike,
   }) : super(key: key);
 
   final Emotion? initialReaction;
   final OnButtonPressedCallback? onReactionChanged;
   final Map<String, dynamic>? userHasLike;
+  final Future<void> Function()? handleLike;
 
   @override
   State<ReactionButton> createState() => _ReactionButtonState();
@@ -23,6 +26,7 @@ class ReactionButton extends StatefulWidget {
 class _ReactionButtonState extends State<ReactionButton> {
   Emotion _reaction = Emotion.none;
   bool _reactionView = false;
+  bool isLoadingLike = false;
 
   late OverlayEntry overlayEntry;
 
@@ -93,7 +97,8 @@ class _ReactionButtonState extends State<ReactionButton> {
   void _showReactionPopUp(BuildContext context) {
     final renderBox = _key.currentContext?.findRenderObject() as RenderBox?;
     final position = renderBox?.localToGlobal(Offset.zero);
-    final tapPosition = position != null ? Offset(position.dx, position.dy) : Offset.zero;
+    final tapPosition =
+        position != null ? Offset(position.dx, position.dy) : Offset.zero;
 
     final screenWidth = MediaQuery.of(context).size.width;
     double left = tapPosition.dx;
@@ -129,13 +134,19 @@ class _ReactionButtonState extends State<ReactionButton> {
                       child: IconButton(
                         onPressed: () {
                           setState(() {
+                            isLoadingLike = true;
                             _reaction = reactions[index].reaction;
                             if (widget.onReactionChanged != null) {
                               widget.onReactionChanged!(_reaction);
                             }
                             _reactionView = false;
                           });
+
                           onCloseOverlay();
+
+                          setState(() {
+                            isLoadingLike = false;
+                          });
                         },
                         icon: reactions[index].icon,
                       ),
@@ -162,6 +173,11 @@ class _ReactionButtonState extends State<ReactionButton> {
       },
       child: InkWell(
         onTap: () {
+          setState(() {
+            isLoadingLike = true;
+          });
+
+          widget.handleLike!();
           if (_reactionView) {
             onCloseOverlay();
             setState(() {
@@ -179,30 +195,42 @@ class _ReactionButtonState extends State<ReactionButton> {
             if (widget.onReactionChanged != null) {
               widget.onReactionChanged!(_reaction);
             }
-
-            setState(() {});
           }
+          
+          setState(() {
+            isLoadingLike = false;
+          });
         },
         child: Container(
           key: _key, // Gán GlobalKey cho Container
           padding: const EdgeInsets.symmetric(vertical: 11.5),
           alignment: Alignment.center,
           width: (MediaQuery.of(context).size.width) / 3,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ReactionIcon(reaction: _reaction),
-              const SizedBox(width: 8),
-              Text(
-                widget.userHasLike?['text'] ?? '',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: widget.userHasLike?['isLiked'] == true ? FontWeight.bold : FontWeight.normal,
-                  color: widget.userHasLike?['color'] ?? Colors.black,
+          child: isLoadingLike
+              ? SizedBox(
+                  height: 24,
+                  width: 24,
+                  child: const CircularProgressIndicator(
+                    color: GlobalVariables.secondaryColor,
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ReactionIcon(reaction: _reaction),
+                    const SizedBox(width: 8),
+                    Text(
+                      widget.userHasLike?['text'] ?? '',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: widget.userHasLike?['isLiked'] == true
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                        color: widget.userHasLike?['color'] ?? Colors.black,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
         ),
       ),
     );

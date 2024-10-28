@@ -38,7 +38,7 @@ class _PostCardState extends State<PostCard> {
     'isLiked': false,
   };
 
-  Future<void> handleLike(var selectedValue) async {
+  Future<void> handleLike() async {
     setState(() {
       isLoadingLike = true;
     });
@@ -61,6 +61,17 @@ class _PostCardState extends State<PostCard> {
     setState(() {
       isLoadingLike = false;
     });
+  }
+
+  Future<void> handleChangeLike(Emotion likeCategory) async {
+
+      final check =
+          await userController.updateLikePostController(widget.post.id, likeCategory);
+
+      if (check) {
+        await setUserHasLike(likeCategory);
+      }
+   
   }
 
   Future<void> setUserHasLike(Emotion? react) async {
@@ -1889,9 +1900,10 @@ class _PostCardState extends State<PostCard> {
                     ReactionButton(
                       initialReaction: widget.post.reaction ?? Emotion.none,
                       onReactionChanged: (reaction) {
-                        print(reaction.name);
+                        handleChangeLike(reaction);
                       },
                       userHasLike: userHasLike,
+                      handleLike: handleLike,
                     ),
                     InkWell(
                       onTap: () {},

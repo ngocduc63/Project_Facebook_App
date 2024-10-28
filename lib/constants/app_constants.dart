@@ -9,5 +9,6 @@ class ApiConfig {
   static const String linkImage = '$api/user/image/';
   static const String getPostsForUser = '$api/post/posts-for-user';
   static const String likePost = '$api/post/create-like';
+  static const String updateLikePost = '$api/post/update-like';
   static const String unLikePost = '$api/post/delete-like';
 }
