@@ -32,7 +32,7 @@ class ApiController {
         return handler.next(options);
       },
       onError: (DioException error, ErrorInterceptorHandler handler) async {
-        if (error.response?.statusCode == 403) {
+        if (error.response?.statusCode == 407) {
           // If JWT is expired, try refreshing the token
           try {
             await _refreshToken();
@@ -107,14 +107,12 @@ class ApiController {
       });
       
       // Update the token if refresh is successful
-      String newTokens = jsonEncode(response.data['tokens']);
-      String accessToken = response.data['tokens']['accessToken'];
+      String newTokens = jsonEncode(response.data['metadata']['tokens']);
+
+    //  errorcode == 403 => logout
 
       // Save the new token using UserServicePref
       await _userServicePref.saveToken(newTokens);
-      
-      // Update Dio headers with the new token
-      _dio.options.headers['authorization'] = accessToken;
     } catch (e) {
       throw Exception('Failed to refresh token');
     }
