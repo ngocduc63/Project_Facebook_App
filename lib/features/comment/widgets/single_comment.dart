@@ -31,6 +31,11 @@ class _SingleCommentState extends State<SingleComment> {
   List<CommentModel> listChildComments = [];
   ApiController _apiController = ApiController();
   bool isLoading = false;
+  bool isLoadingMore = false;
+  bool hasNextPage = true;
+  int page = 0;
+  int limit = 5;
+  int totalComments = 0;
 
   @override
   void initState() {
@@ -42,26 +47,60 @@ class _SingleCommentState extends State<SingleComment> {
 
   Future<void> _fetchChildComments() async {
     setState(() {
-      isLoading = true;
+      page++;
+      if (page == 1) {
+        isLoading = true;
+      } else {
+        isLoadingMore = true;
+      }
     });
 
     final response = await _apiController.get(ApiConfig.getComments, {
       "postId": widget.comment.postId,
-      "parentCommentId": widget.comment.id
+      "parentCommentId": widget.comment.id,
+      "page": page,
+      "limit": limit,
     });
 
-    List<CommentModel> data = (response.data['metadata'] as List)
+    List<CommentModel> data = (response.data['metadata']['comments'] as List)
         .map((comment) => CommentModel.fromJson(comment))
         .toList();
 
     setState(() {
       listChildComments.addAll(data);
       isLoading = false;
+      hasNextPage = response.data['metadata']['totalPage'] > page;
+      totalComments = response.data['metadata']['totalComments'];
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    double minContent = min(
+      MediaQuery.of(context).size.width -
+          15 * 2 -
+          20 * 2 -
+          5 -
+          70 * widget.level,
+      _textSize(
+            widget.comment.content,
+            const TextStyle(
+              fontSize: 16,
+              overflow: TextOverflow.visible,
+            ),
+          ).width +
+          30,
+    );
+
+    double minName = _textSize(
+          widget.comment.user.name,
+          const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ).width +
+        30;
+
     return Padding(
       padding: widget.level == 0
           ? const EdgeInsets.symmetric(
@@ -100,21 +139,7 @@ class _SingleCommentState extends State<SingleComment> {
               ),
               (widget.comment.content.isNotEmpty)
                   ? Container(
-                      width: min(
-                        MediaQuery.of(context).size.width -
-                            15 * 2 -
-                            20 * 2 -
-                            5 -
-                            70 * widget.level,
-                        _textSize(
-                              widget.comment.content,
-                              const TextStyle(
-                                fontSize: 16,
-                                overflow: TextOverflow.visible,
-                              ),
-                            ).width +
-                            30,
-                      ),
+                      width: minContent < minName ? minName : minContent,
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: Colors.grey[200],
@@ -250,7 +275,7 @@ class _SingleCommentState extends State<SingleComment> {
                   await _fetchChildComments();
                 },
                 child: Text(
-                  'Xem ${widget.comment.countChild} phản hồi',
+                  'Xem ${widget.comment.countChild!} phản hồi',
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
@@ -263,8 +288,8 @@ class _SingleCommentState extends State<SingleComment> {
                 ? Padding(
                     padding: const EdgeInsets.only(top: 10, left: 40),
                     child: SizedBox(
-                      width: 20, 
-                      height: 20, 
+                      width: 20,
+                      height: 20,
                       child: CircularProgressIndicator(
                         color: GlobalVariables.secondaryColor,
                         strokeWidth: 2,
@@ -279,24 +304,52 @@ class _SingleCommentState extends State<SingleComment> {
                           level: widget.level + 1,
                         ),
                       Padding(
-                        padding: const EdgeInsets.only(top: 5, right: 300),
-                        child: InkWell(
-                          onTap: () async {
-                            setState(() {
-                              viewReplies = false;
-                              listChildComments = [];
-                              isLoading = false;
-                            });
-                          },
-                          child: Text(
-                            'Ẩn phản hồi',
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
+                          padding: const EdgeInsets.only(top: 5, right: 300),
+                          child: Column(children: [
+                            if (widget.comment.countChild! - page * limit > 0)
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 5,
+                                  bottom: 15,
+                                ),
+                                child: InkWell(
+                                    onTap: () async {
+                                      setState(() {
+                                        _fetchChildComments();
+                                      });
+                                    },
+                                    child: Text(
+                                      'Xem tiếp ${widget.comment.countChild! - page * limit} phản hồi',
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    )
+                                  ),
+                              ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 5,
+                                bottom: 15,
+                              ),
+                              child: InkWell(
+                                  onTap: () async {
+                                    setState(() {
+                                      viewReplies = false;
+                                      listChildComments = [];
+                                      page = 0;
+                                      isLoading = false;
+                                    });
+                                  },
+                                  child: Text(
+                                    'Ẩn phản hồi',
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  )),
+                            )
+                          ])),
                     ],
                   )
         ],

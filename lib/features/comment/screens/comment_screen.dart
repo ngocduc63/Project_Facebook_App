@@ -18,23 +18,32 @@ class CommentScreen extends StatefulWidget {
 
 class _CommentScreenState extends State<CommentScreen> {
   ApiController _apiController = ApiController();
+  ScrollController scrollController = ScrollController();
   List<String> icons = [];
   bool isInWidgetTree = true;
   final List<CommentModel> listCommnets = [];
   bool isLoading = true;
+  bool isLoadingMore = false;
+  bool hasNextPage = true;
+  int page = 0;
+  int limit = 20;
 
   Future<void> _fetchComments() async {
+    page++;
     final response = await _apiController.get(ApiConfig.getComments, {
       "postId": widget.post.id,
+      "page": page,
+      "limit": limit,
     });
 
-    List<CommentModel> data = (response.data['metadata'] as List)
+    List<CommentModel> data = (response.data['metadata']['comments'] as List)
         .map((comment) => CommentModel.fromJson(comment))
         .toList();
 
     setState(() {
       listCommnets.addAll(data);
       isLoading = false;
+      hasNextPage = response.data['metadata']['totalPage'] > page;
     });
   }
 
@@ -72,7 +81,23 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    scrollController.addListener(() {
+      if (scrollController.position.pixels ==
+              scrollController.position.maxScrollExtent &&
+          !isLoading &&
+          !isLoadingMore &&
+          hasNextPage) {
+        _fetchComments();
+      }
+    });
+
     return isInWidgetTree
         ? Dismissible(
             direction: DismissDirection.down,
@@ -222,24 +247,30 @@ class _CommentScreenState extends State<CommentScreen> {
                               ),
                             ),
                             Expanded(
-                              child: isLoading
-                                  ? const Center(
-                                      child: CircularProgressIndicator(color: GlobalVariables.secondaryColor,),
-                                    )
-                                  : SingleChildScrollView(
-                                      child: Column(
-                                        children: [
-                                          for (int i = 0;
-                                              i < listCommnets.length;
-                                              i++)
-                                            SingleComment(
-                                              comment: listCommnets[i],
-                                              level: 0,
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                            ),
+                                child: isLoading
+                                    ? const Center(
+                                        child: CircularProgressIndicator(
+                                          color: GlobalVariables.secondaryColor,
+                                        ),
+                                      )
+                                    : SingleChildScrollView(
+                                        controller: scrollController,
+                                        child: Padding(
+                                          padding:
+                                              const EdgeInsets.only(bottom: 15),
+                                          child: Column(
+                                            children: [
+                                              for (int i = 0;
+                                                  i < listCommnets.length;
+                                                  i++)
+                                                SingleComment(
+                                                  comment: listCommnets[i],
+                                                  level: 0,
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      )),
                           ],
                         ),
                       ),

@@ -77,6 +77,7 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
   bool isLoadingMore = false;
   int page = 0;
   int limit = 20;
+  bool hasNextPage = true;
 
   ScrollController scrollController =
       ScrollController(initialScrollOffset: NewsFeedScreen.offset);
@@ -109,10 +110,13 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
               .map((post) => PostModel.fromJson(post))
               .toList();
 
+      bool checkNextPage = response.data['metadata']['totalPage'] > page;
+
       setState(() {
         postsNew.addAll(postsNewdata);
         isLoading = false;
         isLoadingMore = false;
+        hasNextPage = checkNextPage;
       });
     } catch (e) {
       setState(() {
@@ -145,7 +149,7 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
       if (scrollController.position.pixels ==
               scrollController.position.maxScrollExtent &&
           !isLoading &&
-          !isLoadingMore) {
+          !isLoadingMore && hasNextPage) {
         _fetchPosts();
       }
     });
