@@ -2,7 +2,8 @@ import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:facebook/constants/app_constants.dart';
-import 'package:facebook/controllers/auth_controller/login_controller.dart';
+import 'package:facebook/constants/global_variables.dart';
+import 'package:facebook/controllers/api_controller.dart';
 import 'package:facebook/models/comment_model.dart';
 import 'package:facebook/utils/convert_time.dart';
 import 'package:flutter/material.dart';
@@ -27,11 +28,36 @@ Size _textSize(String text, TextStyle style) {
 
 class _SingleCommentState extends State<SingleComment> {
   bool viewReplies = false;
+  List<CommentModel> listChildComments = [];
+  ApiController _apiController = ApiController();
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    setState(() {});
+    setState(() {
+      listChildComments = [];
+    });
+  }
+
+  Future<void> _fetchChildComments() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final response = await _apiController.get(ApiConfig.getComments, {
+      "postId": widget.comment.postId,
+      "parentCommentId": widget.comment.id
+    });
+
+    List<CommentModel> data = (response.data['metadata'] as List)
+        .map((comment) => CommentModel.fromJson(comment))
+        .toList();
+
+    setState(() {
+      listChildComments.addAll(data);
+      isLoading = false;
+    });
   }
 
   @override
@@ -79,7 +105,7 @@ class _SingleCommentState extends State<SingleComment> {
                             15 * 2 -
                             20 * 2 -
                             5 -
-                            35 * widget.level,
+                            70 * widget.level,
                         _textSize(
                               widget.comment.content,
                               const TextStyle(
@@ -217,10 +243,11 @@ class _SingleCommentState extends State<SingleComment> {
             Padding(
               padding: const EdgeInsets.only(top: 5, left: 40),
               child: InkWell(
-                onTap: () {
+                onTap: () async {
                   setState(() {
                     viewReplies = true;
                   });
+                  await _fetchChildComments();
                 },
                 child: Text(
                   'Xem ${widget.comment.countChild} phản hồi',
@@ -231,12 +258,47 @@ class _SingleCommentState extends State<SingleComment> {
                 ),
               ),
             ),
-          // if (viewReplies)
-          //   for (int i = 0; i < widget.comment.replies.length; i++)
-          //     SingleComment(
-          //       comment: widget.comment.replies[i],
-          //       level: widget.level + 1,
-          //     ),
+          if (viewReplies)
+            isLoading
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 10, left: 40),
+                    child: SizedBox(
+                      width: 20, 
+                      height: 20, 
+                      child: CircularProgressIndicator(
+                        color: GlobalVariables.secondaryColor,
+                        strokeWidth: 2,
+                      ),
+                    ),
+                  )
+                : Column(
+                    children: [
+                      for (int i = 0; i < listChildComments.length; i++)
+                        SingleComment(
+                          comment: listChildComments[i],
+                          level: widget.level + 1,
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 5, right: 300),
+                        child: InkWell(
+                          onTap: () async {
+                            setState(() {
+                              viewReplies = false;
+                              listChildComments = [];
+                              isLoading = false;
+                            });
+                          },
+                          child: Text(
+                            'Ẩn phản hồi',
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
         ],
       ),
     );

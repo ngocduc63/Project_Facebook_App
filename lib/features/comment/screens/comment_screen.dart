@@ -1,11 +1,10 @@
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/enum_common.dart';
+import 'package:facebook/constants/global_variables.dart';
 import 'package:facebook/controllers/api_controller.dart';
 import 'package:facebook/features/comment/widgets/single_comment.dart';
-import 'package:facebook/models/comment.dart';
 import 'package:facebook/models/comment_model.dart';
 import 'package:facebook/models/post_model.dart';
-import 'package:facebook/models/user.dart';
 import 'package:flutter/material.dart';
 
 class CommentScreen extends StatefulWidget {
@@ -20,104 +19,29 @@ class CommentScreen extends StatefulWidget {
 class _CommentScreenState extends State<CommentScreen> {
   ApiController _apiController = ApiController();
   List<String> icons = [];
-  String reactions = '0';
   bool isInWidgetTree = true;
   final List<CommentModel> listCommnets = [];
+  bool isLoading = true;
 
-  final List<Comment> comments = [
-    Comment(
-      user: User(
-          name: 'Khánh Vy',
-          avatar: 'assets/images/user/khanhvy.jpg',
-          verified: true),
-      content: 'Kỉ niệm được makeup ở Hàn của tuiii',
-      time: '1 tuần',
-      like: 37,
-      love: 37,
-      lovelove: 3,
-      haha: 2,
-      wow: 1,
-      replies: [
-        Comment(
-          user: User(
-              name: 'Vương Hồng Thúy',
-              avatar: 'assets/images/user/vuonghongthuy.jpg'),
-          content: 'ủa mà chị cao mét bn vậy ạ',
-          time: '1 tuần',
-          replies: [],
-        ),
-        Comment(
-          user: User(
-              name: 'Đài Phát Thanh',
-              avatar: 'assets/images/user/daiphatthanh.jpg'),
-          content: 'xinh đẹp tuyệt vời 🙆‍♀️',
-          time: '1 tuần',
-          replies: [],
-        ),
-      ],
-    ),
-    Comment(
-      user: User(
-          name: 'Minh Hương',
-          avatar: 'assets/images/user/minhhuong.jpg',
-          verified: true),
-      content: 'Sai từ phone kìa chị ơiiii😭😭😭',
-      time: '1 tuần',
-      replies: [
-        Comment(
-          user: User(
-              name: 'Khánh Vy',
-              avatar: 'assets/images/user/khanhvy.jpg',
-              verified: true),
-          content: 'ui chùi gõ lộn tui gõ lại rùii hihi',
-          time: '1 tuần',
-          love: 2,
-          lovelove: 2,
-          replies: [],
-        ),
-      ],
-    ),
-    Comment(
-      user: User(name: 'Hà Linhh', avatar: 'assets/images/user/halinh.jpg'),
-      content: '',
-      time: '1 tuần',
-      image: 'assets/images/two-bears-love.png',
-      replies: [],
-    ),
-    Comment(
-      user: User(
-          name: 'Nguyễn Thị Minh Tuyền',
-          avatar: 'assets/images/user/minhtuyen.jpg'),
-      content:
-          'Chị Vy nhìn đáng yêu quá chừng luôn đó😘😘😘Chúc chị Vy có một ngày mới thật tốt lành và nhiều năng lượng nha❤️❤️❤️Thích chịiii😘😘😘',
-      time: '1 tuần',
-      image: 'assets/images/post/13.jpg',
-      replies: [],
-    ),
-  ];
-
-  Future<void> _fetchComments(String? parentId) async {
+  Future<void> _fetchComments() async {
     final response = await _apiController.get(ApiConfig.getComments, {
       "postId": widget.post.id,
-      "parentId": parentId
     });
 
-    
-    List<CommentModel> data =
-        (response.data['metadata'] as List)
-            .map((comment) => CommentModel.fromJson(comment))
-            .toList();
+    List<CommentModel> data = (response.data['metadata'] as List)
+        .map((comment) => CommentModel.fromJson(comment))
+        .toList();
 
     setState(() {
       listCommnets.addAll(data);
+      isLoading = false;
     });
   }
-
 
   @override
   void initState() {
     setState(() {
-      _fetchComments("");
+      _fetchComments();
       final reactions = widget.post.reactions;
       icons = [];
       if (reactions != null && reactions.isNotEmpty) {
@@ -164,9 +88,7 @@ class _CommentScreenState extends State<CommentScreen> {
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     shape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.circular(
-                      10,
-                    ),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Stack(
                     children: [
@@ -207,7 +129,7 @@ class _CommentScreenState extends State<CommentScreen> {
                                               height: 24,
                                               child: Stack(
                                                 children: [
-                                                  // Kiểm tra và hiển thị hình ảnh đầu tiên nếu có
+                                                  // Hiển thị các biểu tượng kiểm tra
                                                   if (icons.isNotEmpty)
                                                     Positioned(
                                                       top: 0,
@@ -228,13 +150,10 @@ class _CommentScreenState extends State<CommentScreen> {
                                                           icons[0],
                                                           width: 20,
                                                           height: 20,
-                                                          fit: BoxFit
-                                                              .cover, // Đảm bảo ảnh không vượt quá kích thước
+                                                          fit: BoxFit.cover,
                                                         ),
                                                       ),
                                                     ),
-
-                                                  // Kiểm tra và hiển thị hình ảnh thứ hai nếu có
                                                   if (icons.length > 1)
                                                     Positioned(
                                                       top: 2,
@@ -259,8 +178,6 @@ class _CommentScreenState extends State<CommentScreen> {
                                                         ),
                                                       ),
                                                     ),
-
-                                                  // Kiểm tra và hiển thị hình ảnh thứ ba nếu có
                                                   if (icons.length > 2)
                                                     Positioned(
                                                       top: 4,
@@ -288,11 +205,7 @@ class _CommentScreenState extends State<CommentScreen> {
                                                 ],
                                               ),
                                             ),
-
-                                            // Khoảng cách giữa văn bản và biểu tượng kiểm tra
-                                            const SizedBox(
-                                                width:
-                                                    4), // Khoảng cách giữa biểu tượng và văn bản
+                                            const SizedBox(width: 4),
                                             Text(
                                               widget.post.numLike.toString(),
                                               style: TextStyle(
@@ -308,21 +221,24 @@ class _CommentScreenState extends State<CommentScreen> {
                                 ],
                               ),
                             ),
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height -
-                                  60 -
-                                  MediaQuery.of(context).padding.vertical,
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  children: [
-                                    for (int i = 0; i < listCommnets.length; i++)
-                                      SingleComment(
-                                        comment: listCommnets[i],
-                                        level: 0,
+                            Expanded(
+                              child: isLoading
+                                  ? const Center(
+                                      child: CircularProgressIndicator(color: GlobalVariables.secondaryColor,),
+                                    )
+                                  : SingleChildScrollView(
+                                      child: Column(
+                                        children: [
+                                          for (int i = 0;
+                                              i < listCommnets.length;
+                                              i++)
+                                            SingleComment(
+                                              comment: listCommnets[i],
+                                              level: 0,
+                                            ),
+                                        ],
                                       ),
-                                  ],
-                                ),
-                              ),
+                                    ),
                             ),
                           ],
                         ),
