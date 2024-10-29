@@ -6,11 +6,11 @@ import 'package:facebook/features/friends/screens/friends_suggest_screen.dart';
 import 'package:facebook/features/home/screens/home_screen.dart';
 import 'package:facebook/features/market_place/screens/product_details_screen.dart';
 import 'package:facebook/features/memory/screens/memory_screen.dart';
+import 'package:facebook/features/news-feed/screen/create_post_screen.dart';
 import 'package:facebook/features/news-feed/screen/image_fullscreen.dart';
 import 'package:facebook/features/news-feed/screen/multiple_images_post_screen.dart';
 import 'package:facebook/features/news-feed/widgets/story_details.dart';
 import 'package:facebook/features/personal-page/screens/personal_page_screen.dart';
-import 'package:facebook/models/post.dart';
 import 'package:facebook/models/post_model.dart';
 import 'package:facebook/models/product.dart';
 import 'package:facebook/models/story.dart';
@@ -33,7 +33,10 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
         opaque: false,
         pageBuilder: (_, __, ___) => StoryDetails(story: story),
       );
-
+    case CreatePostScreen.routeName:
+      return MaterialPageRoute(
+        builder: (context) => const CreatePostScreen(),
+      );
     case ProductDetailsScreen.routeName:
       final Product product = routeSettings.arguments as Product;
       return PageRouteBuilder(

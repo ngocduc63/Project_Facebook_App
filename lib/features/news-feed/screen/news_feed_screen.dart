@@ -1,5 +1,6 @@
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/global_variables.dart';
+import 'package:facebook/constants/router_constants.dart';
 import 'package:facebook/controllers/api_controller.dart';
 import 'package:facebook/features/news-feed/widgets/add_story_card.dart';
 import 'package:facebook/features/news-feed/widgets/post_card.dart';
@@ -90,7 +91,6 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
 
   Future<void> _fetchPosts() async {
     try {
-
       setState(() {
         if (page == 0) {
           isLoading = true;
@@ -149,7 +149,8 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
       if (scrollController.position.pixels ==
               scrollController.position.maxScrollExtent &&
           !isLoading &&
-          !isLoadingMore && hasNextPage) {
+          !isLoadingMore &&
+          hasNextPage) {
         _fetchPosts();
       }
     });
@@ -199,13 +200,15 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
                         borderRadius: BorderRadius.circular(20),
                         color: colorNewPost,
                       ),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                        child: Text('Bạn đang nghĩ gì?'),
-                      ),
+                      child: InkWell(
+                          onTap: () => {Navigator.of(context).pushNamed(RouterConstants.createPost)},
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
+                            child: Text('Bạn đang nghĩ gì?'),
+                          )),
                     ),
                   ),
                 ),
