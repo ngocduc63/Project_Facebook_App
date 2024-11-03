@@ -28,6 +28,7 @@ dependencies:
   flutter_staggered_animations: ^1.1.1
   fluttertoast: ^8.2.8
   image_picker: ^1.1.2
+  chewie: ^1.8.5
   
   build_runner: ^2.0.6
   json_serializable: ^6.0.1
