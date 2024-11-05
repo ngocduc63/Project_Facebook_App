@@ -201,7 +201,10 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
                         color: colorNewPost,
                       ),
                       child: InkWell(
-                          onTap: () => {Navigator.of(context).pushNamed(RouterConstants.createPost)},
+                          onTap: () => {
+                                Navigator.of(context)
+                                    .pushNamed(RouterConstants.createPost)
+                              },
                           child: const Padding(
                             padding: EdgeInsets.symmetric(
                               horizontal: 20,

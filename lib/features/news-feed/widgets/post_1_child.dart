@@ -8,8 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class PostWidget1Child extends StatefulWidget {
-  final PostModel post; // Giả sử Post chứa thông tin về ảnh và video
-  const PostWidget1Child({Key? key, required this.post}) : super(key: key);
+  final PostModel post;
+  final bool isImage;
+  final int index;
+  const PostWidget1Child({Key? key, required this.post, required this.isImage, required this.index}) : super(key: key);
 
   @override
   State<PostWidget1Child> createState() => _PostWidget1ChildState();
@@ -23,10 +25,10 @@ class _PostWidget1ChildState extends State<PostWidget1Child> {
   @override
   void initState() {
     super.initState();
-    if (widget.post.image == null || widget.post.image!.isEmpty) {
+    if (!widget.isImage) {
       // Chỉ khởi tạo VideoPlayerController khi không có ảnh
       if (widget.post.video != null && widget.post.video!.isNotEmpty) {
-        final linkvideo = '${ApiConfig.linkVideo}${widget.post.video![0]}';
+        final linkvideo = '${ApiConfig.linkVideo}${widget.post.video![widget.index]}';
         videoPlayerController = VideoPlayerController.networkUrl(
           Uri.parse(linkvideo),
         );
@@ -41,7 +43,7 @@ class _PostWidget1ChildState extends State<PostWidget1Child> {
           looping: false,
           materialProgressColors: ChewieProgressColors(
             playedColor: GlobalVariables.secondaryColor,
-            handleColor: Colors.white, 
+            handleColor: Colors.white,
             backgroundColor: AppColors.darkGreyColor,
             bufferedColor: AppColors.greyColor,
           ),
@@ -68,7 +70,7 @@ class _PostWidget1ChildState extends State<PostWidget1Child> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        if (widget.post.image != null && widget.post.image!.isNotEmpty) {
+        if (widget.isImage) {
           Navigator.pushNamed(
             context,
             ImageFullScreen.routeName,
@@ -76,21 +78,25 @@ class _PostWidget1ChildState extends State<PostWidget1Child> {
           );
         }
       },
-      child: (widget.post.image != null && widget.post.image!.isNotEmpty)
-          ? Image.network(
-              '${ApiConfig.linkImage}${widget.post.image![0]}',
+      child: (widget.isImage)
+          ? FadeInImage(
+              placeholder: AssetImage('assets/loading.gif'),
+              image: NetworkImage(
+                  '${ApiConfig.linkImage}${widget.post.image![widget.index]}'),
+              fit: BoxFit.cover,
             )
           : (widget.post.video != null && widget.post.video!.isNotEmpty)
               ? FutureBuilder<void>(
-                  future: thumbnailFuture, // Chờ lấy thumbnail
+                  future: thumbnailFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done) {
+                      double maxHeight = MediaQuery.of(context).size.height * 0.6;
                       return Container(
-                        padding: EdgeInsets.all(8.0),
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                        padding: EdgeInsets.all(6.0),
+                        // decoration: BoxDecoration(
+                        //   color: Colors.black,
+                        //   borderRadius: BorderRadius.circular(10),
+                        // ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: AspectRatio(
@@ -98,14 +104,23 @@ class _PostWidget1ChildState extends State<PostWidget1Child> {
                                     videoPlayerController!.value.isInitialized
                                 ? videoPlayerController!.value.aspectRatio
                                 : 16 / 9,
-                            child: Chewie(
-                              controller: chewieController!,
+                            child: Container(
+                              constraints: BoxConstraints(
+                                maxHeight:
+                                    maxHeight,
+                              ),
+                              child: Chewie(
+                                controller: chewieController!,
+                              ),
                             ),
                           ),
                         ),
                       );
                     } else {
-                      return Center(child: CircularProgressIndicator(color: GlobalVariables.secondaryColor,));
+                      return Center(
+                          child: CircularProgressIndicator(
+                        color: GlobalVariables.secondaryColor,
+                      ));
                     }
                   },
                 )
