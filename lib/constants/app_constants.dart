@@ -14,6 +14,7 @@ class ApiConfig {
   static const String getComments = '$api/post/list-comments-by-parent-id';
 
   //api post
+  static const String createPost = '$api/post/create-post';
   static const String likePost = '$api/post/create-like';
 
   // api put 

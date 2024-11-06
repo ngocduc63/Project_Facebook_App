@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:facebook/constants/app_constants.dart';
+import 'package:facebook/features/news-feed/widgets/post_1_child.dart';
 import 'package:facebook/features/news-feed/widgets/post_content.dart';
 import 'package:facebook/features/news-feed/widgets/single_image.dart';
 import 'package:facebook/models/post_model.dart';
@@ -362,39 +363,26 @@ class _MultipleImagesPostScreenState extends State<MultipleImagesPostScreen> {
                     SingleImage(
                       post: widget.post.copyWith(
                         image: [widget.post.image![i]],
-                        // like: random.nextInt(
-                        //   totalReactions ~/ 70,
-                        // ),
-                        // love: random.nextInt(
-                        //   totalReactions ~/ 70,
-                        // ),
-                        // lovelove: random.nextInt(
-                        //   totalReactions ~/ 70,
-                        // ),
-                        // sad: random.nextInt(
-                        //   totalReactions ~/ 70,
-                        // ),
-                        // wow: random.nextInt(
-                        //   totalReactions ~/ 70,
-                        // ),
-                        // angry: random.nextInt(
-                        //   totalReactions ~/ 70,
-                        // ),
-                        // haha: random.nextInt(
-                        //   totalReactions ~/ 70,
-                        // ),
-                        // comment: random.nextInt(
-                        //   (widget.post.comment ?? 0) ~/
-                        //       widget.post.image!.length ~/
-                        //       2,
-                        // ),
-                        // share: random.nextInt(
-                        //   (widget.post.share ?? 0) ~/
-                        //       widget.post.image!.length ~/
-                        //       2,
-                        // ),
                         content: '',
                       ),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      height: 5,
+                      color: Colors.black26,
+                    ),
+                  ],
+                ),
+                for (int i = 0; i < widget.post.video!.length; i++)
+                Column(
+                  children: [
+                    PostWidget1Child(
+                      post: widget.post.copyWith(
+                        image: [widget.post.video![i]],
+                        content: '',
+                      ),
+                      isImage: false,
+                      index: 0,
                     ),
                     Container(
                       width: double.infinity,

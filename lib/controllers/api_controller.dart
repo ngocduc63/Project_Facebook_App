@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/models/user_model.dart';
@@ -82,6 +83,41 @@ class ApiController {
       rethrow;
     }
   }
+
+  Future<Response> postForm(String endpoint, List<File> listImage, List<File> listVideo, text) async {
+  try {
+    FormData formData = FormData();
+
+    for (var image in listImage) {
+      formData.files.add(MapEntry(
+        'post',
+        await MultipartFile.fromFile(
+          image.path,
+          filename: image.path.split('/').last,
+          contentType: DioMediaType('image', 'png')
+        ),
+      ));
+    }
+
+    for (var video in listVideo) {
+      formData.files.add(MapEntry(
+        'post',
+        await MultipartFile.fromFile(
+          video.path,
+          filename: video.path.split('/').last,
+          contentType: DioMediaType('video', 'mp4')
+        ),
+      ));
+    }
+
+    String dataJson = jsonEncode({"post_title": text});
+    formData.fields.add(MapEntry('data', dataJson));
+
+    return await _dio.post(endpoint, data: formData);
+  } catch (e) {
+    rethrow;
+  }
+}
 
   Future<Response> put(String endpoint, Map<String, dynamic> body) async {
     try {

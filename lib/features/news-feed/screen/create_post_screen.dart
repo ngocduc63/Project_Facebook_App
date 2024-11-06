@@ -1,10 +1,14 @@
 import 'dart:io';
 
 import 'package:facebook/constants/app_colors.dart';
+import 'package:facebook/constants/app_constants.dart';
+import 'package:facebook/controllers/api_controller.dart';
+import 'package:facebook/features/home/screens/home_screen.dart';
 import 'package:facebook/utils/utils.dart';
 import 'package:facebook/features/news-feed/widgets/round_button.dart';
 import 'package:facebook/features/news-feed/widgets/image_video_view.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class CreatePostScreen extends StatefulWidget {
   const CreatePostScreen({super.key});
@@ -17,6 +21,7 @@ class CreatePostScreen extends StatefulWidget {
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
   late final TextEditingController _postController;
+  ApiController apiController = ApiController();
   List<File> images = [];
   List<File> videos = [];
   bool isLoading = false;
@@ -257,9 +262,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   Future<void> uploadPostHandle() async {
       final content = _postController.text;
       if (content.isNotEmpty || images.isNotEmpty || videos.isNotEmpty) {
-        Navigator.of(context).pop();
+        await apiController.postForm(ApiConfig.createPost, images, videos, content);
+        Get.off(HomeScreen());
       }
-    
   }
 }
 
