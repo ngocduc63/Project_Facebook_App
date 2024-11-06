@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:facebook/constants/app_colors.dart';
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/controllers/api_controller.dart';
+import 'package:facebook/features/auth/widgets/submit_button.dart';
 import 'package:facebook/features/home/screens/home_screen.dart';
 import 'package:facebook/utils/utils.dart';
 import 'package:facebook/features/news-feed/widgets/round_button.dart';
@@ -22,6 +23,7 @@ class CreatePostScreen extends StatefulWidget {
 class _CreatePostScreenState extends State<CreatePostScreen> {
   late final TextEditingController _postController;
   ApiController apiController = ApiController();
+  bool isLoaing = false;
   List<File> images = [];
   List<File> videos = [];
   bool isLoading = false;
@@ -113,7 +115,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("Ảnh đã chọn:", style:TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    const Text("Ảnh đã chọn:",
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold)),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
@@ -180,7 +184,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("Video đã chọn:", style:TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                    const Text(
+                      "Video đã chọn:",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
@@ -242,16 +250,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   ],
                 ),
               const SizedBox(height: 20),
-
-              const SizedBox(height: 20),
-              isLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : RoundButton(
-                      onPressed: uploadPostHandle,
-                      label: 'Post',
-                    ),
+              Center(
+                child: SubmitButton(
+                  onPressed: uploadPostHandle,
+                  title: "Đăng bài",
+                  isLoading: isLoading,
+                ),
+              )
             ],
           ),
         ),
@@ -260,11 +265,18 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   }
 
   Future<void> uploadPostHandle() async {
-      final content = _postController.text;
-      if (content.isNotEmpty || images.isNotEmpty || videos.isNotEmpty) {
-        await apiController.postForm(ApiConfig.createPost, images, videos, content);
-        Get.off(HomeScreen());
-      }
+    final content = _postController.text;
+    if (content.isNotEmpty || images.isNotEmpty || videos.isNotEmpty) {
+      setState(() {
+        isLoading = true;
+      });
+      await apiController.postForm(
+          ApiConfig.createPost, images, videos, content);
+      setState(() {
+        isLoading = false;
+      });
+      Get.off(HomeScreen());
+    }
   }
 }
 
