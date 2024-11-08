@@ -256,15 +256,13 @@ class _PostCardState extends State<PostCard> {
                                         width: 5,
                                       ),
                                       Icon(
-                                        Icons.public,
-                                        // widget.post.shareWith == 'public'
-                                        //     ? Icons.public
-                                        //     : widget.post.shareWith == 'friends'
-                                        //         ? Icons.people
-                                        //         : widget.post.shareWith ==
-                                        //                 'friends-of-frends'
-                                        //             ? Icons.groups
-                                        //             : Icons.lock,
+                                        widget.post.shareWith ==
+                                                PostStatus.public
+                                            ? Icons.public
+                                            : widget.post.shareWith ==
+                                                    PostStatus.friend
+                                                ? Icons.people
+                                                : Icons.lock,
                                         color: Colors.black54,
                                         size: 14,
                                       ),
@@ -310,9 +308,10 @@ class _PostCardState extends State<PostCard> {
                                     if (widget.post.image != null &&
                                         widget.post.image!.isNotEmpty)
                                       FadeInImage(
-                                        placeholder: AssetImage('assets/loading.gif'),
+                                        placeholder:
+                                            AssetImage('assets/loading.gif'),
                                         image: NetworkImage(
-                                          '${ApiConfig.linkImage}${widget.post.image![0]}', 
+                                          '${ApiConfig.linkImage}${widget.post.image![0]}',
                                         ),
                                         fit: BoxFit.cover,
                                         width:
@@ -366,21 +365,24 @@ class _PostCardState extends State<PostCard> {
                                             children: [
                                               if (i < widget.post.image!.length)
                                                 FadeInImage(
-                                                  placeholder: AssetImage('assets/loading.gif'),
+                                                  placeholder: AssetImage(
+                                                      'assets/loading.gif'),
                                                   image: NetworkImage(
-                                                    '${ApiConfig.linkImage}${widget.post.image![i]}', 
+                                                    '${ApiConfig.linkImage}${widget.post.image![i]}',
                                                   ),
                                                   fit: BoxFit.cover,
-                                                  width:
-                                                      MediaQuery.of(context).size.width *
-                                                          1 /
-                                                          2 *
-                                                          0.99, // Chiều rộng
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      1 /
+                                                      2 *
+                                                      0.99, // Chiều rộng
                                                   height: totalItem == 2
                                                       ? maxHeight
                                                       : totalItem == 3
                                                           ? maxHeight / 2
-                                                          : maxHeight / 3, // Chiều cao
+                                                          : maxHeight /
+                                                              3, // Chiều cao
                                                 ),
                                               if (i >=
                                                   widget.post.image!.length)

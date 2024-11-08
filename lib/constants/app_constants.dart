@@ -10,12 +10,15 @@ class ApiConfig {
   //api get
   static const String linkImage = '$api/user/image/';
   static const String linkVideo = '$api/user/video/';
+  static const String getuserInfo = '$api/user/get-user-info';
+  static const String getPostsOfUser = '$api/user/get-post-of-user';
   static const String getPostsForUser = '$api/post/posts-for-user';
   static const String getComments = '$api/post/list-comments-by-parent-id';
 
   //api post
   static const String createPost = '$api/post/create-post';
   static const String likePost = '$api/post/create-like';
+  static const String commentPost = '$api/post/create-comment';
 
   // api put 
   static const String updateLikePost = '$api/post/update-like';

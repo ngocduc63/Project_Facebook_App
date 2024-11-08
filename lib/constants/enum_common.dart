@@ -21,3 +21,21 @@ enum Emotion {
     );
   }
 }
+
+enum PostStatus {
+  friend('FRIEND'),
+  public('PUBLIC'),
+  private('PRIVATE');
+
+  final String value;
+
+  const PostStatus(this.value);
+
+  static PostStatus? fromString(String? value) {
+    if (value == null) return null;
+    return PostStatus.values.firstWhere(
+      (postStatus) => postStatus.value == value,
+      orElse: () => PostStatus.public,
+    );
+  }
+}

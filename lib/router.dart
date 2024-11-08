@@ -15,6 +15,7 @@ import 'package:facebook/models/post_model.dart';
 import 'package:facebook/models/product.dart';
 import 'package:facebook/models/story.dart';
 import 'package:facebook/models/user.dart';
+import 'package:facebook/models/user_model.dart';
 import 'package:flutter/material.dart';
 
 Route<dynamic> generateRoute(RouteSettings routeSettings) {
@@ -188,7 +189,7 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
         },
       );
     case PersonalPageScreen.routeName:
-      final User user = routeSettings.arguments as User;
+      final UserModel user = routeSettings.arguments as UserModel;
       return PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
             PersonalPageScreen(user: user),

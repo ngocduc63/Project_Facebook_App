@@ -33,6 +33,8 @@ class PostModel {
   final int? numComment;
   @JsonKey(name: 'post_num_share')
   final int? numShare;
+  @JsonKey(name: 'post_status')
+  final PostStatus? shareWith;
 
   PostModel({
     required this.id,
@@ -51,7 +53,8 @@ class PostModel {
     this.isFriend,
     this.numComment,
     this.numLike,
-    this.numShare
+    this.numShare,
+    this.shareWith
   });
 
   // Phương thức fromJson để chuyển từ JSON sang PostModel
@@ -78,6 +81,8 @@ class PostModel {
     int? numComment,
     int? numLike,
     int? numShare,
+    PostStatus? shareWith,
+
   }) {
     return PostModel(
       id: id ?? this.id,
@@ -96,6 +101,7 @@ class PostModel {
       numLike: numLike ?? this.numLike,
       numComment: numComment ?? this.numComment,
       numShare: numShare ?? this.numShare,
+      shareWith: shareWith ?? this.shareWith,
     );
   }
 }

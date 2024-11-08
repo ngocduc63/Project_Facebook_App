@@ -29,6 +29,7 @@ PostModel _$PostModelFromJson(Map<String, dynamic> json) => PostModel(
       numComment: (json['post_num_comment'] as num?)?.toInt(),
       numLike: (json['post_num_like'] as num?)?.toInt(),
       numShare: (json['post_num_share'] as num?)?.toInt(),
+      shareWith: $enumDecodeNullable(_$PostStatusEnumMap, json['post_status']),
     );
 
 Map<String, dynamic> _$PostModelToJson(PostModel instance) => <String, dynamic>{
@@ -48,6 +49,7 @@ Map<String, dynamic> _$PostModelToJson(PostModel instance) => <String, dynamic>{
       'post_num_like': instance.numLike,
       'post_num_comment': instance.numComment,
       'post_num_share': instance.numShare,
+      'post_status': _$PostStatusEnumMap[instance.shareWith],
     };
 
 const _$EmotionEnumMap = {
@@ -58,5 +60,11 @@ const _$EmotionEnumMap = {
   Emotion.lovelove: 'LOVELOVE',
   Emotion.angry: 'ANGRY',
   Emotion.wow: 'WOW',
-  Emotion.none: 'none',
+  Emotion.none: 'NONE',
+};
+
+const _$PostStatusEnumMap = {
+  PostStatus.friend: 'FRIEND',
+  PostStatus.public: 'PUBLIC',
+  PostStatus.private: 'PRIVATE',
 };

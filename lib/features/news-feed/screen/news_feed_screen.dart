@@ -77,7 +77,7 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
   bool isLoading = false;
   bool isLoadingMore = false;
   int page = 0;
-  int limit = 20;
+  int limit = 5;
   bool hasNextPage = true;
 
   ScrollController scrollController =
