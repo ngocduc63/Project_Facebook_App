@@ -1,3 +1,4 @@
+import 'package:facebook/constants/app_colors.dart';
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/enum_common.dart';
 import 'package:facebook/constants/global_variables.dart';
@@ -19,6 +20,8 @@ class CommentScreen extends StatefulWidget {
 class _CommentScreenState extends State<CommentScreen> {
   ApiController _apiController = ApiController();
   ScrollController scrollController = ScrollController();
+  final TextEditingController commentController = TextEditingController();
+  FocusNode commentFocusNode = FocusNode();
   List<String> icons = [];
   bool isInWidgetTree = true;
   final List<CommentModel> listCommnets = [];
@@ -26,24 +29,71 @@ class _CommentScreenState extends State<CommentScreen> {
   bool isLoadingMore = false;
   bool hasNextPage = true;
   int page = 0;
-  int limit = 20;
+  int limit = 10;
+  String? parentCommentId = "";
 
   Future<void> _fetchComments() async {
-    page++;
-    final response = await _apiController.get(ApiConfig.getComments, {
-      "postId": widget.post.id,
-      "page": page,
-      "limit": limit,
+    setState(() {
+      if (page > 0) {
+        isLoadingMore = true;
+      }
     });
 
-    List<CommentModel> data = (response.data['metadata']['comments'] as List)
-        .map((comment) => CommentModel.fromJson(comment))
-        .toList();
+    page++;
+    try {
+      final response = await _apiController.get(ApiConfig.getComments, {
+        "postId": widget.post.id,
+        "page": page,
+        "limit": limit,
+      });
 
-    setState(() {
-      listCommnets.addAll(data);
-      isLoading = false;
-      hasNextPage = response.data['metadata']['totalPage'] > page;
+      List<CommentModel> data = (response.data['metadata']['comments'] as List)
+          .map((comment) => CommentModel.fromJson(comment))
+          .toList();
+
+      setState(() {
+        listCommnets.addAll(data);
+        isLoading = false;
+        isLoadingMore = false;
+        hasNextPage = response.data['metadata']['totalPage'] > page;
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> createCommment() async {
+    final String content = commentController.text.trim();
+
+    try {
+      final response = await _apiController.post(ApiConfig.commentPost, {
+        'postId': widget.post.id,
+        'content': content,
+        "parentCommentId": parentCommentId
+      });
+      final CommentModel dataComment =
+          CommentModel.fromJson(response.data['metadata']);
+
+      setState(() {
+        print(parentCommentId!.isEmpty);
+        if (parentCommentId!.isEmpty) {
+          listCommnets.insert(0, dataComment);
+        } else {
+          var parentComment = listCommnets.firstWhere((comment) => comment.id == parentCommentId);
+          parentComment.incrementChildCount();
+        }
+        parentCommentId = "";
+        commentController.clear();
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> onReply(String? parentId, BuildContext context) async {
+    parentCommentId = parentId;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).requestFocus(commentFocusNode);
     });
   }
 
@@ -83,6 +133,7 @@ class _CommentScreenState extends State<CommentScreen> {
   @override
   void dispose() {
     scrollController.dispose();
+    commentFocusNode.dispose();
     super.dispose();
   }
 
@@ -137,7 +188,6 @@ class _CommentScreenState extends State<CommentScreen> {
                               padding: const EdgeInsets.only(
                                 left: 15,
                                 right: 15,
-                                bottom: 15,
                                 top: 15,
                               ),
                               child: Row(
@@ -149,19 +199,18 @@ class _CommentScreenState extends State<CommentScreen> {
                                           children: [
                                             SizedBox(
                                               width: icons.length < 3
-                                                  ? icons.length * 20
-                                                  : 60,
-                                              height: 24,
+                                                  ? icons.length * 36
+                                                  : 120,
+                                              height: 34,
                                               child: Stack(
                                                 children: [
-                                                  // Hiển thị các biểu tượng kiểm tra
                                                   if (icons.isNotEmpty)
                                                     Positioned(
                                                       top: 0,
                                                       left: 0,
                                                       child: Container(
-                                                        width: 20,
-                                                        height: 20,
+                                                        width: 32,
+                                                        height: 32,
                                                         decoration:
                                                             BoxDecoration(
                                                           shape:
@@ -173,8 +222,8 @@ class _CommentScreenState extends State<CommentScreen> {
                                                         ),
                                                         child: Image.asset(
                                                           icons[0],
-                                                          width: 20,
-                                                          height: 20,
+                                                          width: 32,
+                                                          height: 32,
                                                           fit: BoxFit.cover,
                                                         ),
                                                       ),
@@ -184,8 +233,8 @@ class _CommentScreenState extends State<CommentScreen> {
                                                       top: 2,
                                                       left: 18,
                                                       child: Container(
-                                                        width: 20,
-                                                        height: 20,
+                                                        width: 32,
+                                                        height: 32,
                                                         decoration:
                                                             BoxDecoration(
                                                           shape:
@@ -197,8 +246,8 @@ class _CommentScreenState extends State<CommentScreen> {
                                                         ),
                                                         child: Image.asset(
                                                           icons[1],
-                                                          width: 20,
-                                                          height: 20,
+                                                          width: 32,
+                                                          height: 32,
                                                           fit: BoxFit.cover,
                                                         ),
                                                       ),
@@ -208,8 +257,8 @@ class _CommentScreenState extends State<CommentScreen> {
                                                       top: 4,
                                                       left: 36,
                                                       child: Container(
-                                                        width: 20,
-                                                        height: 20,
+                                                        width: 32,
+                                                        height: 32,
                                                         decoration:
                                                             BoxDecoration(
                                                           shape:
@@ -221,8 +270,8 @@ class _CommentScreenState extends State<CommentScreen> {
                                                         ),
                                                         child: Image.asset(
                                                           icons[2],
-                                                          width: 20,
-                                                          height: 20,
+                                                          width: 32,
+                                                          height: 32,
                                                           fit: BoxFit.cover,
                                                         ),
                                                       ),
@@ -234,8 +283,8 @@ class _CommentScreenState extends State<CommentScreen> {
                                             Text(
                                               widget.post.numLike.toString(),
                                               style: TextStyle(
-                                                color: Colors.black54,
-                                                fontSize: 14,
+                                                color: AppColors.blackColor,
+                                                fontSize: 18,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
@@ -246,31 +295,89 @@ class _CommentScreenState extends State<CommentScreen> {
                                 ],
                               ),
                             ),
+                            const Divider(
+                              thickness: 1,
+                              color: AppColors.darkGreyColor,
+                            ),
                             Expanded(
-                                child: isLoading
-                                    ? const Center(
-                                        child: CircularProgressIndicator(
-                                          color: GlobalVariables.secondaryColor,
-                                        ),
-                                      )
-                                    : SingleChildScrollView(
-                                        controller: scrollController,
-                                        child: Padding(
-                                          padding:
-                                              const EdgeInsets.only(bottom: 15),
-                                          child: Column(
-                                            children: [
-                                              for (int i = 0;
-                                                  i < listCommnets.length;
-                                                  i++)
-                                                SingleComment(
-                                                  comment: listCommnets[i],
-                                                  level: 0,
+                              child: isLoading
+                                  ? const Center(
+                                      child: CircularProgressIndicator(
+                                        color: GlobalVariables.secondaryColor,
+                                      ),
+                                    )
+                                  : SingleChildScrollView(
+                                      controller: scrollController,
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 25),
+                                        child: Column(
+                                          children: [
+                                            for (int i = 0;
+                                                i < listCommnets.length;
+                                                i++)
+                                              SingleComment(
+                                                comment: listCommnets[i],
+                                                level: 0,
+                                                onReply: onReply,
+                                              ),
+                                            if (isLoadingMore)
+                                              Center(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  color: GlobalVariables
+                                                      .secondaryColor,
                                                 ),
-                                            ],
-                                          ),
+                                              ),
+                                          ],
                                         ),
-                                      )),
+                                      ),
+                                    ),
+                            ),
+                            // Sử dụng Padding để input nằm trên bàn phím khi mở
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  bottom:
+                                      MediaQuery.of(context).viewInsets.bottom),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 15, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                        controller: commentController,
+                                        focusNode: commentFocusNode,
+                                        cursorColor: AppColors.lightBlueColor,
+                                        decoration: InputDecoration(
+                                          hintText: 'Nhập bình luận của bạn...',
+                                          hintStyle: TextStyle(
+                                              color: AppColors.darkGreyColor),
+                                          border: InputBorder.none,
+                                        ),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.send),
+                                      color: AppColors.lightBlueColor,
+                                      onPressed: () {
+                                        // onReply();
+                                        if (commentController.text
+                                            .trim()
+                                            .isNotEmpty) {
+                                          createCommment();
+                                          FocusScope.of(context).unfocus();
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),

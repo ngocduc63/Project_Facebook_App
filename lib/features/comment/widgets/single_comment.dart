@@ -11,7 +11,13 @@ import 'package:flutter/material.dart';
 class SingleComment extends StatefulWidget {
   final CommentModel comment;
   final int level;
-  const SingleComment({super.key, required this.comment, required this.level});
+  final Future<void> Function(String?, BuildContext) onReply;
+  const SingleComment({
+    super.key,
+    required this.comment,
+    required this.level,
+    required this.onReply,
+  });
 
   @override
   State<SingleComment> createState() => _SingleCommentState();
@@ -251,12 +257,17 @@ class _SingleCommentState extends State<SingleComment> {
               const SizedBox(
                 width: 10,
               ),
-              const Text(
-                'Phản hồi',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black54,
-                  fontWeight: FontWeight.bold,
+              InkWell(
+                onTap: () {
+                  widget.onReply(widget.comment.id, context);
+                },
+                child: Text(
+                  'Phản hồi',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black54,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               const SizedBox(
@@ -302,6 +313,7 @@ class _SingleCommentState extends State<SingleComment> {
                         SingleComment(
                           comment: listChildComments[i],
                           level: widget.level + 1,
+                          onReply: widget.onReply,
                         ),
                       Padding(
                           padding: const EdgeInsets.only(top: 5, right: 300),
@@ -324,8 +336,7 @@ class _SingleCommentState extends State<SingleComment> {
                                         fontSize: 15,
                                         fontWeight: FontWeight.w500,
                                       ),
-                                    )
-                                  ),
+                                    )),
                               ),
                             Padding(
                               padding: const EdgeInsets.only(
