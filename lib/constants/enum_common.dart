@@ -39,3 +39,22 @@ enum PostStatus {
     );
   }
 }
+
+enum MessageType {
+  text('text'),
+  audio('audio'),
+  image('image'),
+  video('video');
+
+  final String value;
+
+  const MessageType(this.value);
+
+  static MessageType? fromString(String? value) {
+    if (value == null) return null;
+    return MessageType.values.firstWhere(
+      (messageType) => messageType.value == value,
+      orElse: () => MessageType.text,
+    );
+  }
+}

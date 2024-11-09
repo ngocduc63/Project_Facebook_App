@@ -13,7 +13,7 @@ CommentModel _$CommentModelFromJson(Map<String, dynamic> json) => CommentModel(
       content: json['content'] as String,
       time: json['createdAt'] as String,
       image: json['image'] as String?,
-      countChild: (json['countChildComment'] as int).toInt(),
+      countChild: (json['countChildComment'] as num?)?.toInt() ?? 0,
     );
 
 Map<String, dynamic> _$CommentModelToJson(CommentModel instance) =>

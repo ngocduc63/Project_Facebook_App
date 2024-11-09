@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 class VideoMessage extends StatelessWidget {
   const VideoMessage({super.key, required this.message});
-  final ChatMessage message;
+  final MessageModel message;
 
   @override
   Widget build(BuildContext context) {

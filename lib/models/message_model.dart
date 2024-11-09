@@ -1,62 +1,33 @@
-enum ChatMessageType { text, audio, image, video }
 
-enum MessageStatus { not_sent, not_view, viewed }
+import 'package:facebook/models/user_model.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-class ChatMessage {
-  final String text;
-  final ChatMessageType messageType;
-  final MessageStatus messageStatus;
-  final bool isSender;
+part 'message_model.g.dart';
 
-  ChatMessage({
-    this.text = '',
-    required this.messageType,
-    required this.messageStatus,
-    required this.isSender,
+@JsonSerializable()
+class MessageModel {
+  @JsonKey(name: '_id')
+  final String? id;
+  @JsonKey(name: 'room_id')
+  final String? roomId;
+  @JsonKey(name: 'created_by_user')
+  final String senderId;
+  final UserModel? sender;
+  final Map<String, dynamic>? data;
+  @JsonKey(name: 'createdAt')
+  final String time;
+
+  MessageModel({
+    required this.id,
+    required this.roomId,
+    required this.senderId,
+    required this.sender,
+    required this.data,
+    required this.time,
   });
-}
 
-List demeChatMessages = [
-  ChatMessage(
-    text: "Hi Sajol,",
-    messageType: ChatMessageType.text,
-    messageStatus: MessageStatus.viewed,
-    isSender: false,
-  ),
-  ChatMessage(
-    text: "Hello, How are you?",
-    messageType: ChatMessageType.text,
-    messageStatus: MessageStatus.viewed,
-    isSender: true,
-  ),
-  ChatMessage(
-    text: "",
-    messageType: ChatMessageType.audio,
-    messageStatus: MessageStatus.viewed,
-    isSender: false,
-  ),
-  ChatMessage(
-    text: "",
-    messageType: ChatMessageType.video,
-    messageStatus: MessageStatus.viewed,
-    isSender: true,
-  ),
-  ChatMessage(
-    text: "Error happend",
-    messageType: ChatMessageType.text,
-    messageStatus: MessageStatus.not_sent,
-    isSender: true,
-  ),
-  ChatMessage(
-    text: "This looks great man!!",
-    messageType: ChatMessageType.text,
-    messageStatus: MessageStatus.viewed,
-    isSender: false,
-  ),
-  ChatMessage(
-    text: "Glad you like it",
-    messageType: ChatMessageType.text,
-    messageStatus: MessageStatus.not_view,
-    isSender: true,
-  ),
-];
+   factory MessageModel.fromJson(Map<String, dynamic> json) =>
+      _$MessageModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$MessageModelToJson(this);
+}

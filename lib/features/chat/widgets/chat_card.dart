@@ -1,4 +1,7 @@
+import 'package:facebook/constants/app_colors.dart';
+import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/models/chat_model.dart';
+import 'package:facebook/utils/convert_time.dart';
 import 'package:flutter/material.dart';
 
 class ChatCard extends StatelessWidget {
@@ -8,7 +11,7 @@ class ChatCard extends StatelessWidget {
     required this.press,
   }) : super(key: key);
 
-  final Chat chat;
+  final ChatModel chat;
   final VoidCallback press;
 
   @override
@@ -16,16 +19,25 @@ class ChatCard extends StatelessWidget {
     return InkWell(
       onTap: press,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20 * 0.75),
+        padding:
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 20 * 0.75),
         child: Row(
           children: [
             Stack(
               children: [
                 CircleAvatar(
-                  radius: 24,
-                  backgroundImage: AssetImage(chat.image),
-                ),
-                if (chat.isActive)
+                    radius: 24,
+                    child: ClipOval(
+                      child: FadeInImage(
+                        placeholder: AssetImage('assets/loading.gif'),
+                        image: NetworkImage(
+                            '${ApiConfig.linkImage}${chat.friend.avatar}'),
+                        fit: BoxFit.cover,
+                        width: 48,
+                        height: 48,
+                      ),
+                    )),
+                if (true)
                   Positioned(
                     bottom: 0,
                     right: 0,
@@ -35,7 +47,9 @@ class ChatCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Color(0xFF00BF6D),
                         shape: BoxShape.circle,
-                        border: Border.all(color: Theme.of(context).scaffoldBackgroundColor, width: 3),
+                        border: Border.all(
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                            width: 3),
                       ),
                     ),
                   ),
@@ -48,25 +62,27 @@ class ChatCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      chat.name,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                      chat.friend.name,
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(height: 8),
-                    Opacity(
-                        opacity: 0.64,
-                        child: Text(
-                          chat.lastMessage,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        )),
+                    if (chat.lastMessage != null)
+                      Opacity(
+                          opacity: 0.64,
+                          child: Text(
+                            chat.lastMessage?.data!['content'],
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          )),
                   ],
                 ),
               ),
             ),
             Opacity(
               opacity: 0.64,
-              child: Text(chat.time),
-            )
+              child: Text(convertToTimeAgo(chat.timeUpdate)),
+            ),
           ],
         ),
       ),

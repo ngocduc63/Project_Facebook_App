@@ -1,10 +1,12 @@
 import 'dart:ui';
 
 import 'package:facebook/constants/app_colors.dart';
+import 'package:facebook/constants/enum_common.dart';
 import 'package:facebook/features/chat/widgets/message/audio_message.dart';
 import 'package:facebook/features/chat/widgets/message/text_message.dart';
 import 'package:facebook/features/chat/widgets/message/video_message.dart';
 import 'package:facebook/models/message_model.dart';
+import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 
 class Message extends StatelessWidget {
@@ -13,16 +15,19 @@ class Message extends StatelessWidget {
     required this.message,
   }) : super(key: key);
 
-  final ChatMessage message;
+  final MessageModel message;
   @override
   Widget build(BuildContext context) {
-    Widget messageContaint(ChatMessage message) {
-      switch (message.messageType) {
-        case ChatMessageType.text:
+    UserServicePref userServicePref = UserServicePref();
+    bool isSender = userServicePref.getUserInfo!.id == message.sender?.id;
+
+    Widget messageContaint(MessageModel message) {
+      switch (message.data!['type']) {
+        case MessageType.text:
           return TextMessage(message: message);
-        case ChatMessageType.audio:
+        case MessageType.audio:
           return AudioMessage(message: message);
-        case ChatMessageType.video:
+        case MessageType.video:
           return VideoMessage(message: message);
         default:
           return const SizedBox();
@@ -32,9 +37,9 @@ class Message extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 20),
       child: Row(
-        mainAxisAlignment: message.isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
-          if (!message.isSender) ...[
+          if (!isSender) ...[
             const CircleAvatar(
               radius: 12,
               backgroundImage: AssetImage('assets/images/user_2.png'),
@@ -44,45 +49,45 @@ class Message extends StatelessWidget {
             )
           ],
           messageContaint(message),
-          if (message.isSender) MessageStatusDot(status: message.messageStatus)
+          // if (isSender) MessageStatusDot(status: message.messageStatus)
         ],
       ),
     );
   }
 }
 
-class MessageStatusDot extends StatelessWidget {
-  final MessageStatus? status;
+// class MessageStatusDot extends StatelessWidget {
+//   final MessageStatus? status;
 
-  const MessageStatusDot({Key? key, this.status}) : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    Color dotColor(MessageStatus status) {
-      switch (status) {
-        case MessageStatus.not_sent:
-          return Colors.yellow;
-        case MessageStatus.not_view:
-          return Theme.of(context).textTheme.bodySmall!.color!.withOpacity(0.1);
-        case MessageStatus.viewed:
-          return AppColors.lightBlueColor;
-        default:
-          return Colors.transparent;
-      }
-    }
+//   const MessageStatusDot({Key? key, this.status}) : super(key: key);
+//   @override
+//   Widget build(BuildContext context) {
+//     Color dotColor(MessageStatus status) {
+//       switch (status) {
+//         case MessageStatus.not_sent:
+//           return Colors.yellow;
+//         case MessageStatus.not_view:
+//           return Theme.of(context).textTheme.bodySmall!.color!.withOpacity(0.1);
+//         case MessageStatus.viewed:
+//           return AppColors.lightBlueColor;
+//         default:
+//           return Colors.transparent;
+//       }
+//     }
 
-    return Container(
-      margin: EdgeInsets.only(left: 20 / 2),
-      height: 15,
-      width: 12,
-      decoration: BoxDecoration(
-        color: dotColor(status!),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(
-        status == MessageStatus.not_sent ? Icons.close : Icons.done,
-        size: 11,
-        color: Theme.of(context).scaffoldBackgroundColor,
-      ),
-    );
-  }
-}
+//     return Container(
+//       margin: EdgeInsets.only(left: 20 / 2),
+//       height: 15,
+//       width: 12,
+//       decoration: BoxDecoration(
+//         color: dotColor(status!),
+//         shape: BoxShape.circle,
+//       ),
+//       child: Icon(
+//         status == MessageStatus.not_sent ? Icons.close : Icons.done,
+//         size: 11,
+//         color: Theme.of(context).scaffoldBackgroundColor,
+//       ),
+//     );
+//   }
+// }

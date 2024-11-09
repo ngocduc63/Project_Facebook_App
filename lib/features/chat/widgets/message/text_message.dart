@@ -1,5 +1,6 @@
 import 'package:facebook/constants/app_colors.dart';
 import 'package:facebook/models/message_model.dart';
+import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 
 
@@ -9,17 +10,20 @@ class TextMessage extends StatelessWidget {
     required this.message,
   }) : super(key: key);
 
-  final ChatMessage message;
+  final MessageModel message;
 
   @override
   Widget build(BuildContext context) {
+    UserServicePref userServicePref = UserServicePref();
+    bool isSender = userServicePref.getUserInfo!.id == message.sender?.id;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20 * 0.75, vertical: 20 / 2),
       decoration: BoxDecoration(
-          color: AppColors.lightBlueColor.withOpacity(message.isSender ? 1 : 0.08), borderRadius: BorderRadius.circular(30)),
+          color: AppColors.lightBlueColor.withOpacity(isSender ? 1 : 0.08), borderRadius: BorderRadius.circular(30)),
       child: Text(
-        message.text,
-        style: TextStyle(color: message.isSender ? Colors.white : Theme.of(context).textTheme.bodySmall?.color),
+        message.data!['content'],
+        style: TextStyle(color: isSender ? Colors.white : Theme.of(context).textTheme.bodySmall?.color),
       ),
     );
   }

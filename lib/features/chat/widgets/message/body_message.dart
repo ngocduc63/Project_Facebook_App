@@ -1,6 +1,6 @@
 import 'package:facebook/features/chat/widgets/message/message.dart';
-import 'package:flutter/material.dart';
 import 'package:facebook/models/message_model.dart';
+import 'package:flutter/material.dart';
 import 'chat_input_fields.dart';
 
 class Body extends StatelessWidget {
@@ -8,6 +8,7 @@ class Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const List<MessageModel> demeChatMessages = [];
     return Column(
       children: [
         Expanded(
