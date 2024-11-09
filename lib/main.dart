@@ -1,15 +1,17 @@
 import 'package:facebook/features/SplashCcreen/screens/splash_screen.dart';
-import 'package:facebook/features/auth/auth_screen.dart';
-import 'package:facebook/features/home/screens/home_screen.dart';
+import 'package:facebook/firebase_options.dart';
 import 'package:facebook/providers/user_provider.dart';
 import 'package:facebook/router.dart';
-import 'package:facebook/utils/prefs_user.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:get/get.dart';
 import 'constants/global_variables.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(MultiProvider(
     providers: [ChangeNotifierProvider(create: (context) => UserProvider())],
     child: const MyApp(),
@@ -18,13 +20,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  Future<bool> _checkToken() async {
-    final UserServicePref userServicePref = UserServicePref();
-    await userServicePref.loadAuthApp();
-    return userServicePref.hasToken; // Trả về true nếu có token, false nếu không
-  }
-  // This widget is the root of your application.
+  
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
