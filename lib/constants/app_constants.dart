@@ -15,6 +15,7 @@ class ApiConfig {
   static const String getPostsForUser = '$api/post/posts-for-user';
   static const String getComments = '$api/post/list-comments-by-parent-id';
   static const String getRoomChat = '$api/chat/list-room';
+  static const String getMessages = '$api/chat/list-mess';
 
   //api post
   static const String createPost = '$api/post/create-post';

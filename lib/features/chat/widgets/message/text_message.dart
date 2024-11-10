@@ -22,7 +22,7 @@ class TextMessage extends StatelessWidget {
       decoration: BoxDecoration(
           color: AppColors.lightBlueColor.withOpacity(isSender ? 1 : 0.08), borderRadius: BorderRadius.circular(30)),
       child: Text(
-        message.data!['content'],
+        message.data?.content ?? "",
         style: TextStyle(color: isSender ? Colors.white : Theme.of(context).textTheme.bodySmall?.color),
       ),
     );

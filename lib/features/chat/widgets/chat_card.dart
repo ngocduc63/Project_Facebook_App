@@ -1,4 +1,3 @@
-import 'package:facebook/constants/app_colors.dart';
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/models/chat_model.dart';
 import 'package:facebook/utils/convert_time.dart';
@@ -71,7 +70,7 @@ class ChatCard extends StatelessWidget {
                       Opacity(
                           opacity: 0.64,
                           child: Text(
-                            chat.lastMessage?.data!['content'],
+                            '${chat.lastMessage!.isSender() ? 'Bạn: ' : chat.lastMessage?.sender!.name}${chat.lastMessage?.data?.content ?? ""}',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           )),

@@ -13,7 +13,7 @@ MessageModel _$MessageModelFromJson(Map<String, dynamic> json) => MessageModel(
       sender: json['sender'] == null
           ? null
           : UserModel.fromJson(json['sender'] as Map<String, dynamic>),
-      data: json['data'] as Map<String, dynamic>?,
+      data: ContentMess.fromJson(json['data'] as Map<String, dynamic>?),
       time: json['createdAt'] as String,
     );
 
@@ -21,7 +21,8 @@ Map<String, dynamic> _$MessageModelToJson(MessageModel instance) =>
     <String, dynamic>{
       '_id': instance.id,
       'room_id': instance.roomId,
-      'created_by_user': instance.sender,
-      'data': instance.data,
+      'created_by_user': instance.senderId,
+      'sender': instance.sender,
+      'data': ContentMess.toJson(instance.data),
       'createdAt': instance.time,
     };

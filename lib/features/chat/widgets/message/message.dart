@@ -1,28 +1,36 @@
-import 'dart:ui';
-
 import 'package:facebook/constants/app_colors.dart';
+import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/enum_common.dart';
 import 'package:facebook/features/chat/widgets/message/audio_message.dart';
 import 'package:facebook/features/chat/widgets/message/text_message.dart';
 import 'package:facebook/features/chat/widgets/message/video_message.dart';
 import 'package:facebook/models/message_model.dart';
-import 'package:facebook/utils/prefs_user.dart';
+import 'package:facebook/utils/convert_time.dart';
 import 'package:flutter/material.dart';
 
-class Message extends StatelessWidget {
+class Message extends StatefulWidget {
   const Message({
     Key? key,
     required this.message,
+    required this.isLastMessage, 
   }) : super(key: key);
 
   final MessageModel message;
+  final bool isLastMessage; 
+
+  @override
+  State<Message> createState() => _MessageState();
+}
+
+class _MessageState extends State<Message> {
+  bool showTime = false;
   @override
   Widget build(BuildContext context) {
-    UserServicePref userServicePref = UserServicePref();
-    bool isSender = userServicePref.getUserInfo!.id == message.sender?.id;
+    bool isSender = widget.message.isSender();
 
-    Widget messageContaint(MessageModel message) {
-      switch (message.data!['type']) {
+    // Hàm trả về widget hiển thị nội dung tin nhắn
+    Widget messageContent(MessageModel message) {
+      switch (message.data!.type) {
         case MessageType.text:
           return TextMessage(message: message);
         case MessageType.audio:
@@ -34,27 +42,53 @@ class Message extends StatelessWidget {
       }
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 20),
-      child: Row(
-        mainAxisAlignment: isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
-        children: [
-          if (!isSender) ...[
-            const CircleAvatar(
-              radius: 12,
-              backgroundImage: AssetImage('assets/images/user_2.png'),
-            ),
-            const SizedBox(
-              width: 20 / 2,
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          showTime = !showTime;
+        });
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(top: 20),
+        child: Row(
+          mainAxisAlignment: isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
+          children: [
+            if (!isSender) ...[
+              if (widget.isLastMessage)
+                CircleAvatar(
+                  radius: 12,
+                  backgroundImage: NetworkImage('${ApiConfig.linkImage}${widget.message.sender!.avatar}'),
+                ),
+              SizedBox(
+                width: widget.isLastMessage  ? 20 / 2 : 34,
+              ),
+            ],
+            
+            Column(
+              crossAxisAlignment: isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
+                messageContent(widget.message),
+                if (showTime)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4.0, left: 8.0),
+                    child: Text(
+                      'Đã gửi ${convertToTimeAgo(widget.message.time)}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isSender ? AppColors.lightBlueColor : AppColors.blackColor,
+                        fontWeight: FontWeight.bold
+                      ),
+                    ),
+                  ),
+              ]
             )
           ],
-          messageContaint(message),
-          // if (isSender) MessageStatusDot(status: message.messageStatus)
-        ],
+        ),
       ),
     );
   }
 }
+
 
 // class MessageStatusDot extends StatelessWidget {
 //   final MessageStatus? status;

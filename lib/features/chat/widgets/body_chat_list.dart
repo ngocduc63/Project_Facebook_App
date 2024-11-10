@@ -17,33 +17,62 @@ class _BodyState extends State<Body> {
   List<ChatModel> chatsData = [];
   ApiController apiController = ApiController();
   bool isLoading = true;
+  bool isLoadingMore = false;
+  int page = 0;
+  int limit = 10;
+  bool hasNextPage = true;
+
+  ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _fetchChatsData();
+
+    // Thêm sự kiện để kiểm tra khi cuộn đến gần cuối danh sách
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+              _scrollController.position.maxScrollExtent &&
+          hasNextPage &&
+          !isLoadingMore) {
+        _fetchChatsData();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchChatsData() async {
+    setState(() {
+      isLoadingMore = true;
+    });
+    page++;
     try {
-      final response = await apiController
-          .get(ApiConfig.getRoomChat, {"page": 1, "limit": 10});
-          
+      final response = await apiController.get(ApiConfig.getRoomChat, {
+        "page": page,
+        "limit": limit,
+      });
+
       List<ChatModel> fetchedChats =
-          (response.data['metadata'] as List)
+          (response.data['metadata']['rooms'] as List)
               .map((room) => ChatModel.fromJson(room))
               .toList();
 
       setState(() {
-        chatsData = fetchedChats;
+        chatsData.addAll(fetchedChats);
         isLoading = false;
+        isLoadingMore = false;
+        hasNextPage = response.data['metadata']['totalPage'] > page;
       });
     } catch (error) {
       setState(() {
-        isLoading = false;
+        isLoadingMore = false;
       });
-      // Handle error if necessary
-      print("Error fetching chat data: $error");
+      print("Error loading more chat data: $error");
     }
   }
 
@@ -52,23 +81,38 @@ class _BodyState extends State<Body> {
     return Column(
       children: [
         Expanded(
-          child: isLoading
-              ? Center(
-                  child:
-                      CircularProgressIndicator(color: AppColors.lightBlueColor,))
-              : ListView.builder(
-                  itemCount: chatsData.length,
-                  itemBuilder: ((context, index) => ChatCard(
+            child: isLoading
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.lightBlueColor,
+                    ),
+                  )
+                : ListView.builder(
+                    controller: _scrollController,
+                    itemCount: chatsData.length,
+                    itemBuilder: (context, index) {
+                      if (index == chatsData.length) {
+                        // Vị trí cuối cùng dành cho CircularProgressIndicator
+                        return Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.lightBlueColor,
+                          ),
+                        );
+                      }
+
+                      // Nếu không ở vị trí tải thêm dữ liệu, trả về ChatCard như bình thường
+                      return ChatCard(
                         chat: chatsData[index],
                         press: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const MessagesScreen(),
+                            builder: (context) =>
+                                MessagesScreen(chat: chatsData[index]),
                           ),
                         ),
-                      )),
-                ),
-        )
+                      );
+                    },
+                  )),
       ],
     );
   }
