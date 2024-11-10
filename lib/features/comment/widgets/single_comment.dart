@@ -275,7 +275,7 @@ class _SingleCommentState extends State<SingleComment> {
               ),
             ],
           ),
-          if (widget.comment.countChild! > 0 && !viewReplies)
+          if (widget.comment.countChild > 0 && !viewReplies)
             Padding(
               padding: const EdgeInsets.only(top: 5, left: 40),
               child: InkWell(

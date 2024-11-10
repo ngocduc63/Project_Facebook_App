@@ -92,15 +92,12 @@ class _BodyState extends State<Body> {
                     itemCount: chatsData.length,
                     itemBuilder: (context, index) {
                       if (index == chatsData.length) {
-                        // Vị trí cuối cùng dành cho CircularProgressIndicator
                         return Center(
                           child: CircularProgressIndicator(
                             color: AppColors.lightBlueColor,
                           ),
                         );
                       }
-
-                      // Nếu không ở vị trí tải thêm dữ liệu, trả về ChatCard như bình thường
                       return ChatCard(
                         chat: chatsData[index],
                         press: () => Navigator.push(
