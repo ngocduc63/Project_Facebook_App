@@ -9,8 +9,7 @@ class AudioMessage extends StatelessWidget {
   final MessageModel message;
   @override
   Widget build(BuildContext context) {
-  UserServicePref userServicePref = UserServicePref();
-    bool isSender = userServicePref.getUserInfo!.id == message.sender?.id;
+    bool isSender = UserServicePref.instance.getUserInfo!.id == message.sender?.id;
     
     return Container(
       width: MediaQuery.of(context).size.width * 0.55,

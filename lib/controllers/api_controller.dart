@@ -8,15 +8,14 @@ import 'package:facebook/utils/prefs_user.dart';
 
 class ApiController {
   final Dio _dio = Dio();
-  final UserServicePref _userServicePref = UserServicePref();
   UserModel? userInfo;
   String? apiKey = '';
   Map<String, dynamic>? tokens;
 
   ApiController() {
-    userInfo = _userServicePref.getUserInfo;
-    apiKey = _userServicePref.apiKey;
-    tokens = _userServicePref.tokenAsJson;
+    userInfo = UserServicePref.instance.getUserInfo;
+    apiKey = UserServicePref.instance.apiKey;
+    tokens = UserServicePref.instance.tokenAsJson;
 
     // Set default configuration
     _dio.options.baseUrl = ApiConfig.api;
@@ -39,9 +38,9 @@ class ApiController {
             await _refreshToken();
             // Retry the original request with the new token
             final options = error.requestOptions;
-            final newToken = _userServicePref.tokenAsJson;
-            UserModel? userInfo = _userServicePref.getUserInfo;
-            final apiKey = _userServicePref.apiKey;
+            final newToken = UserServicePref.instance.tokenAsJson;
+            UserModel? userInfo = UserServicePref.instance.getUserInfo;
+            final apiKey = UserServicePref.instance.apiKey;
 
             options.headers['authorization'] = newToken?['accessToken'];
             options.headers['x-api-key'] = apiKey;
@@ -147,8 +146,8 @@ class ApiController {
 
     //  errorcode == 403 => logout
 
-      // Save the new token using UserServicePref
-      await _userServicePref.saveToken(newTokens);
+      // Save the new token using UserServicePref.instance
+      await UserServicePref.instance.saveToken(newTokens);
     } catch (e) {
       throw Exception('Failed to refresh token');
     }

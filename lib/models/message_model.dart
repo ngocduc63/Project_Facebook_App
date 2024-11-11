@@ -36,8 +36,7 @@ class MessageModel {
   Map<String, dynamic> toJson() => _$MessageModelToJson(this);
 
   bool isSender() {
-    UserServicePref userServicePref = UserServicePref();
-    UserModel? currentUser = userServicePref.getUserInfo;
+    UserModel? currentUser = UserServicePref.instance.getUserInfo;
 
     return senderId == currentUser!.id;
   }

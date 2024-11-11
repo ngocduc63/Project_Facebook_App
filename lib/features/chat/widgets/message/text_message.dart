@@ -14,8 +14,7 @@ class TextMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    UserServicePref userServicePref = UserServicePref();
-    bool isSender = userServicePref.getUserInfo!.id == message.sender?.id;
+    bool isSender = UserServicePref.instance.getUserInfo!.id == message.sender?.id;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20 * 0.75, vertical: 20 / 2),

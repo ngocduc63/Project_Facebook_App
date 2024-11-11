@@ -1,5 +1,6 @@
 import 'package:facebook/models/message_model.dart';
 import 'package:facebook/models/user_model.dart';
+import 'package:facebook/utils/prefs_user.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'chat_model.g.dart';
@@ -8,7 +9,7 @@ part 'chat_model.g.dart';
 class ChatModel {
   @JsonKey(name: '_id')
   final String? id;
-  final UserModel friend;
+  final List<UserModel> membersInfo;
   @JsonKey(name: 'room_name')
   final String? name;
   @JsonKey(name: 'last_message_data')
@@ -23,7 +24,7 @@ class ChatModel {
 
   ChatModel({
     required this.id,
-    required this.friend,
+    required this.membersInfo,
     required this.name,
     this.lastMessage,
     this.userSendLastMessage,
@@ -32,6 +33,12 @@ class ChatModel {
     required this.timeUpdate,
     
   });
+
+  UserModel get friend {
+    UserModel? currentUser = UserServicePref.instance.getUserInfo;
+    
+    return membersInfo[0].id == currentUser!.id ? membersInfo[1] : membersInfo[0];
+  }
 
   factory ChatModel.fromJson(Map<String, dynamic> json) =>
       _$ChatModelFromJson(json);

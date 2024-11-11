@@ -26,7 +26,6 @@ class MenuScreen extends StatefulWidget {
 
 class _MenuScreenState extends State<MenuScreen> {
   LogoutController logoutController = Get.put(LogoutController());
-  final UserServicePref userServicePref = UserServicePref();
 
   ScrollController scrollController =
       ScrollController(initialScrollOffset: MenuScreen.offset);
@@ -297,7 +296,7 @@ class _MenuScreenState extends State<MenuScreen> {
   @override
   void initState() {
     super.initState();
-    user = userServicePref.getUserInfo;
+    user = UserServicePref.instance.getUserInfo;
   }
 
   @override

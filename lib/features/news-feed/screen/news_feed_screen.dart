@@ -155,8 +155,7 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
       }
     });
 
-    UserServicePref userServicePref = UserServicePref();
-    final userInfo = userServicePref.getUserInfo;
+    final userInfo = UserServicePref.instance.getUserInfo;
 
     return SingleChildScrollView(
       controller: scrollController,

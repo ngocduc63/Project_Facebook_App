@@ -20,7 +20,6 @@ class ChatInputField extends StatefulWidget {
 
 class _ChatInputFieldState extends State<ChatInputField> {
   TextEditingController _controller = TextEditingController();
-  UserServicePref userServicePref = UserServicePref();
   late UserModel? currentUser;
   bool isTyping = false;
   late io.Socket? socket;
@@ -29,7 +28,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
    void initState() {
     super.initState();
     socket = SocketController.instance.socket;
-    currentUser = userServicePref.getUserInfo;
+    currentUser = UserServicePref.instance.getUserInfo;
   }
 
   void sendMessage() {

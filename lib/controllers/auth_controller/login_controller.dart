@@ -10,7 +10,6 @@ class LoginController extends GetxController {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  UserServicePref userServicePref = UserServicePref();
   var isLoadingAuth = false.obs;
 
   Future<void> loginWithEmail() async {
@@ -33,11 +32,10 @@ class LoginController extends GetxController {
         final userData = jsonEncode(json['metadata']['user']);
         final tokenData = jsonEncode(json['metadata']['tokens']);
 
-        await userServicePref.saveToken(tokenData);
-        await userServicePref
+        await UserServicePref.instance.saveToken(tokenData);
+        await UserServicePref.instance
             .saveApiKey(json['metadata']['apikey']['key'].toString());
-        await userServicePref
-            .saveUser(userData);
+        await UserServicePref.instance.saveUser(userData);
 
         emailController.clear();
         passwordController.clear();

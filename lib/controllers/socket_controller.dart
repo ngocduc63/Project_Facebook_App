@@ -5,14 +5,13 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class SocketController {
   static SocketController? _instance;
-  final UserServicePref userServicePref = UserServicePref();
   io.Socket? socket;
   UserModel? currentUser;
 
   SocketController._internal() {
-    currentUser = userServicePref.getUserInfo;
+    currentUser = UserServicePref.instance.getUserInfo;
 
-    socket = io.io(ApiConfig.url, <String, dynamic>{
+    socket = io.io(ApiConfig.linkBE, <String, dynamic>{
       'transports': ['websocket'],
       'query': {'userId': currentUser?.id},
     });

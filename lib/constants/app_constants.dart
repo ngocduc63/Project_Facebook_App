@@ -5,9 +5,10 @@ class AppConstants {
 }
 
 class ApiConfig {
-  static const String url = 'https://project-social-network.onrender.com';
-  static const String local = 'http://192.168.0.0.101:3055';
-  static const String api = '$url/api';
+  static const String prod = 'https://project-social-network.onrender.com';
+  static const String local = 'http://192.168.0.101:3055';
+  static const String linkBE = prod;
+  static const String api = '$linkBE/api';
 
   //api get
   static const String linkImage = '$api/user/image/';

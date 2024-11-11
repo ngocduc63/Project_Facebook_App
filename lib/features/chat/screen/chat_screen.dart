@@ -6,8 +6,6 @@ import 'package:facebook/models/user_model.dart';
 import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 
-// import 'components/body.dart';
-
 class ChatsScreen extends StatefulWidget {
   static const String routeName = RouterConstants.chat;
   const ChatsScreen({super.key});
@@ -18,14 +16,13 @@ class ChatsScreen extends StatefulWidget {
 
 class _ChatsScreenState extends State<ChatsScreen> {
   int _selectedIndex = 1;
-  UserServicePref userServicePref = UserServicePref();
   UserModel? currentUser;
 
   @override
   void initState() {
     super.initState();
     setState(() {
-      currentUser = userServicePref.getUserInfo;
+      currentUser = UserServicePref.instance.getUserInfo;
     });
   }
 

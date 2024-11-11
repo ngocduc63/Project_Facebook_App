@@ -20,12 +20,11 @@ class SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> checkTokenAndNavigate() async {
-    final UserServicePref userServicePref = UserServicePref();
     
-    await userServicePref.loadAuthApp();
+    await UserServicePref.instance.loadAuthApp();
     await Future.delayed(const Duration(microseconds: 1500));
 
-    if (userServicePref.hasToken) {
+    if (UserServicePref.instance.hasToken) {
       Get.offNamed(RouterConstants.routerHome);
     } else {
       Get.offNamed(RouterConstants.routerAuth);

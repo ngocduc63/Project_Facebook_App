@@ -34,7 +34,6 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
 
   List<UserModel> usersMutual = [];
   ApiController apiController = ApiController();
-  UserServicePref userServicePref = UserServicePref();
   UserModel? user;
   ScrollController scrollController =
       ScrollController(initialScrollOffset: PersonalPageScreen.offset);
@@ -44,7 +43,7 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
       final response = await apiController
           .get(ApiConfig.getuserInfo, {'userId': widget.user.id});
       final UserModel userData = UserModel.fromJson(response.data['metadata']);
-      final UserModel? currentUserData = userServicePref.getUserInfo;
+      final UserModel? currentUserData = UserServicePref.instance.getUserInfo;
       final bool isCurrentUer = widget.user.id == currentUserData?.id;
       int countMutualFriends = 0;
       List<UserModel> listMutualFriends = [];
