@@ -2,10 +2,13 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/global_variables.dart';
 import 'package:facebook/constants/router_constants.dart';
+import 'package:facebook/controllers/socket_controller.dart';
+import 'package:facebook/models/chat_model.dart';
 import 'package:facebook/utils/notification_service.dart';
 import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -15,15 +18,44 @@ class SplashScreen extends StatefulWidget {
 }
 
 class SplashScreenState extends State<SplashScreen> {
+  late io.Socket? socket;
+
   @override
   void initState() {
     super.initState();
     checkTokenAndNavigate();
   }
 
+  void initSocket() {
+    socket = SocketController.instance.getSocket();
+
+    if (socket != null) {
+      socket!.emit('join_noti_for_user',
+          {"userId": UserServicePref.instance.getUserInfo!.id});
+
+      socket!.on('receive_noti', (data) async {
+        String type = data['type'];
+        final roomData = ChatModel.fromJson(data['data']);
+        String content = roomData.lastMessage?.data?.content ?? "";
+        String displayContent = content.length > 256 ? "${content.substring(0, 256)}..." : content;
+        
+        if (type == "message") {
+          await NotificationService.showNotification(
+            title: "Bạn có tin nhắn mới từ ${roomData.lastMessage!.sender!.name}",
+            body: displayContent,
+            largeIcon:
+                '${ApiConfig.linkImage}${roomData.lastMessage!.sender!.avatar}',
+            notificationLayout: NotificationLayout.Messaging,
+          );
+        }
+      });
+    }
+  }
+
   Future<void> checkTokenAndNavigate() async {
     await UserServicePref.instance.loadAuthApp();
-    await Future.delayed(const Duration(milliseconds: 500));
+    initSocket();
+    await Future.delayed(const Duration(milliseconds: 600));
 
     if (UserServicePref.instance.hasToken) {
       Get.offNamed(RouterConstants.routerHome);
@@ -41,34 +73,10 @@ class SplashScreenState extends State<SplashScreen> {
           children: [
             Image.asset('assets/logo.png', height: 100),
             const SizedBox(height: 20),
-            const CircularProgressIndicator(color: GlobalVariables.secondaryColor, strokeWidth: 3,),
-            // Padding(
-            //   padding: const EdgeInsets.only(
-            //     left: 30.0,
-            //     right: 30.0,
-            //     top: 20,
-            //     bottom: 10,
-            //   ),
-            //   child: SizedBox(
-            //     width: MediaQuery.of(context).size.width,
-            //     height: 50,
-            //     child: ElevatedButton(
-            //       style: ElevatedButton.styleFrom(
-            //         shadowColor: Theme.of(context).shadowColor,
-            //         backgroundColor: Theme.of(context).primaryColor,
-            //       ),
-            //       onPressed: () async {
-            //         await NotificationService.showNotification(
-            //           title: "Bạn có tin nhắn mới từ Nguyễn Ngọc Đức",
-            //           body: " Đi chơi không",
-            //           largeIcon: '${ApiConfig.linkImage}${UserServicePref.instance.getUserInfo!.avatar}',
-            //           notificationLayout: NotificationLayout.Messaging,
-            //         );
-            //       },
-            //       child: Text("text", style: TextStyle(color: Colors.blue),),
-            //     ),
-            //   ),
-            // )
+            const CircularProgressIndicator(
+              color: GlobalVariables.secondaryColor,
+              strokeWidth: 3,
+            ),
           ],
         ),
       ),

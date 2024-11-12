@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:facebook/features/home/screens/home_screen.dart';
+import 'package:facebook/features/SplashScreen/screens/splash_screen.dart';
 import 'package:facebook/utils/api_endpoints.dart';
 import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +40,7 @@ class LoginController extends GetxController {
         emailController.clear();
         passwordController.clear();
 
-        Get.off(HomeScreen());
+        Get.off(SplashScreen());
         isLoadingAuth.value = false;
       } else {
         throw jsonDecode(response.body) ?? "Login error";
