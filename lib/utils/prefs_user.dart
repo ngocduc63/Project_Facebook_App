@@ -9,8 +9,9 @@ class UserServicePref {
   String? _token;
   String? _apiKey;
   String? _user;
+  String? _currentRoom;
 
-  bool _isInitialized = false; 
+  bool _isInitialized = false;
 
   UserServicePref._internal();
 
@@ -92,9 +93,15 @@ class UserServicePref {
     return null;
   }
 
+  void setRoom(String? room) {
+    _currentRoom = room;
+  }
+
   String? get token => _token;
   String? get apiKey => _apiKey;
   String? get user => _user;
+
+  String? get currentRoom => _currentRoom;
 
   bool get hasToken => _token != null && _token!.isNotEmpty;
 }

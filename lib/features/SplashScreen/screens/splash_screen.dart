@@ -39,7 +39,7 @@ class SplashScreenState extends State<SplashScreen> {
         String content = roomData.lastMessage?.data?.content ?? "";
         String displayContent = content.length > 256 ? "${content.substring(0, 256)}..." : content;
         
-        if (type == "message") {
+        if (type == "message" && UserServicePref.instance.currentRoom != roomData.id) {
           await NotificationService.showNotification(
             title: "Bạn có tin nhắn mới từ ${roomData.lastMessage!.sender!.name}",
             body: displayContent,

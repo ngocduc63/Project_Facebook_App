@@ -5,6 +5,7 @@ import 'package:facebook/controllers/socket_controller.dart';
 import 'package:facebook/features/chat/widgets/message/message.dart';
 import 'package:facebook/models/chat_model.dart';
 import 'package:facebook/models/message_model.dart';
+import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 import 'chat_input_fields.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
@@ -29,12 +30,12 @@ class _BodyState extends State<Body> {
   int offset = 0;
   bool hasNextPage = true;
 
-
   final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
+    UserServicePref.instance.setRoom(widget.chat.id);
     initSocket();
     _fetchMessData();
     _scrollController.addListener(() {
@@ -53,8 +54,12 @@ class _BodyState extends State<Body> {
     });
     page++;
     try {
-      final response = await apiController.get(ApiConfig.getMessages,
-          {"roomId": widget.chat.id, "page": page, "limit": limit, "offset": offset});
+      final response = await apiController.get(ApiConfig.getMessages, {
+        "roomId": widget.chat.id,
+        "page": page,
+        "limit": limit,
+        "offset": offset
+      });
 
       List<MessageModel> fetchedChats =
           (response.data['metadata']['messages'] as List)
@@ -89,7 +94,7 @@ class _BodyState extends State<Body> {
           setState(() {
             dataMess.insert(0, messData);
           });
-          offset ++;
+          offset++;
           _scrollController.jumpTo(0);
         }
       });
@@ -135,7 +140,11 @@ class _BodyState extends State<Body> {
                   ),
                 ),
               ),
-        !isLoading ? ChatInputField(chat: widget.chat,) : Container(),
+        !isLoading
+            ? ChatInputField(
+                chat: widget.chat,
+              )
+            : Container(),
       ],
     );
   }
@@ -147,6 +156,7 @@ class _BodyState extends State<Body> {
       print("User left the room");
       _scrollController.dispose();
     }
+    UserServicePref.instance.setRoom("");
     super.dispose();
   }
 }
