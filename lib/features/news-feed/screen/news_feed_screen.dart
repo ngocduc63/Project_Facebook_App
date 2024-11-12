@@ -91,13 +91,15 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
 
   Future<void> _fetchPosts() async {
     try {
-      setState(() {
-        if (page == 0) {
-          isLoading = true;
-        } else {
-          isLoadingMore = true;
-        }
-      });
+      if (mounted) {
+        setState(() {
+          if (page == 0) {
+            isLoading = true;
+          } else {
+            isLoadingMore = true;
+          }
+        });
+      }
 
       page++;
       final response = await _apiController.get(ApiConfig.getPostsForUser, {
@@ -112,17 +114,21 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
 
       bool checkNextPage = response.data['metadata']['totalPage'] > page;
 
-      setState(() {
-        postsNew.addAll(postsNewdata);
-        isLoading = false;
-        isLoadingMore = false;
-        hasNextPage = checkNextPage;
-      });
+      if (mounted) {
+        setState(() {
+          postsNew.addAll(postsNewdata);
+          isLoading = false;
+          isLoadingMore = false;
+          hasNextPage = checkNextPage;
+        });
+      }
     } catch (e) {
-      setState(() {
-        isLoading = false;
-        isLoadingMore = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+          isLoadingMore = false;
+        });
+      }
       // Xử lý lỗi
       print('Error fetching posts: $e');
     }

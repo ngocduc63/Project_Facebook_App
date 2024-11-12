@@ -51,6 +51,7 @@ class _BodyState extends State<Body> {
   @override
   void dispose() {
     _scrollController.dispose();
+    socket!.emit('leave_chat_list_room', {"userId": currentUser!.id});
     super.dispose();
   }
 
@@ -66,13 +67,15 @@ class _BodyState extends State<Body> {
 
         int indexRoom = chatsData.indexWhere((chat) => chat.id == roomData.id);
         if (indexRoom != -1) {
-          setState(() {
-            chatsData.removeAt(indexRoom);
-          });
+          if (mounted) {
+            setState(() {
+              chatsData.removeAt(indexRoom);
+            });
+          }
         } else {
           offset++;
         }
-        
+
         if (mounted) {
           setState(() {
             chatsData.insert(0, roomData);
@@ -84,9 +87,11 @@ class _BodyState extends State<Body> {
   }
 
   Future<void> _fetchChatsData() async {
-    setState(() {
-      isLoadingMore = true;
-    });
+    if (mounted) {
+      setState(() {
+        isLoadingMore = true;
+      });
+    }
     page++;
     try {
       final response = await apiController.get(ApiConfig.getRoomChat, {
@@ -100,16 +105,20 @@ class _BodyState extends State<Body> {
               .map((room) => ChatModel.fromJson(room))
               .toList();
 
-      setState(() {
-        chatsData.addAll(fetchedChats);
-        isLoading = false;
-        isLoadingMore = false;
-        hasNextPage = response.data['metadata']['totalPage'] > page;
-      });
+      if (mounted) {
+        setState(() {
+          chatsData.addAll(fetchedChats);
+          isLoading = false;
+          isLoadingMore = false;
+          hasNextPage = response.data['metadata']['totalPage'] > page;
+        });
+      }
     } catch (error) {
-      setState(() {
-        isLoadingMore = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoadingMore = false;
+        });
+      }
       print("Error loading more chat data: $error");
     }
   }

@@ -40,12 +40,17 @@ class _ChatsScreenState extends State<ChatsScreen> {
                     color: AppColors.whiteColor,
                   ))
             ],
-            title: const Text(
-              'Đoạn chat',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: AppColors.whiteColor,
-              ),
+            title: Row(
+              children: [
+                const BackButton( color: AppColors.whiteColor),
+                const Text(
+                  'Đoạn chat',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.whiteColor,
+                  ),
+                )
+              ],
             )),
         body: const Body(),
         floatingActionButton: FloatingActionButton(
