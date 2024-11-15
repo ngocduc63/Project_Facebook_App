@@ -1,6 +1,11 @@
 // import 'package:awesome_notification/main.dart';
+import 'dart:convert';
+
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:facebook/constants/global_variables.dart';
+import 'package:facebook/features/chat/screen/call_screen.dart';
+import 'package:facebook/main.dart';
+import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 
 class NotificationService {
@@ -67,17 +72,31 @@ class NotificationService {
 
   /// Use this method to detect when the user taps on a notification or action button
   static Future<void> onActionReceivedMethod(
-      ReceivedAction receivedAction) async {
-    debugPrint('onActionReceivedMethod');
-    final payload = receivedAction.payload ?? {};
-    if (payload["navigate"] == "true") {
-      // MainApp.navigatorKey.currentState?.push(
-      //   MaterialPageRoute(
-      //     builder: (_) => const SecondScreen(),
-      //   ),
-      // );
-    }
+    ReceivedAction receivedAction) async {
+  final payload = receivedAction.payload ?? {};
+
+  if (receivedAction.buttonKeyPressed == 'ANSWER') {
+    // Chuyển đến màn hình VideoScreen
+    final data = jsonDecode(payload['data'] ?? "");
+    final currentUser = UserServicePref.instance.getUserInfo!.id;
+    navigatorKey.currentState?.push(
+      MaterialPageRoute(builder: (context) => 
+      CallScreen(callerId: data['callerId'],
+          calleeId: currentUser,
+          offer: data['sdpOffer'],
+          )),
+    );
+  } else if (receivedAction.buttonKeyPressed == 'DECLINE') {
+    // Xử lý từ chối cuộc gọi
+    debugPrint('Người dùng đã từ chối cuộc gọi.');
   }
+
+  if (payload["navigate"] == "true") {
+    // Xử lý các loại thông báo khác nếu cần
+    debugPrint('Xử lý chuyển hướng khác.');
+  }
+}
+
 
   static Future<void> showNotification({
     required final String title,
@@ -92,12 +111,16 @@ class NotificationService {
     final List<NotificationActionButton>? actionButtons,
     final bool scheduled = false,
     final int? interval,
+    final dynamic offer,
   }) async {
-    assert(!scheduled || (scheduled && interval != null));
+    assert(!scheduled || (scheduled && interval != null),
+        'If scheduled is true, interval must be provided.');
 
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
-        id: -1,
+        id: DateTime.now()
+            .millisecondsSinceEpoch
+            .remainder(100000),
         channelKey: 'high_importance_channel',
         title: title,
         body: body,
@@ -110,9 +133,9 @@ class NotificationService {
         largeIcon: largeIcon,
       ),
       actionButtons: actionButtons,
-      schedule: scheduled
+      schedule: scheduled && interval != null
           ? NotificationInterval(
-              interval: Duration(milliseconds: 1000),
+              interval: Duration(milliseconds: 600),
               timeZone:
                   await AwesomeNotifications().getLocalTimeZoneIdentifier(),
               preciseAlarm: true,

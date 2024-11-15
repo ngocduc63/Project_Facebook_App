@@ -85,7 +85,7 @@ class _BodyState extends State<Body> {
     socket = SocketController.instance.getSocket();
 
     if (socket != null) {
-      socket!.emit('join_room', {"roomId": "${widget.chat.id}"});
+      // socket!.emit('join_room', {"roomId": "${widget.chat.id}"});
 
       socket!.on('receive_message', (data) {
         final messData = MessageModel.fromJson(data);

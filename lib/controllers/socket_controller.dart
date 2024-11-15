@@ -13,7 +13,7 @@ class SocketController {
 
     socket = io.io(ApiConfig.linkBE, <String, dynamic>{
       'transports': ['websocket'],
-      'query': {'userId': currentUser?.id},
+      'query': {'userId': currentUser?.id, "callerId": currentUser?.id},
     });
 
     socket?.on('connect', (_) {
