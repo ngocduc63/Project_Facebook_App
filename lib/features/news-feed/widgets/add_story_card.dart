@@ -1,14 +1,15 @@
+import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/global_variables.dart';
-import 'package:facebook/providers/user_provider.dart';
+import 'package:facebook/models/user_model.dart';
+import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class AddStoryCard extends StatelessWidget {
   const AddStoryCard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<UserProvider>(context).user;
+    UserModel? currentuser = UserServicePref.instance.getUserInfo;
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.rectangle,
@@ -34,8 +35,8 @@ class AddStoryCard extends StatelessWidget {
                       topLeft: Radius.circular(10),
                       topRight: Radius.circular(10),
                     ),
-                    child: Image.asset(
-                      user.avatar,
+                    child: Image.network(
+                      '${ApiConfig.linkImage}${currentuser!.avatar}',
                       fit: BoxFit.fitWidth,
                     ),
                   ),

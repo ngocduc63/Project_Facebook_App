@@ -18,17 +18,11 @@ class _HomeAppBarState extends State<HomeAppBar> {
       children: [
         Row(
           children: [
-            IconButton(
-              splashRadius: 20,
-              onPressed: () {},
-              icon: const ImageIcon(
-                AssetImage('assets/images/menu.png'),
-                color: Colors.black,
-                size: 50,
-              ),
+            const SizedBox(
+              width: 20,
             ),
             const Text(
-              'facebook',
+              'Facebook',
               style: TextStyle(
                 color: GlobalVariables.secondaryColor,
                 fontSize: 28,
