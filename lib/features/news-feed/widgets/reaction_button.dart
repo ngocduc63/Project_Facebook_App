@@ -17,7 +17,7 @@ class ReactionButton extends StatefulWidget {
   final Emotion? initialReaction;
   final OnButtonPressedCallback? onReactionChanged;
   final Map<String, dynamic>? userHasLike;
-  final Future<void> Function()? handleLike;
+  final OnButtonPressedCallback? handleLike;
 
   @override
   State<ReactionButton> createState() => _ReactionButtonState();
@@ -136,8 +136,11 @@ class _ReactionButtonState extends State<ReactionButton> {
                           setState(() {
                             isLoadingLike = true;
                             _reaction = reactions[index].reaction;
-                            if (widget.onReactionChanged != null) {
+                            if (widget.onReactionChanged != null &&
+                                widget.userHasLike!['isLiked']) {
                               widget.onReactionChanged!(_reaction);
+                            } else {
+                              widget.handleLike!(_reaction);
                             }
                             _reactionView = false;
                           });
@@ -190,14 +193,16 @@ class _ReactionButtonState extends State<ReactionButton> {
               _reaction = Emotion.none;
             }
 
-            // Truyền giá trị mới về cho callback
-            if (widget.onReactionChanged != null) {
-              widget.onReactionChanged!(_reaction);
+            if (widget.userHasLike!['isLiked'] && _reaction != Emotion.none) {
+              if (widget.onReactionChanged != null &&
+                  _reaction != Emotion.none) {
+                widget.onReactionChanged!(_reaction);
+              }
+            } else {
+              widget.handleLike!(_reaction);
             }
-            
-            widget.handleLike!();
           }
-          
+
           setState(() {
             isLoadingLike = false;
           });
