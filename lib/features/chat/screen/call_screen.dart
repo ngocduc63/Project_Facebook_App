@@ -1,16 +1,23 @@
+import 'dart:async';
+
+import 'package:facebook/constants/app_colors.dart';
+import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/controllers/socket_controller.dart';
+import 'package:facebook/models/user_model.dart';
 import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 class CallScreen extends StatefulWidget {
   final String callerId, calleeId;
+  final UserModel userInfo;
   final dynamic offer;
   const CallScreen({
     super.key,
     this.offer,
     required this.callerId,
     required this.calleeId,
+    required this.userInfo,
   });
 
   @override
@@ -26,9 +33,15 @@ class _CallScreenState extends State<CallScreen> {
   List<RTCIceCandidate> rtcIceCandidates = [];
   bool isAudioOn = true, isVideoOn = true, isFrontCameraSelected = true;
 
-  // Flags to track if renderers are disposed
   bool _isLocalRendererDisposed = false;
   bool _isRemoteRendererDisposed = false;
+
+  bool isControlsVisible = false;
+  Timer? _hideControlsTimer;
+  double _smallVideoTop = 20;
+  double _startTop = 20;
+  double _smallVideoLeft = 20;
+  double _startLeft = 20;
 
   @override
   void initState() {
@@ -36,12 +49,29 @@ class _CallScreenState extends State<CallScreen> {
     _localRTCVideoRenderer.initialize();
     _remoteRTCVideoRenderer.initialize();
     _setupPeerConnection();
+    _toggleControls();
   }
 
   @override
   void setState(fn) {
     if (mounted) {
       super.setState(fn);
+    }
+  }
+
+  void _toggleControls() {
+    setState(() {
+      isControlsVisible = !isControlsVisible;
+    });
+
+    if (isControlsVisible) {
+      _hideControlsTimer?.cancel();
+
+      _hideControlsTimer = Timer(const Duration(seconds: 3), () {
+        setState(() {
+          isControlsVisible = false;
+        });
+      });
     }
   }
 
@@ -207,7 +237,7 @@ class _CallScreenState extends State<CallScreen> {
   _switchCamera() {
     isFrontCameraSelected = !isFrontCameraSelected;
     _localStream?.getVideoTracks().forEach((track) {
-      track.switchCamera();
+      Helper.switchCamera(track);
     });
     setState(() {});
   }
@@ -215,23 +245,66 @@ class _CallScreenState extends State<CallScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: const Text("P2P Call App"),
-      ),
-      body: SafeArea(
-        child: Column(
+        title: Row(
           children: [
-            Expanded(
-              child: Stack(
-                children: [
-                  RTCVideoView(
-                    _remoteRTCVideoRenderer,
-                    objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                  ),
-                  Positioned(
-                    right: 20,
-                    bottom: 20,
+            CircleAvatar(
+              backgroundImage: NetworkImage(
+                  '${ApiConfig.linkImage}${widget.userInfo.avatar}'),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              widget.userInfo.name,
+              style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.whiteColor),
+            ),
+          ],
+        ),
+        automaticallyImplyLeading: false,
+        backgroundColor: AppColors.lightBlueColor,
+      ),
+      body: GestureDetector(
+        onTap: _toggleControls,
+        behavior: HitTestBehavior.opaque,
+        child: Stack(
+          children: [
+            // Video chính
+            RTCVideoView(
+              _remoteRTCVideoRenderer,
+              objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+            ),
+            // Video nhỏ
+            Positioned(
+              top: _smallVideoTop,
+              left: _smallVideoLeft,
+              child: GestureDetector(
+                onPanStart: (details) {
+                  _startTop = _smallVideoTop;
+                  _startLeft = _smallVideoLeft;
+                },
+                onPanUpdate: (details) {
+                  setState(() {
+                    _smallVideoTop = _startTop + details.localPosition.dy - 75;
+                    _smallVideoLeft =
+                        _startLeft + details.localPosition.dx - 60;
+
+                    if (_smallVideoTop < 0) _smallVideoTop = 0;
+                    if (_smallVideoLeft < 0) _smallVideoLeft = 0;
+                    if (_smallVideoTop >
+                        MediaQuery.of(context).size.height - 250) {
+                      _smallVideoTop = MediaQuery.of(context).size.height - 250;
+                    }
+                    if (_smallVideoLeft >
+                        MediaQuery.of(context).size.width - 120) {
+                      _smallVideoLeft = MediaQuery.of(context).size.width - 120;
+                    }
+                  });
+                },
+                child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
                     child: SizedBox(
                       height: 150,
                       width: 120,
@@ -241,38 +314,61 @@ class _CallScreenState extends State<CallScreen> {
                         objectFit:
                             RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
                       ),
+                    )),
+              ),
+            ),
+
+            // Các nút điều khiển
+            if (isControlsVisible)
+              Positioned(
+                bottom: 20,
+                left: 0,
+                right: 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildControlButton(
+                      icon: isAudioOn ? Icons.mic : Icons.mic_off,
+                      onPressed: _toggleMic,
                     ),
-                  ),
-                ],
+                    _buildControlButton(
+                      icon: Icons.call_end,
+                      onPressed: () => _leaveCall(false),
+                      backgroundColor: Colors.red,
+                    ),
+                    _buildControlButton(
+                      icon: Icons.cameraswitch,
+                      onPressed: _switchCamera,
+                    ),
+                    _buildControlButton(
+                      icon: isVideoOn ? Icons.videocam : Icons.videocam_off,
+                      onPressed: _toggleCamera,
+                      backgroundColor: const Color.fromARGB(255, 6, 189, 12),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  IconButton(
-                    icon: Icon(isAudioOn ? Icons.mic : Icons.mic_off),
-                    onPressed: _toggleMic,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.call_end),
-                    iconSize: 30,
-                    onPressed: () => _leaveCall(false),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.cameraswitch),
-                    onPressed: _switchCamera,
-                  ),
-                  IconButton(
-                    icon: Icon(isVideoOn ? Icons.videocam : Icons.videocam_off),
-                    onPressed: _toggleCamera,
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildControlButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+    Color backgroundColor = Colors.blue,
+  }) {
+    return Container(
+      width: 56,
+      height: 56,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        shape: BoxShape.circle,
+      ),
+      child: IconButton(
+        icon: Icon(icon, color: Colors.white),
+        onPressed: onPressed,
       ),
     );
   }
@@ -285,6 +381,8 @@ class _CallScreenState extends State<CallScreen> {
     _remoteRTCVideoRenderer.dispose();
     _localStream?.dispose();
     _rtcPeerConnection?.dispose();
+    _hideControlsTimer?.cancel();
+    _leaveCall(false);
     socket?.off('end_call');
     super.dispose();
   }

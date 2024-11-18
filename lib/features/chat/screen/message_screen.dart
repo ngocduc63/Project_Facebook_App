@@ -20,6 +20,7 @@ class MessagesScreen extends StatelessWidget {
           callerId: currentUser,
           calleeId: calleId,
           offer: null,
+          userInfo: chat.friend,
         ),
       ),
     );
@@ -56,7 +57,7 @@ class MessagesScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
-              onPressed: () {},
+              onPressed: () => {handleCall(context)},
               icon: Icon(
                 Icons.call,
                 color: AppColors.whiteColor,

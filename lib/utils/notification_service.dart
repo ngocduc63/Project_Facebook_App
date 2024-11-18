@@ -5,6 +5,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:facebook/constants/global_variables.dart';
 import 'package:facebook/features/chat/screen/call_screen.dart';
 import 'package:facebook/main.dart';
+import 'package:facebook/models/user_model.dart';
 import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 
@@ -79,11 +80,13 @@ class NotificationService {
     // Chuyển đến màn hình VideoScreen
     final data = jsonDecode(payload['data'] ?? "");
     final currentUser = UserServicePref.instance.getUserInfo!.id;
+    UserModel userInfo = UserModel.fromJson(data['callerInfo']);
     navigatorKey.currentState?.push(
       MaterialPageRoute(builder: (context) => 
       CallScreen(callerId: data['callerId'],
           calleeId: currentUser,
           offer: data['sdpOffer'],
+          userInfo: userInfo,
           )),
     );
   } else if (receivedAction.buttonKeyPressed == 'DECLINE') {
