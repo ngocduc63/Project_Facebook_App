@@ -56,7 +56,7 @@ class _MultipleImagesPostScreenState extends State<MultipleImagesPostScreen> {
                       child: CircleAvatar(
                         radius: 20,
                         backgroundImage: CachedNetworkImageProvider(
-                            '${ApiConfig.linkImage}${widget.post.user.avatar}'),
+                            '${ApiConfig.linkImage}${widget.post.user!.avatar}'),
                       ),
                     ),
                     Padding(
@@ -69,7 +69,7 @@ class _MultipleImagesPostScreenState extends State<MultipleImagesPostScreen> {
                             child: Row(
                               children: [
                                 Text(
-                                  widget.post.user.name,
+                                  widget.post.user!.name,
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,

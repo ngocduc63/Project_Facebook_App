@@ -8,7 +8,7 @@ part 'post_model.g.dart';
 class PostModel {
   @JsonKey(name: '_id')
   final String id;
-  final UserModel user;
+  final UserModel? user;
   @JsonKey(name: 'createdAt')
   final String time;
   @JsonKey(name: 'post_image')
@@ -38,8 +38,8 @@ class PostModel {
 
   PostModel({
     required this.id,
-    required this.user,
     required this.time,
+    this.user,
     this.image,
     this.video,
     this.content,

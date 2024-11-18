@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:facebook/constants/app_constants.dart';
-import 'package:facebook/features/comment/screens/comment_screen.dart';
 import 'package:facebook/features/news-feed/widgets/post_content.dart';
 import 'package:facebook/models/post_model.dart';
 import 'package:facebook/utils/convert_time.dart';
@@ -17,16 +16,11 @@ class ImageFullScreen extends StatefulWidget {
 
 class _ImageFullScreenState extends State<ImageFullScreen> {
   List<String> icons = [];
-  String reactions = '0';
   bool contentVisible = true;
 
   @override
   void initState() {
     super.initState();
-    
-    setState(() {
-      reactions = '';
-    });  
   }
 
   @override
@@ -73,7 +67,7 @@ class _ImageFullScreenState extends State<ImageFullScreen> {
                         Container(
                           decoration: BoxDecoration(
                             shape: BoxShape.rectangle,
-                            color: Colors.black.withOpacity(0.4),
+                            color: Colors.black.withOpacity(0.8),
                           ),
                           width: double.infinity,
                           child: Column(
@@ -86,7 +80,7 @@ class _ImageFullScreenState extends State<ImageFullScreen> {
                                   top: 15,
                                 ),
                                 child: Text(
-                                  widget.post.user.name,
+                                  widget.post.user!.name,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
@@ -94,16 +88,16 @@ class _ImageFullScreenState extends State<ImageFullScreen> {
                                   ),
                                 ),
                               ),
-                              // Padding(
-                              //   padding: const EdgeInsets.only(
-                              //     left: 5,
-                              //     right: 5,
-                              //   ),
-                              //   child: PostContent(
-                              //     text: widget.post.content!,
-                              //     textColor: Colors.white,
-                              //   ),
-                              // ),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 5,
+                                  right: 5,
+                                ),
+                                child: PostContent(
+                                  text: widget.post.content!,
+                                  textColor: Colors.white,
+                                ),
+                              ),
                               Padding(
                                 padding: const EdgeInsets.only(
                                   left: 15,
@@ -150,7 +144,7 @@ class _ImageFullScreenState extends State<ImageFullScreen> {
                                       width: 5,
                                     ),
                                     Text(
-                                      'NHẮN TIN CHO ${widget.post.user.name.toUpperCase()}',
+                                      'NHẮN TIN CHO ${widget.post.user!.name.toUpperCase()}',
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 13,
@@ -163,218 +157,9 @@ class _ImageFullScreenState extends State<ImageFullScreen> {
                             ],
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              CommentScreen.routeName,
-                              arguments: widget.post,
-                            );
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 15,
-                              vertical: 10,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: 42,
-                                      child: Stack(
-                                        children: [
-                                          const SizedBox(
-                                            width: 24,
-                                            height: 24,
-                                          ),
-                                          if (icons.length > 1)
-                                            Positioned(
-                                              top: 2,
-                                              left: 18,
-                                              child: Image.asset(
-                                                icons[1],
-                                                width: 20,
-                                              ),
-                                            ),
-                                          if (icons.isNotEmpty)
-                                            Positioned(
-                                              top: 0,
-                                              left: 0,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    border: Border.all(
-                                                      color: Colors.black,
-                                                      width: 2,
-                                                    )),
-                                                child: Image.asset(
-                                                  icons[0],
-                                                  width: 20,
-                                                ),
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                                    if (reactions.isNotEmpty)
-                                      Text(
-                                        reactions,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    widget.post.numComment != null
-                                        ? Text(
-                                            '${widget.post.numComment} bình luận',
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.white,
-                                            ),
-                                          )
-                                        : const SizedBox(),
-                                    (widget.post.numComment != null &&
-                                            widget.post.numShare != null)
-                                        ? const Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 5),
-                                            child: Icon(
-                                              Icons.circle,
-                                              size: 3,
-                                              color: Colors.black,
-                                            ),
-                                          )
-                                        : const SizedBox(),
-                                    widget.post.numShare != null
-                                        ? Text(
-                                            '${widget.post.numShare} lượt chia sẻ',
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.white,
-                                            ),
-                                          )
-                                        : const SizedBox(),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 15,
-                          ),
-                          color: Colors.grey[100],
-                          height: 1,
-                          width: double.infinity,
-                        ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            InkWell(
-                              onTap: () {},
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 11.5,
-                                ),
-                                alignment: Alignment.centerLeft,
-                                width: (MediaQuery.of(context).size.width) / 3,
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    ImageIcon(
-                                      AssetImage(
-                                        'assets/images/like.png',
-                                      ),
-                                      color: Colors.white,
-                                      size: 24,
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(left: 10),
-                                      child: Text(
-                                        'Thích',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            InkWell(
-                              onTap: () {},
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                                alignment: Alignment.center,
-                                width: (MediaQuery.of(context).size.width) / 3,
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    ImageIcon(
-                                      AssetImage('assets/images/comment.png'),
-                                      color: Colors.white,
-                                      size: 22,
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(left: 10),
-                                      child: Text(
-                                        'Bình luận',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            InkWell(
-                              onTap: () {},
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 10,
-                                ),
-                                alignment: Alignment.centerRight,
-                                width: (MediaQuery.of(context).size.width) / 3,
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    ImageIcon(
-                                      AssetImage('assets/images/share.png'),
-                                      color: Colors.white,
-                                      size: 27,
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(left: 10),
-                                      child: Text(
-                                        'Chia sẻ',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
+                        SizedBox(
+                          height: 20,
+                        )
                       ],
                     ),
                   )

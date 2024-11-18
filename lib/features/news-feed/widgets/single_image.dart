@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/models/post_model.dart';
 import 'package:flutter/material.dart';

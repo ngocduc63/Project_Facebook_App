@@ -8,7 +8,9 @@ part of 'post_model.dart';
 
 PostModel _$PostModelFromJson(Map<String, dynamic> json) => PostModel(
       id: json['_id'] as String,
-      user: UserModel.fromJson(json['user'] as Map<String, dynamic>),
+      user: json['user'] == null
+          ? null
+          : UserModel.fromJson(json['user'] as Map<String, dynamic>),
       time: json['createdAt'] as String,
       image: (json['post_image'] as List<dynamic>?)
           ?.map((e) => e as String)
