@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/global_variables.dart';
 import 'package:facebook/controllers/api_controller.dart';
+import 'package:facebook/features/personal-page/screens/personal_page_screen.dart';
 import 'package:facebook/models/comment_model.dart';
 import 'package:facebook/utils/convert_time.dart';
 import 'package:flutter/material.dart';
@@ -105,7 +106,7 @@ class _SingleCommentState extends State<SingleComment> {
             fontWeight: FontWeight.w500,
           ),
         ).width +
-        30;
+        46;
 
     return Padding(
       padding: widget.level == 0
@@ -134,10 +135,19 @@ class _SingleCommentState extends State<SingleComment> {
                   ),
                   shape: BoxShape.circle,
                 ),
-                child: CircleAvatar(
-                  backgroundImage: CachedNetworkImageProvider(
-                      '${ApiConfig.linkImage}${widget.comment.user.avatar}'),
-                  radius: widget.level > 0 ? 15 : 20,
+                child: InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      PersonalPageScreen.routeName,
+                      arguments: widget.comment.user,
+                    );
+                  },
+                  child: CircleAvatar(
+                    backgroundImage: CachedNetworkImageProvider(
+                        '${ApiConfig.linkImage}${widget.comment.user.avatar}'),
+                    radius: widget.level > 0 ? 15 : 20,
+                  ),
                 ),
               ),
               const SizedBox(
@@ -158,16 +168,25 @@ class _SingleCommentState extends State<SingleComment> {
                         children: [
                           Row(
                             children: [
-                              Text(
-                                widget.comment.user.name,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                              InkWell(
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    PersonalPageScreen.routeName,
+                                    arguments: widget.comment.user,
+                                  );
+                                },
+                                child: Text(
+                                  widget.comment.user.name,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                               (widget.comment.user.verified == true
                                   ? const Padding(
-                                      padding: EdgeInsets.only(left: 2),
+                                      padding: EdgeInsets.only(left: 5),
                                       child: Icon(
                                         Icons.verified,
                                         color: Colors.blue,

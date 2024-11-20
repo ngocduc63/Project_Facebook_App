@@ -199,8 +199,8 @@ class _CommentScreenState extends State<CommentScreen> {
                                           children: [
                                             SizedBox(
                                               width: icons.length < 3
-                                                  ? icons.length * 36
-                                                  : 120,
+                                                  ? icons.length * 25
+                                                  : 100,
                                               height: 34,
                                               child: Stack(
                                                 children: [
@@ -209,8 +209,8 @@ class _CommentScreenState extends State<CommentScreen> {
                                                       top: 0,
                                                       left: 0,
                                                       child: Container(
-                                                        width: 32,
-                                                        height: 32,
+                                                        width: 26,
+                                                        height: 26,
                                                         decoration:
                                                             BoxDecoration(
                                                           shape:
@@ -222,8 +222,8 @@ class _CommentScreenState extends State<CommentScreen> {
                                                         ),
                                                         child: Image.asset(
                                                           icons[0],
-                                                          width: 32,
-                                                          height: 32,
+                                                          width: 26,
+                                                          height: 26,
                                                           fit: BoxFit.cover,
                                                         ),
                                                       ),
@@ -233,8 +233,8 @@ class _CommentScreenState extends State<CommentScreen> {
                                                       top: 2,
                                                       left: 18,
                                                       child: Container(
-                                                        width: 32,
-                                                        height: 32,
+                                                        width: 26,
+                                                        height: 26,
                                                         decoration:
                                                             BoxDecoration(
                                                           shape:
@@ -246,8 +246,8 @@ class _CommentScreenState extends State<CommentScreen> {
                                                         ),
                                                         child: Image.asset(
                                                           icons[1],
-                                                          width: 32,
-                                                          height: 32,
+                                                          width: 26,
+                                                          height: 26,
                                                           fit: BoxFit.cover,
                                                         ),
                                                       ),
@@ -257,8 +257,8 @@ class _CommentScreenState extends State<CommentScreen> {
                                                       top: 4,
                                                       left: 36,
                                                       child: Container(
-                                                        width: 32,
-                                                        height: 32,
+                                                        width: 26,
+                                                        height: 26,
                                                         decoration:
                                                             BoxDecoration(
                                                           shape:
@@ -270,8 +270,8 @@ class _CommentScreenState extends State<CommentScreen> {
                                                         ),
                                                         child: Image.asset(
                                                           icons[2],
-                                                          width: 32,
-                                                          height: 32,
+                                                          width: 26,
+                                                          height: 26,
                                                           fit: BoxFit.cover,
                                                         ),
                                                       ),

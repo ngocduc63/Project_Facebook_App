@@ -215,6 +215,7 @@ class _PostCardState extends State<PostCard> {
   void disConnectionSocket() {
     if (socket != null) {
       socket!.emit('leave_post_noti', {"postId": widget.post.id});
+      socket!.off('notification_for_post_${widget.post.id}');
     }
 
     connectedSocket = false;
@@ -694,7 +695,11 @@ class _PostCardState extends State<PostCard> {
                           },
                         ),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.pushNamed(
+                                context, CommentScreen.routeName,
+                                arguments: widget.post);
+                          },
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               vertical: 12,

@@ -43,8 +43,8 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
       final response = await apiController
           .get(ApiConfig.getuserInfo, {'userId': widget.user.id});
       final UserModel userData = UserModel.fromJson(response.data['metadata']);
-      final UserModel? currentUserData = UserServicePref.instance.getUserInfo;
-      final bool isCurrentUer = widget.user.id == currentUserData?.id;
+      final UserModel currentUserData = UserServicePref.instance.getUserInfo;
+      final bool isCurrentUer = widget.user.id == currentUserData.id;
       int countMutualFriends = 0;
       List<UserModel> listMutualFriends = [];
       if (!isCurrentUer) {
@@ -133,7 +133,7 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
 
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
+        preferredSize: const Size.fromHeight(0),
         child: AppBar(
           automaticallyImplyLeading: false,
           titleSpacing: 0,
@@ -144,69 +144,6 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
               width: double.infinity,
               height: 0.5,
             ),
-          ),
-          leading: IconButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            splashRadius: 20,
-            icon: const Icon(
-              Icons.arrow_back,
-              color: Colors.black,
-              size: 30,
-            ),
-          ),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    right: 10,
-                    top: 5,
-                    bottom: 5,
-                  ),
-                  child: TextField(
-                    controller: searchController,
-                    decoration: InputDecoration(
-                      isDense: true,
-                      hintText: 'Tìm kiếm',
-                      hintStyle: const TextStyle(
-                        fontSize: 18,
-                      ),
-                      prefixIcon: const Padding(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 10,
-                        ),
-                        child: Icon(
-                          Icons.search_rounded,
-                          color: Colors.grey,
-                          size: 25,
-                        ),
-                      ),
-                      prefixIconConstraints:
-                          const BoxConstraints(minWidth: 45, maxHeight: 41),
-                      border: InputBorder.none,
-                      filled: true,
-                      fillColor: Colors.grey[200],
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      alignLabelWithHint: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                    cursorColor: Colors.black,
-                    textAlignVertical: TextAlignVertical.center,
-                  ),
-                ),
-              ),
-            ],
           ),
         ),
       ),

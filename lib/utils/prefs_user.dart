@@ -77,7 +77,7 @@ class UserServicePref {
     return null;
   }
 
-  UserModel? get getUserInfo {
+  UserModel get getUserInfo {
     if (_user != null) {
       try {
         final userBody = jsonDecode(_user!);
@@ -87,10 +87,10 @@ class UserServicePref {
         }
       } catch (e) {
         print("Error parsing JSON: $e");
-        return null;
+        return UserModel(id: '1', name: 'error', avatar: 'null');
       }
     }
-    return null;
+    return UserModel(id: '1', name: 'error', avatar: 'null');
   }
 
   void setRoom(String? room) {
