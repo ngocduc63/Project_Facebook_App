@@ -58,3 +58,21 @@ enum MessageType {
     );
   }
 }
+
+enum FriendStatus {
+  friend('FRIEND'),
+  follow('FOLLOW'),
+  unfriend('UNFRIEND'),
+  waitAcp('WAIT_ACCEPT');
+  final String value;
+
+  const FriendStatus(this.value);
+
+  static FriendStatus? fromString(String? value) {
+    if (value == null) return null;
+    return FriendStatus.values.firstWhere(
+      (emotion) => emotion.value == value,
+      orElse: () => FriendStatus.unfriend,
+    );
+  }
+}

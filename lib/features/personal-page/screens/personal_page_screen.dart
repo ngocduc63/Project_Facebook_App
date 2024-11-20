@@ -1,8 +1,11 @@
 import 'dart:math';
 
+import 'package:facebook/constants/app_colors.dart';
 import 'package:facebook/constants/app_constants.dart';
+import 'package:facebook/constants/enum_common.dart';
 import 'package:facebook/constants/global_variables.dart';
 import 'package:facebook/controllers/api_controller.dart';
+import 'package:facebook/features/personal-page/widgets/button_friend.dart';
 import 'package:facebook/models/post_model.dart';
 import 'package:facebook/models/user_model.dart';
 import 'package:facebook/utils/prefs_user.dart';
@@ -31,26 +34,48 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
   int page = 0;
   int limit = 5;
   List<PostModel> listPosts = [];
+  FriendStatus friendStatus = FriendStatus.unfriend;
+  final UserModel currentUserData = UserServicePref.instance.getUserInfo;
 
-  List<UserModel> usersMutual = [];
+  List<UserModel> listFriend = [];
   ApiController apiController = ApiController();
   UserModel? user;
   ScrollController scrollController =
       ScrollController(initialScrollOffset: PersonalPageScreen.offset);
+
+  Future<FriendStatus> checkFriend(dynamic dataStatus) async  {
+    if (dataStatus['friend_status'] == FriendStatus.friend.value) {
+      return FriendStatus.friend;
+    }else if (dataStatus['friend_status'] == FriendStatus.follow.value){
+      if(dataStatus['created_by_user'] == currentUserData.id){
+        return FriendStatus.follow;
+      }else {
+        return FriendStatus.waitAcp;
+
+      }
+    }
+    return FriendStatus.unfriend;
+  }
 
   Future<void> loadUserInfo() async {
     try {
       final response = await apiController
           .get(ApiConfig.getuserInfo, {'userId': widget.user.id});
       final UserModel userData = UserModel.fromJson(response.data['metadata']);
-      final UserModel currentUserData = UserServicePref.instance.getUserInfo;
       final bool isCurrentUer = widget.user.id == currentUserData.id;
       int countMutualFriends = 0;
-      List<UserModel> listMutualFriends = [];
+      FriendStatus checkFriendStatus = FriendStatus.unfriend;
+      List<UserModel> dataListFriends = [];
       if (!isCurrentUer) {
         countMutualFriends = response.data['metadata']['mutualFriends'];
-        listMutualFriends =
+        dataListFriends =
             (response.data['metadata']?['latestMutualFriends'] as List)
+                .map((user) => UserModel.fromJson(user))
+                .toList();
+        checkFriendStatus = await checkFriend(response.data['metadata']['friendStatus']);
+      } else {
+        dataListFriends =
+            (response.data['metadata']?['listFriend']['friends'] as List)
                 .map((user) => UserModel.fromJson(user))
                 .toList();
       }
@@ -58,8 +83,9 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
       setState(() {
         if (!isCurrentUer) {
           mutualFriends = countMutualFriends;
-          usersMutual = listMutualFriends;
+          friendStatus = checkFriendStatus;
         }
+        listFriend = dataListFriends;
         isMine = isCurrentUer;
         user = userData;
         isLoadingInfo = false;
@@ -308,7 +334,7 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                             const Text(
                               'bạn bè',
                               style: TextStyle(
-                                color: Colors.black54,
+                                color: AppColors.blackColor,
                                 fontSize: 16,
                               ),
                             ),
@@ -320,7 +346,7 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                                 children: [
                                   const Icon(
                                     Icons.circle,
-                                    color: Colors.black,
+                                    color: AppColors.blackColor,
                                     size: 3,
                                   ),
                                   const SizedBox(
@@ -329,7 +355,7 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                                   Text(
                                     '$mutualFriends',
                                     style: const TextStyle(
-                                      color: Colors.black,
+                                      color: AppColors.blackColor,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -340,7 +366,7 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                                   const Text(
                                     'bạn chung',
                                     style: TextStyle(
-                                      color: Colors.black54,
+                                      color: AppColors.blackColor,
                                       fontSize: 16,
                                     ),
                                   ),
@@ -461,111 +487,7 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                                 ],
                               )
                             : user!.type != 'page'
-                                ? Row(
-                                    children: [
-                                      Expanded(
-                                        flex: 3,
-                                        child: ElevatedButton(
-                                          onPressed: () {},
-                                          style: ElevatedButton.styleFrom(
-                                            shadowColor: Colors.transparent,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                            ),
-                                            backgroundColor: Colors.grey[200],
-                                            padding: EdgeInsets.zero,
-                                          ),
-                                          child: const Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              ImageIcon(
-                                                AssetImage(
-                                                    'assets/images/friend.png'),
-                                                size: 16,
-                                                color: Colors.black,
-                                              ),
-                                              SizedBox(
-                                                width: 5,
-                                              ),
-                                              Text(
-                                                'Bạn bè',
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
-                                      Expanded(
-                                        flex: 3,
-                                        child: ElevatedButton(
-                                          onPressed: () {},
-                                          style: ElevatedButton.styleFrom(
-                                            shadowColor: Colors.transparent,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                            ),
-                                            backgroundColor: Colors.blue[700],
-                                          ),
-                                          child: const Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              ImageIcon(
-                                                AssetImage(
-                                                    'assets/images/message.png'),
-                                                color: Colors.white,
-                                                size: 18,
-                                              ),
-                                              SizedBox(
-                                                width: 5,
-                                              ),
-                                              Text(
-                                                'Nhắn tin',
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
-                                      Expanded(
-                                        flex: 1,
-                                        child: ElevatedButton(
-                                          onPressed: () {},
-                                          style: ElevatedButton.styleFrom(
-                                            shadowColor: Colors.transparent,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                            ),
-                                            backgroundColor: Colors.grey[200],
-                                            padding: EdgeInsets.zero,
-                                          ),
-                                          child: const Icon(
-                                            Icons.more_horiz_rounded,
-                                            size: 20,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  )
+                                ? FriendButton(friendStatus: friendStatus, friendId: widget.user.id)
                                 : Row(
                                     children: [
                                       Expanded(
@@ -1158,7 +1080,7 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                           const SizedBox(
                             height: 20,
                           ),
-                        if (usersMutual.isNotEmpty)
+                        if (listFriend.isNotEmpty)
                           Column(
                             children: [
                               Row(
@@ -1166,14 +1088,14 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   for (int i = 0;
-                                      i < min(3, usersMutual.length);
+                                      i < min(3, listFriend.length);
                                       i++)
                                     GestureDetector(
                                       onTap: () {
                                         Navigator.pushNamed(
                                           context,
                                           PersonalPageScreen.routeName,
-                                          arguments: usersMutual[i],
+                                          arguments: listFriend[i],
                                         );
                                       },
                                       child: Column(
@@ -1184,7 +1106,7 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                                             borderRadius:
                                                 BorderRadius.circular(10),
                                             child: Image.network(
-                                              '${ApiConfig.linkImage}${usersMutual[i].avatar}',
+                                              '${ApiConfig.linkImage}${listFriend[i].avatar}',
                                               width: (MediaQuery.of(context)
                                                           .size
                                                           .width -
@@ -1210,7 +1132,7 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                                             child: Padding(
                                               padding: EdgeInsets.only(left: 5),
                                               child: Text(
-                                                usersMutual[i].name,
+                                                listFriend[i].name,
                                                 style: const TextStyle(
                                                   color: Colors.black,
                                                   fontWeight: FontWeight.w500,
@@ -1222,7 +1144,7 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                                         ],
                                       ),
                                     ),
-                                  for (int i = min(3, usersMutual.length);
+                                  for (int i = min(3, listFriend.length);
                                       i < 3;
                                       i++)
                                     SizedBox(
@@ -1233,24 +1155,24 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                                     ),
                                 ],
                               ),
-                              if (usersMutual.length > 3)
+                              if (listFriend.length > 3)
                                 const SizedBox(
                                   height: 20,
                                 ),
-                              if (usersMutual.length > 3)
+                              if (listFriend.length > 3)
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     for (int i = 3;
-                                        i < min(6, usersMutual.length);
+                                        i < min(6, listFriend.length);
                                         i++)
                                       GestureDetector(
                                         onTap: () {
                                           Navigator.pushNamed(
                                             context,
                                             PersonalPageScreen.routeName,
-                                            arguments: usersMutual[i],
+                                            arguments: listFriend[i],
                                           );
                                         },
                                         child: Column(
@@ -1261,7 +1183,7 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                               child: Image.network(
-                                                '${ApiConfig.linkImage}${usersMutual[i].avatar}',
+                                                '${ApiConfig.linkImage}${listFriend[i].avatar}',
                                                 width: (MediaQuery.of(context)
                                                             .size
                                                             .width -
@@ -1288,7 +1210,7 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                                                   padding:
                                                       EdgeInsets.only(left: 5),
                                                   child: Text(
-                                                    usersMutual[i].name,
+                                                    listFriend[i].name,
                                                     style: const TextStyle(
                                                       color: Colors.black,
                                                       fontWeight:
@@ -1300,7 +1222,7 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                                           ],
                                         ),
                                       ),
-                                    for (int i = min(6, usersMutual.length);
+                                    for (int i = min(6, listFriend.length);
                                         i < 6;
                                         i++)
                                       SizedBox(
