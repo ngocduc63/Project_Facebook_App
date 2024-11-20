@@ -1,4 +1,3 @@
-import 'package:facebook/features/news-feed/widgets/post_card.dart';
 import 'package:facebook/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

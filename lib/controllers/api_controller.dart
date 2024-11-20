@@ -39,12 +39,11 @@ class ApiController {
             // Retry the original request with the new token
             final options = error.requestOptions;
             final newToken = UserServicePref.instance.tokenAsJson;
-            UserModel? userInfo = UserServicePref.instance.getUserInfo;
             final apiKey = UserServicePref.instance.apiKey;
 
             options.headers['authorization'] = newToken?['accessToken'];
             options.headers['x-api-key'] = apiKey;
-            options.headers['x-client-id'] = userInfo?.id;
+            options.headers['x-client-id'] = userInfo!.id;
 
             final response = await _dio.request(
               options.path,

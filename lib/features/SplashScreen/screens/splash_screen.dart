@@ -32,9 +32,9 @@ class SplashScreenState extends State<SplashScreen> {
   void initSocket() {
     socket = SocketController.instance.getSocket();
 
-    if (socket != null && UserServicePref.instance.getUserInfo != null) {
+    if (socket != null && UserServicePref.instance.getUserInfo.id != 'error') {
       socket!.emit('join_noti_for_user',
-          {"userId": UserServicePref.instance.getUserInfo!.id});
+          {"userId": UserServicePref.instance.getUserInfo.id});
 
       socket!.on('receive_noti', (data) async {
         String type = data['type'];

@@ -38,7 +38,7 @@ class MessageModel {
   bool isSender() {
     UserModel? currentUser = UserServicePref.instance.getUserInfo;
 
-    return senderId == currentUser!.id;
+    return senderId == currentUser.id;
   }
 }
 

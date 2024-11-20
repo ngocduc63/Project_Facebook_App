@@ -178,7 +178,7 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
                   ),
                   child: CircleAvatar(
                     backgroundImage: NetworkImage(
-                        '${ApiConfig.linkImage}${userInfo?.avatar}'),
+                        '${ApiConfig.linkImage}${userInfo.avatar}'),
                     radius: 20,
                   ),
                 ),

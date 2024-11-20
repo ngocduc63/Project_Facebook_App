@@ -209,7 +209,7 @@ class _CallScreenState extends State<CallScreen> {
 
   _leaveCall(bool isEnd) {
     if (!isEnd) {
-      String currentUserId = UserServicePref.instance.getUserInfo!.id;
+      String currentUserId = UserServicePref.instance.getUserInfo.id;
       String to =
           widget.calleeId == currentUserId ? widget.callerId : widget.calleeId;
       socket!.emit('end_call', {"calleeId": to});

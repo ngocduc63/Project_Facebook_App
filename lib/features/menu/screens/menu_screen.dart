@@ -3,7 +3,6 @@ import 'package:facebook/controllers/auth_controller/logout_controller.dart';
 import 'package:facebook/features/friends/screens/friends_screen.dart';
 import 'package:facebook/features/menu/widgets/menu_choice.dart';
 import 'package:facebook/features/menu/widgets/shortcut.dart';
-import 'package:facebook/models/user.dart';
 import 'package:facebook/models/user_model.dart';
 import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';

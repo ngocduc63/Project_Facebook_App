@@ -37,7 +37,7 @@ class ChatModel {
   UserModel get friend {
     UserModel? currentUser = UserServicePref.instance.getUserInfo;
     
-    return membersInfo[0].id == currentUser!.id ? membersInfo[1] : membersInfo[0];
+    return membersInfo[0].id == currentUser.id ? membersInfo[1] : membersInfo[0];
   }
 
   factory ChatModel.fromJson(Map<String, dynamic> json) =>

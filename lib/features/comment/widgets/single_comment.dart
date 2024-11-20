@@ -305,7 +305,7 @@ class _SingleCommentState extends State<SingleComment> {
                   await _fetchChildComments();
                 },
                 child: Text(
-                  'Xem ${widget.comment.countChild!} phản hồi',
+                  'Xem ${widget.comment.countChild} phản hồi',
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
@@ -337,7 +337,7 @@ class _SingleCommentState extends State<SingleComment> {
                       Padding(
                           padding: const EdgeInsets.only(top: 5, right: 300),
                           child: Column(children: [
-                            if (widget.comment.countChild! - page * limit > 0)
+                            if (widget.comment.countChild - page * limit > 0)
                               Padding(
                                 padding: const EdgeInsets.only(
                                   top: 5,
@@ -350,7 +350,7 @@ class _SingleCommentState extends State<SingleComment> {
                                       });
                                     },
                                     child: Text(
-                                      'Xem tiếp ${widget.comment.countChild! - page * limit} phản hồi',
+                                      'Xem tiếp ${widget.comment.countChild - page * limit} phản hồi',
                                       style: const TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w500,

@@ -79,7 +79,7 @@ class NotificationService {
   if (receivedAction.buttonKeyPressed == 'ANSWER') {
     // Chuyển đến màn hình VideoScreen
     final data = jsonDecode(payload['data'] ?? "");
-    final currentUser = UserServicePref.instance.getUserInfo!.id;
+    final currentUser = UserServicePref.instance.getUserInfo.id;
     UserModel userInfo = UserModel.fromJson(data['callerInfo']);
     navigatorKey.currentState?.push(
       MaterialPageRoute(builder: (context) => 

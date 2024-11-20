@@ -11,7 +11,7 @@ class MessagesScreen extends StatelessWidget {
   const MessagesScreen({super.key, required this.chat});
 
   void handleCall(BuildContext context) {
-    final String currentUser = UserServicePref.instance.getUserInfo!.id;
+    final String currentUser = UserServicePref.instance.getUserInfo.id;
     final String calleId = chat.friend.id;
     Navigator.push(
       context,

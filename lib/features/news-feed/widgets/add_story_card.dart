@@ -36,7 +36,7 @@ class AddStoryCard extends StatelessWidget {
                       topRight: Radius.circular(10),
                     ),
                     child: Image.network(
-                      '${ApiConfig.linkImage}${currentuser!.avatar}',
+                      '${ApiConfig.linkImage}${currentuser.avatar}',
                       fit: BoxFit.fitWidth,
                     ),
                   ),

@@ -5,7 +5,6 @@ import 'package:facebook/constants/router_constants.dart';
 import 'package:facebook/controllers/auth_controller/login_controller.dart';
 import 'package:facebook/features/auth/widgets/input_fields.dart';
 import 'package:facebook/features/auth/widgets//submit_button.dart';
-import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

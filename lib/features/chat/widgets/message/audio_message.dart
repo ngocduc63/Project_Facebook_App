@@ -1,6 +1,5 @@
 import 'package:facebook/constants/app_colors.dart';
 import 'package:facebook/models/message_model.dart';
-import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 
 
@@ -9,7 +8,6 @@ class AudioMessage extends StatelessWidget {
   final MessageModel message;
   @override
   Widget build(BuildContext context) {
-    bool isSender = UserServicePref.instance.getUserInfo!.id == message.sender?.id;
     
     return Container(
       width: MediaQuery.of(context).size.width * 0.55,
@@ -19,11 +17,11 @@ class AudioMessage extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30),
-        color: AppColors.lightBlueColor.withOpacity(isSender ? 1 : 0.1),
+        color: AppColors.lightBlueColor.withOpacity(message.isSender() ? 1 : 0.1),
       ),
       child: Row(
         children: [
-          Icon(Icons.play_arrow, color: isSender ? Colors.white : AppColors.lightBlueColor),
+          Icon(Icons.play_arrow, color: message.isSender() ? Colors.white : AppColors.lightBlueColor),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20 / 2),
@@ -34,7 +32,7 @@ class AudioMessage extends StatelessWidget {
                   Container(
                     width: double.infinity,
                     height: 2,
-                    color: isSender ? Colors.white : AppColors.lightBlueColor.withOpacity(0.4),
+                    color: message.isSender() ? Colors.white : AppColors.lightBlueColor.withOpacity(0.4),
                   ),
                   Positioned(
                     left: 0,
@@ -42,7 +40,7 @@ class AudioMessage extends StatelessWidget {
                       height: 8,
                       width: 8,
                       decoration: BoxDecoration(
-                        color: isSender ? Colors.white : AppColors.lightBlueColor.withOpacity(0.4),
+                        color: message.isSender() ? Colors.white : AppColors.lightBlueColor.withOpacity(0.4),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -51,7 +49,7 @@ class AudioMessage extends StatelessWidget {
               ),
             ),
           ),
-          Text('0.37', style: TextStyle(fontSize: 12, color: isSender ? Colors.white : null))
+          Text('0.37', style: TextStyle(fontSize: 12, color: message.isSender() ? Colors.white : null))
         ],
       ),
     );

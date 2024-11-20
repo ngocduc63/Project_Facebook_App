@@ -87,10 +87,10 @@ class UserServicePref {
         }
       } catch (e) {
         print("Error parsing JSON: $e");
-        return UserModel(id: '1', name: 'error', avatar: 'null');
+        return UserModel(id: 'error', name: 'error', avatar: 'null');
       }
     }
-    return UserModel(id: '1', name: 'error', avatar: 'null');
+    return UserModel(id: 'error', name: 'error', avatar: 'null');
   }
 
   void setRoom(String? room) {
