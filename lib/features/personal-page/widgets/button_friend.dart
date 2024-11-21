@@ -63,7 +63,6 @@ class _FriendButtonState extends State<FriendButton> {
         final response = await apiController
             .put(ApiConfig.acpFriend, {'friendId': widget.friendId});
         if (response.statusCode == 200) {
-          final roomData = response.data['roomId'];
           setState(() {
             dataActionFriend = FriendStatus.friend;
           });
