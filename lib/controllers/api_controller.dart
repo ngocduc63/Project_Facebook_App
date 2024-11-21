@@ -8,7 +8,7 @@ import 'package:facebook/utils/prefs_user.dart';
 
 class ApiController {
   final Dio _dio = Dio();
-  UserModel? userInfo;
+  late UserModel userInfo;
   String? apiKey = '';
   Map<String, dynamic>? tokens;
 
@@ -23,7 +23,7 @@ class ApiController {
       'Content-Type': 'application/json',
       'x-api-key': apiKey,
       'authorization': tokens?['accessToken'],
-      'x-client-id': userInfo?.id,
+      'x-client-id': userInfo.id,
     };
 
     // Add interceptor to handle JWT expiration
@@ -39,11 +39,11 @@ class ApiController {
             // Retry the original request with the new token
             final options = error.requestOptions;
             final newToken = UserServicePref.instance.tokenAsJson;
-            final apiKey = UserServicePref.instance.apiKey;
+            final newApiKey = UserServicePref.instance.apiKey;
 
             options.headers['authorization'] = newToken?['accessToken'];
-            options.headers['x-api-key'] = apiKey;
-            options.headers['x-client-id'] = userInfo!.id;
+            options.headers['x-api-key'] = newApiKey;
+            options.headers['x-client-id'] = userInfo.id;
 
             final response = await _dio.request(
               options.path,

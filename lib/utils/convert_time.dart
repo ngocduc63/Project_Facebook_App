@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 String convertToTimeAgo(String isoDateString) {
   DateTime dateTime = DateTime.parse(isoDateString);
   Duration difference = DateTime.now().difference(dateTime);
-  String formattedDate = DateFormat('EEEE, dd MMMM yyyy').format(dateTime);
+  String formattedDate = DateFormat('EEEE, dd MMMM yyyy', 'vi').format(dateTime);
 
   if (difference.inDays > 13) {
     return formattedDate;

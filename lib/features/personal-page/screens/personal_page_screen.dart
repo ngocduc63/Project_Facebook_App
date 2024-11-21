@@ -133,7 +133,6 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
         isLoadingPost = false;
         isLoadingPostMore = false;
       });
-      // Xử lý lỗi
       print('Error fetching posts: $e');
     }
   }

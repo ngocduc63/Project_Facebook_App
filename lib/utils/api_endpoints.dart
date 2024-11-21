@@ -7,4 +7,5 @@ class ApiEndPoints {
 
 class _AuthEndPOints {
     final String loginEmail = '/access/login';
+    final String registerEmail = '/access/signup';
 }

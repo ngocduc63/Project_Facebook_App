@@ -6,7 +6,7 @@ class AppConstants {
 
 class ApiConfig {
   static const String prod = 'https://project-social-network.onrender.com';
-  static const String local = 'http://192.168.0.101:3055';
+  static const String local = 'http://192.168.0.106:3055';
   static const String linkBE = prod;
   static const String api = '$linkBE/api';
 
@@ -19,15 +19,22 @@ class ApiConfig {
   static const String getComments = '$api/post/list-comments-by-parent-id';
   static const String getRoomChat = '$api/chat/list-room';
   static const String getMessages = '$api/chat/list-mess';
+  static const String getListFriend = '$api/friend/list-friend';
+  static const String getRoomInfo = '$api/chat/get-room';
 
   //api post
   static const String createPost = '$api/post/create-post';
   static const String likePost = '$api/post/create-like';
   static const String commentPost = '$api/post/create-comment';
+  static const String addFriend = '$api/friend/add-friend';
 
   // api put 
   static const String updateLikePost = '$api/post/update-like';
+  static const String acpFriend = '$api/friend/accept-friend';
+  static const String unfriend = '$api/friend/unfriend';
 
   // api delete
   static const String unLikePost = '$api/post/delete-like';
+  static const String declineFriend = '$api/friend/decline-friend';
+
 }

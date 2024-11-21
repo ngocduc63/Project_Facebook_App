@@ -7,6 +7,7 @@ import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 
 class MessagesScreen extends StatelessWidget {
+  static const String routeName = '/message-screen';
   final ChatModel chat;
   const MessagesScreen({super.key, required this.chat});
 

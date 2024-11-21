@@ -1,8 +1,10 @@
 // ignore_for_file: avoid_unnecessary_containers, prefer_const_constructors
 
+import 'package:facebook/constants/app_colors.dart';
 import 'package:facebook/constants/global_variables.dart';
 import 'package:facebook/constants/router_constants.dart';
 import 'package:facebook/controllers/auth_controller/login_controller.dart';
+import 'package:facebook/controllers/auth_controller/register_controller.dart';
 import 'package:facebook/features/auth/widgets/input_fields.dart';
 import 'package:facebook/features/auth/widgets//submit_button.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +12,14 @@ import 'package:get/get.dart';
 
 class AuthScreen extends StatefulWidget {
   static const String routeName = RouterConstants.routerAuth;
-  const AuthScreen({super.key});
+  final String email;
+  final String password;
+
+  const AuthScreen({
+    this.email = '',
+    this.password = '',
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<AuthScreen> createState() => _AuthScreenState();
@@ -18,8 +27,8 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   LoginController loginController = Get.put(LoginController());
-
-  var isLogin = true.obs;
+  RegisterController registerController = Get.put(RegisterController());
+  var isLogin = true.obs; // Observable variable
 
   @override
   Widget build(BuildContext context) {
@@ -28,50 +37,63 @@ class _AuthScreenState extends State<AuthScreen> {
         child: Padding(
           padding: EdgeInsets.all(36),
           child: Center(
-            child: Obx(
-              () => Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(height: 30),
+                Container(
+                  child: Text(
+                    'FACEBOOK',
+                    style: TextStyle(
+                        fontSize: 30,
+                        color: GlobalVariables.secondaryColor,
+                        fontWeight: FontWeight.w400),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(
-                      height: 30,
-                    ),
-                    Container(
+                    MaterialButton(
+                      color: !isLogin.value
+                          ? GlobalVariables.secondaryColor
+                          : Colors.white,
+                      onPressed: () {
+                        setState(() {
+                          isLogin.value = false;
+                        });
+                      },
                       child: Text(
-                        'FACEBOOK',
+                        'Đăng kí',
                         style: TextStyle(
-                            fontSize: 30,
-                            color: GlobalVariables.secondaryColor,
-                            fontWeight: FontWeight.w400),
+                            color: !isLogin.value
+                                ? Colors.white
+                                : GlobalVariables.secondaryColor),
                       ),
                     ),
-                    SizedBox(
-                      height: 20,
+                    MaterialButton(
+                      color: isLogin.value
+                          ? GlobalVariables.secondaryColor
+                          : Colors.white,
+                      onPressed: () {
+                        setState(() {
+                          isLogin.value = true;
+                        });
+                      },
+                      child: Text(
+                        'Đăng nhâp',
+                        style: TextStyle(
+                            color: isLogin.value
+                                ? Colors.white
+                                : GlobalVariables.secondaryColor),
+                      ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        MaterialButton(
-                          color: !isLogin.value ? GlobalVariables.secondaryColor : Colors.white,
-                          onPressed: () {
-                            isLogin.value = false;
-                          },
-                          child: Text('Register', style: TextStyle(color:  !isLogin.value ? Colors.white : GlobalVariables.secondaryColor  ),),
-                        ),
-                        MaterialButton(
-                          color: isLogin.value ? GlobalVariables.secondaryColor : Colors.white,
-                          onPressed: () {
-                            isLogin.value = true;
-                          },
-                          child: Text('Login', style: TextStyle(color:  isLogin.value ? Colors.white : GlobalVariables.secondaryColor ),),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 80,
-                    ),
-                    isLogin.value ? loginWidget() : registerWidget()
-                  ]),
+                  ],
+                ),
+                SizedBox(height: 80),
+                Obx(() => isLogin.value ? loginWidget() : registerWidget())
+              ],
             ),
           ),
         ),
@@ -82,23 +104,62 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget registerWidget() {
     return Column(
       children: [
-        // InputTextFieldWidget(loginController.nameController, 'name'),
-        // SizedBox(
-        //   height: 20,
-        // ),
-        InputTextFieldWidget(loginController.emailController, 'email'),
-        SizedBox(
-          height: 20,
+        InputTextFieldWidget(
+            registerController.nameController, 'Tên ngươi dùng'),
+        const SizedBox(height: 20),
+        InputTextFieldWidget(registerController.emailController, 'Email'),
+        const SizedBox(height: 20),
+        InputTextFieldWidget(
+          registerController.passwordController,
+          'Mật khẩu',
+          isPassword: true,
         ),
-        InputTextFieldWidget(loginController.passwordController, 'password'),
-        SizedBox(
-          height: 20,
+        const SizedBox(height: 20),
+        InputTextFieldWidget(
+          registerController.confirmPasswordController,
+          'Nhập lại mật khẩu',
+          isPassword: true,
         ),
+        const SizedBox(height: 20),
+        Obx(() => Row(
+              children: [
+                Expanded(
+                  child: ListTile(
+                    title: const Text('Nam'),
+                    leading: Radio<String>(
+                      value: 'NAM',
+                      fillColor:
+                          WidgetStateProperty.all(AppColors.lightBlueColor),
+                      groupValue: registerController.gender.value,
+                      onChanged: (value) {
+                        registerController.gender.value = value!;
+                      },
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: ListTile(
+                    title: const Text('Nữ'),
+                    leading: Radio<String>(
+                      value: 'NỮ',
+                      fillColor:
+                          WidgetStateProperty.all(AppColors.lightBlueColor),
+                      groupValue: registerController.gender.value,
+                      onChanged: (value) {
+                        registerController.gender.value = value!;
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            )),
+        const SizedBox(height: 20),
+        // Submit button
         SubmitButton(
-          onPressed: () => loginController.loginWithEmail(),
-          title: 'Register',
-          isLoading: loginController.isLoadingAuth.value,
-        )
+          onPressed: () => registerController.registerWithEmail(),
+          title: 'Đăng kí',
+          isLoading: registerController.isLoadingAuth.value,
+        ),
       ],
     );
   }
@@ -106,20 +167,23 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget loginWidget() {
     return Column(
       children: [
-        SizedBox(
-          height: 20,
+        SizedBox(height: 20),
+        InputTextFieldWidget(
+          loginController.emailController,
+          'email',
+          initialValue: widget.email,
         ),
-        InputTextFieldWidget(loginController.emailController, 'email'),
-        SizedBox(
-          height: 20,
+        SizedBox(height: 20),
+        InputTextFieldWidget(
+          loginController.passwordController,
+          'Mật khẩu',
+          isPassword: true,
+          initialValue: widget.password,
         ),
-        InputTextFieldWidget(loginController.passwordController, 'password'),
-        SizedBox(
-          height: 20,
-        ),
+        SizedBox(height: 20),
         SubmitButton(
           onPressed: () => loginController.loginWithEmail(),
-          title: 'Login',
+          title: 'Đăng nhập',
           isLoading: loginController.isLoadingAuth.value,
         )
       ],

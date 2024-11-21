@@ -1,5 +1,6 @@
 import 'package:facebook/features/auth/auth_screen.dart';
 import 'package:facebook/features/chat/screen/chat_screen.dart';
+import 'package:facebook/features/chat/screen/message_screen.dart';
 import 'package:facebook/features/comment/screens/comment_screen.dart';
 import 'package:facebook/features/friends/screens/friends_screen.dart';
 import 'package:facebook/features/friends/screens/friends_search_screen.dart';
@@ -12,6 +13,7 @@ import 'package:facebook/features/news-feed/screen/image_fullscreen.dart';
 import 'package:facebook/features/news-feed/screen/multiple_images_post_screen.dart';
 import 'package:facebook/features/news-feed/widgets/story_details.dart';
 import 'package:facebook/features/personal-page/screens/personal_page_screen.dart';
+import 'package:facebook/models/chat_model.dart';
 import 'package:facebook/models/post_model.dart';
 import 'package:facebook/models/product.dart';
 import 'package:facebook/models/story.dart';
@@ -27,6 +29,25 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
     case ChatsScreen.routeName:
       return MaterialPageRoute(
         builder: (context) => const ChatsScreen(),
+      );
+    case MessagesScreen.routeName:
+      final ChatModel chatRoom = routeSettings.arguments as ChatModel;
+      return PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            MessagesScreen(chat: chatRoom),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
       );
     case HomeScreen.routeName:
       return MaterialPageRoute(
