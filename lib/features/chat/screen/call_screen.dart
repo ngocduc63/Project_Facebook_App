@@ -215,7 +215,9 @@ class _CallScreenState extends State<CallScreen> {
       socket!.emit('end_call', {"calleeId": to});
     }
     _rtcPeerConnection?.close();
-    Navigator.pop(context);
+    if(mounted) {
+      Navigator.of(context).maybePop();
+    }
   }
 
   _toggleMic() {
@@ -382,7 +384,7 @@ class _CallScreenState extends State<CallScreen> {
     _localStream?.dispose();
     _rtcPeerConnection?.dispose();
     _hideControlsTimer?.cancel();
-    _leaveCall(false);
+    // _leaveCall(false);
     socket?.off('end_call');
     super.dispose();
   }
