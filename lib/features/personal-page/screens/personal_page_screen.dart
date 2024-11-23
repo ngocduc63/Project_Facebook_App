@@ -43,17 +43,22 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
   ScrollController scrollController =
       ScrollController(initialScrollOffset: PersonalPageScreen.offset);
 
-  Future<FriendStatus> checkFriend(dynamic dataStatus) async  {
-    if (dataStatus['friend_status'] == FriendStatus.friend.value) {
-      return FriendStatus.friend;
-    }else if (dataStatus['friend_status'] == FriendStatus.follow.value){
-      if(dataStatus['created_by_user'] == currentUserData.id){
-        return FriendStatus.follow;
-      }else {
-        return FriendStatus.waitAcp;
-
-      }
+  Future<FriendStatus> checkFriend(dynamic dataStatus) async {
+    if (dataStatus == null || dataStatus['friend_status'] == null) {
+      return FriendStatus.unfriend;
     }
+
+    final friendStatus = dataStatus['friend_status'];
+    final createdByUser = dataStatus['created_by_user'];
+
+    if (friendStatus == FriendStatus.friend.value) {
+      return FriendStatus.friend;
+    } else if (friendStatus == FriendStatus.follow.value) {
+      return createdByUser == currentUserData.id
+          ? FriendStatus.follow
+          : FriendStatus.waitAcp;
+    }
+
     return FriendStatus.unfriend;
   }
 
@@ -72,7 +77,8 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
             (response.data['metadata']?['latestMutualFriends'] as List)
                 .map((user) => UserModel.fromJson(user))
                 .toList();
-        checkFriendStatus = await checkFriend(response.data['metadata']['friendStatus']);
+        checkFriendStatus =
+            await checkFriend(response.data['metadata']['friendStatus']);
       } else {
         dataListFriends =
             (response.data['metadata']?['listFriend']['friends'] as List)
@@ -93,7 +99,7 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
     } catch (e) {
       setState(() {
         print(e);
-        isLoadingInfo = true;
+        isLoadingInfo = false;
       });
     }
   }
@@ -486,7 +492,9 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                                 ],
                               )
                             : user!.type != 'page'
-                                ? FriendButton(friendStatus: friendStatus, friendId: widget.user.id)
+                                ? FriendButton(
+                                    friendStatus: friendStatus,
+                                    friendId: widget.user.id)
                                 : Row(
                                     children: [
                                       Expanded(
