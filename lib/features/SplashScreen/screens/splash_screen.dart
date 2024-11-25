@@ -7,6 +7,7 @@ import 'package:facebook/constants/router_constants.dart';
 import 'package:facebook/controllers/socket_controller.dart';
 import 'package:facebook/models/chat_model.dart';
 import 'package:facebook/models/user_model.dart';
+import 'package:facebook/utils/notification_observable.dart';
 import 'package:facebook/utils/notification_service.dart';
 import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class SplashScreen extends StatefulWidget {
 
 class SplashScreenState extends State<SplashScreen> {
   late io.Socket? socket;
-
+  final NotificationObservable observable = NotificationObservable();
   @override
   void initState() {
     super.initState();
@@ -31,28 +32,45 @@ class SplashScreenState extends State<SplashScreen> {
 
   void initSocket() {
     socket = SocketController.instance.getSocket();
-
     if (socket != null && UserServicePref.instance.getUserInfo.id != 'error') {
       socket!.emit('join_noti_for_user',
           {"userId": UserServicePref.instance.getUserInfo.id});
 
       socket!.on('receive_noti', (data) async {
-        String type = data['type'];
-        final roomData = ChatModel.fromJson(data['data']);
-        String content = roomData.lastMessage?.data?.content ?? "";
-        String displayContent =
-            content.length > 256 ? "${content.substring(0, 256)}..." : content;
+        String type = data['noti_type'];
 
-        if (type == "message" &&
-            UserServicePref.instance.currentRoom != roomData.id) {
-          await NotificationService.showNotification(
-            title:
-                "Bạn có tin nhắn mới từ ${roomData.lastMessage!.sender!.name}",
-            body: displayContent,
-            // largeIcon:
-            //     '${ApiConfig.linkImage}${roomData.lastMessage!.sender!.avatar}',
-            notificationLayout: NotificationLayout.Messaging,
-          );
+        if (type == "message") {
+          final roomData = ChatModel.fromJson(data['data']);
+          if (UserServicePref.instance.currentRoom != roomData.id) {
+            observable.incrementUnreadMessCount();
+            String content = roomData.lastMessage?.data?.content ?? "";
+            String displayContent = content.length > 256
+                ? "${content.substring(0, 256)}..."
+                : content;
+            await NotificationService.showNotification(
+              title:
+                  "Bạn có tin nhắn mới từ ${roomData.lastMessage!.sender!.name}",
+              body: displayContent,
+              // largeIcon:
+              //     '${ApiConfig.linkImage}${roomData.lastMessage!.sender!.avatar}',
+              notificationLayout: NotificationLayout.Messaging,
+            );
+          }
+        } else if (type == "POST-002") {
+          // like post
+          observable.incrementUnreadCount();
+        } else if (type == "POST-003") {
+          // comment
+          observable.incrementUnreadCount();
+        } else if (type == "POST-004") {
+          // share
+          observable.incrementUnreadCount();
+        } else if (type == "FRIEND-001") {
+          // add friend
+          observable.incrementUnreadCount();
+        } else if (type == "FRIEND-002") {
+          // acp friend
+          observable.incrementUnreadCount();
         }
       });
 
@@ -77,10 +95,7 @@ class SplashScreenState extends State<SplashScreen> {
             ),
           ],
           offer: data['sdpOffer'],
-          payload: {
-            "data": jsonEncode(data)
-          },
-          
+          payload: {"data": jsonEncode(data)},
         );
       });
     }
@@ -88,7 +103,10 @@ class SplashScreenState extends State<SplashScreen> {
 
   Future<void> checkTokenAndNavigate() async {
     await UserServicePref.instance.loadAuthApp();
+    await observable.initialize();
+
     initSocket();
+
     await Future.delayed(const Duration(milliseconds: 600));
 
     if (UserServicePref.instance.hasToken) {

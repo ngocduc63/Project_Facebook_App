@@ -9,6 +9,7 @@ import 'package:facebook/features/notifications/screens/notifications_screen.dar
 import 'package:facebook/features/personal-page/screens/personal_page_screen.dart';
 import 'package:facebook/features/watch/screens/watch_screen.dart';
 import 'package:facebook/models/user_model.dart';
+import 'package:facebook/utils/notification_observable.dart';
 import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 
@@ -21,6 +22,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final NotificationObservable observable = NotificationObservable();
   int index = 0;
   double toolBarHeight = 60;
   ScrollController scrollController = ScrollController();
@@ -81,6 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     currentUser = UserServicePref.instance.getUserInfo;
+    observable.initialize();
   }
 
   @override
@@ -94,7 +97,13 @@ class _HomeScreenState extends State<HomeScreen> {
       isLoading = true;
     });
 
-    if (tabIndex == index) await Future.delayed(const Duration(milliseconds: 200));
+    if (tabIndex == index) {
+      await Future.delayed(const Duration(milliseconds: 200));
+    }
+
+    if (tabIndex == 3) {
+      await observable.clearUnreadCount();
+    }
 
     setState(() {
       index = tabIndex;
@@ -109,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final widthIcon = MediaQuery.of(context).size.width / listIcon.length -10;
+    final widthIcon = MediaQuery.of(context).size.width / listIcon.length - 10;
     return Scaffold(
       body: NestedScrollView(
         controller: scrollController,
@@ -147,7 +156,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Expanded(
                                       child: InkWell(
                                         onTap: () {
-                                          int indexActive = int.parse(e['index'] ?? '0');
+                                          int indexActive =
+                                              int.parse(e['index'] ?? '0');
                                           _onTabTapped(indexActive);
                                           index = indexActive;
                                         },
@@ -156,12 +166,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                             Center(
                                               child: Tab(
                                                 child: index !=
-                                                        int.parse(e['index'] ?? '0')
-                                                    ? Image.asset(e['icon_nomal'] ?? '',
+                                                        int.parse(
+                                                            e['index'] ?? '0')
+                                                    ? Image.asset(
+                                                        e['icon_nomal'] ?? '',
                                                         width: 30,
                                                         height: 30,
                                                       )
-                                                    : Image.asset(e['icon_active'] ?? '',
+                                                    : Image.asset(
+                                                        e['icon_active'] ?? '',
                                                         width: 30,
                                                         height: 30,
                                                       ),
@@ -181,11 +194,57 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               100),
-                                                      color: AppColors.lightBlueColor,
+                                                      color: AppColors
+                                                          .lightBlueColor,
                                                     ),
                                                   ),
                                                 ),
                                               ),
+                                            if (int.parse(e['index'] ?? '0') ==
+                                                3)
+                                              StreamBuilder(
+                                                  stream: observable.stream,
+                                                  builder: (context, snapshot) {
+                                                    final unreadCount =
+                                                        snapshot.data ?? 0;
+                                                    return unreadCount > 0
+                                                        ? Positioned(
+                                                            top: 0,
+                                                            right: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width *
+                                                                    0.1 -
+                                                                20,
+                                                            child: Container(
+                                                              width: 20,
+                                                              height: 20,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color:
+                                                                    Colors.red,
+                                                                shape: BoxShape
+                                                                    .circle,
+                                                              ),
+                                                              child: Center(
+                                                                child: Text(
+                                                                  '$unreadCount',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        10,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          )
+                                                        : SizedBox();
+                                                  })
                                           ],
                                         ),
                                       ),
