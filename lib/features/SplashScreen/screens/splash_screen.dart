@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/global_variables.dart';
 import 'package:facebook/constants/router_constants.dart';
 import 'package:facebook/controllers/socket_controller.dart';
