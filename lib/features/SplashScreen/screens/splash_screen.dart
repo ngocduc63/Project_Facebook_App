@@ -49,8 +49,8 @@ class SplashScreenState extends State<SplashScreen> {
             title:
                 "Bạn có tin nhắn mới từ ${roomData.lastMessage!.sender!.name}",
             body: displayContent,
-            largeIcon:
-                '${ApiConfig.linkImage}${roomData.lastMessage!.sender!.avatar}',
+            // largeIcon:
+            //     '${ApiConfig.linkImage}${roomData.lastMessage!.sender!.avatar}',
             notificationLayout: NotificationLayout.Messaging,
           );
         }
