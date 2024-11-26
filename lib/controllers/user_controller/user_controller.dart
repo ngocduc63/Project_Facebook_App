@@ -1,9 +1,22 @@
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/enum_common.dart';
 import 'package:facebook/controllers/api_controller.dart';
+import 'package:facebook/models/post_model.dart';
 
 class UserController {
   ApiController _apiController = ApiController();
+
+  Future<PostModel?> getPostSingle(String postId)async {
+    try {
+      final response = await _apiController.get(ApiConfig.getPostSingle,
+          {'postId': postId});
+      final dataPost = PostModel.fromJson(response.data['metadata']);
+      return dataPost;
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
 
   Future<bool> likePostController(String postId, Emotion likeCategory) async {
     try {

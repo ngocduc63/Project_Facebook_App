@@ -29,10 +29,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchPosts();
+    _fetchNoti();
   }
 
-  Future<void> _fetchPosts() async {
+  Future<void> _fetchNoti() async {
     try {
         setState(() {
           if (page == 0) {
@@ -90,7 +90,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {
         if (!isLoadingMore && hasNextPage) {
-          _fetchPosts();
+          _fetchNoti();
         }
       }
     });

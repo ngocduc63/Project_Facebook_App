@@ -9,6 +9,7 @@ import 'package:facebook/controllers/user_controller/user_controller.dart';
 import 'package:facebook/features/comment/screens/comment_screen.dart';
 import 'package:facebook/features/news-feed/widgets/post_1_child.dart';
 import 'package:facebook/features/news-feed/widgets/post_content.dart';
+import 'package:facebook/features/news-feed/widgets/reaction_button.dart';
 import 'package:facebook/features/news-feed/widgets/single_image.dart';
 import 'package:facebook/models/post_model.dart';
 import 'package:facebook/utils/convert_time.dart';
@@ -278,13 +279,12 @@ class _MultipleImagesPostScreenState extends State<MultipleImagesPostScreen> {
                                     convertToTimeAgo(widget.post.time),
                                     style: const TextStyle(
                                         color: Colors.black54, fontSize: 14),
-                                    overflow:
-                                        TextOverflow.ellipsis,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                                 const SizedBox(
-                                    width: 5,
-                                  ),
+                                  width: 5,
+                                ),
                                 const Padding(
                                   padding: EdgeInsets.only(top: 2),
                                   child: Icon(
@@ -294,8 +294,8 @@ class _MultipleImagesPostScreenState extends State<MultipleImagesPostScreen> {
                                   ),
                                 ),
                                 const SizedBox(
-                                    width: 5,
-                                  ),
+                                  width: 5,
+                                ),
                                 Icon(
                                   Icons.public,
                                   color: Colors.black54,
@@ -310,172 +310,245 @@ class _MultipleImagesPostScreenState extends State<MultipleImagesPostScreen> {
                   ],
                 ),
               ),
-
               PostContent(text: widget.post.content!),
               Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.pushNamed(context, CommentScreen.routeName,
-                              arguments: widget.post);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                            top: 10,
-                            bottom: 8,
-                            left: 15,
-                            right: 15,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  icons.isNotEmpty
-                                      ? Row(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(context, CommentScreen.routeName,
+                        arguments: widget.post);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      top: 10,
+                      bottom: 8,
+                      left: 15,
+                      right: 15,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            icons.isNotEmpty
+                                ? Row(
+                                    children: [
+                                      SizedBox(
+                                        width: icons.length < 3
+                                            ? icons.length * 20
+                                            : 60,
+                                        height: 24,
+                                        child: Stack(
                                           children: [
-                                            SizedBox(
-                                              width: icons.length < 3
-                                                  ? icons.length * 20
-                                                  : 60,
-                                              height: 24,
-                                              child: Stack(
-                                                children: [
-                                                  // Kiểm tra và hiển thị hình ảnh đầu tiên nếu có
-                                                  if (icons.isNotEmpty)
-                                                    Positioned(
-                                                      top: 0,
-                                                      left: 0,
-                                                      child: Container(
-                                                        width: 20,
-                                                        height: 20,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          shape:
-                                                              BoxShape.circle,
-                                                          border: Border.all(
-                                                            color: Colors.white,
-                                                            width: 2,
-                                                          ),
-                                                        ),
-                                                        child: Image.asset(
-                                                          icons[0],
-                                                          width: 20,
-                                                          height: 20,
-                                                          fit: BoxFit
-                                                              .cover, // Đảm bảo ảnh không vượt quá kích thước
-                                                        ),
-                                                      ),
+                                            // Kiểm tra và hiển thị hình ảnh đầu tiên nếu có
+                                            if (icons.isNotEmpty)
+                                              Positioned(
+                                                top: 0,
+                                                left: 0,
+                                                child: Container(
+                                                  width: 20,
+                                                  height: 20,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(
+                                                      color: Colors.white,
+                                                      width: 2,
                                                     ),
-
-                                                  // Kiểm tra và hiển thị hình ảnh thứ hai nếu có
-                                                  if (icons.length > 1)
-                                                    Positioned(
-                                                      top: 2,
-                                                      left: 18,
-                                                      child: Container(
-                                                        width: 20,
-                                                        height: 20,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          shape:
-                                                              BoxShape.circle,
-                                                          border: Border.all(
-                                                            color: Colors.white,
-                                                            width: 2,
-                                                          ),
-                                                        ),
-                                                        child: Image.asset(
-                                                          icons[1],
-                                                          width: 20,
-                                                          height: 20,
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                      ),
-                                                    ),
-
-                                                  // Kiểm tra và hiển thị hình ảnh thứ ba nếu có
-                                                  if (icons.length > 2)
-                                                    Positioned(
-                                                      top: 4,
-                                                      left: 36,
-                                                      child: Container(
-                                                        width: 20,
-                                                        height: 20,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          shape:
-                                                              BoxShape.circle,
-                                                          border: Border.all(
-                                                            color: Colors.white,
-                                                            width: 2,
-                                                          ),
-                                                        ),
-                                                        child: Image.asset(
-                                                          icons[2],
-                                                          width: 20,
-                                                          height: 20,
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                ],
+                                                  ),
+                                                  child: Image.asset(
+                                                    icons[0],
+                                                    width: 20,
+                                                    height: 20,
+                                                    fit: BoxFit
+                                                        .cover, // Đảm bảo ảnh không vượt quá kích thước
+                                                  ),
+                                                ),
                                               ),
-                                            ),
 
-                                            // Khoảng cách giữa văn bản và biểu tượng kiểm tra
-                                            const SizedBox(
-                                                width:
-                                                    4), // Khoảng cách giữa biểu tượng và văn bản
-                                            Text(
-                                              '$numLike',
-                                              style: TextStyle(
-                                                color: Colors.black54,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
+                                            // Kiểm tra và hiển thị hình ảnh thứ hai nếu có
+                                            if (icons.length > 1)
+                                              Positioned(
+                                                top: 2,
+                                                left: 18,
+                                                child: Container(
+                                                  width: 20,
+                                                  height: 20,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(
+                                                      color: Colors.white,
+                                                      width: 2,
+                                                    ),
+                                                  ),
+                                                  child: Image.asset(
+                                                    icons[1],
+                                                    width: 20,
+                                                    height: 20,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
                                               ),
-                                            ),
-                                            const SizedBox(width: 4),
+
+                                            // Kiểm tra và hiển thị hình ảnh thứ ba nếu có
+                                            if (icons.length > 2)
+                                              Positioned(
+                                                top: 4,
+                                                left: 36,
+                                                child: Container(
+                                                  width: 20,
+                                                  height: 20,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(
+                                                      color: Colors.white,
+                                                      width: 2,
+                                                    ),
+                                                  ),
+                                                  child: Image.asset(
+                                                    icons[2],
+                                                    width: 20,
+                                                    height: 20,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                              ),
                                           ],
-                                        )
-                                      : Container(),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Text(
-                                    '$numComment bình luận',
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                  const Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 5),
-                                    child: Icon(
-                                      Icons.circle,
-                                      size: 3,
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                  Text(
-                                    '$numShare lượt chia sẻ',
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.black54,
-                                    ),
+                                        ),
+                                      ),
+
+                                      // Khoảng cách giữa văn bản và biểu tượng kiểm tra
+                                      const SizedBox(
+                                          width:
+                                              4), // Khoảng cách giữa biểu tượng và văn bản
+                                      Text(
+                                        '$numLike',
+                                        style: TextStyle(
+                                          color: Colors.black54,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                    ],
                                   )
-                                ],
-                              ),
-                            ],
-                          ),
+                                : Container(),
+                          ],
                         ),
+                        Row(
+                          children: [
+                            Text(
+                              '$numComment bình luận',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.black54,
+                              ),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 5),
+                              child: Icon(
+                                Icons.circle,
+                                size: 3,
+                                color: Colors.black54,
+                              ),
+                            ),
+                            Text(
+                              '$numShare lượt chia sẻ',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.black54,
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      child: Divider(
+                        color: Colors.black38,
+                        height: 0,
                       ),
                     ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  ReactionButton(
+                    initialReaction: widget.post.reaction ?? Emotion.none,
+                    onReactionChanged: (reaction) {
+                      handleChangeLike(reaction);
+                    },
+                    userHasLike: userHasLike,
+                    handleLike: (reaction) {
+                      handleLike(reaction);
+                    },
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pushNamed(context, CommentScreen.routeName,
+                          arguments: widget.post);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                      ),
+                      alignment: Alignment.center,
+                      width: (MediaQuery.of(context).size.width) / 3,
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ImageIcon(
+                            AssetImage('assets/images/comment.png'),
+                            size: 22,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 10),
+                            child: Text(
+                              'Bình luận',
+                              style: TextStyle(
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {},
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                      ),
+                      alignment: Alignment.center,
+                      width: (MediaQuery.of(context).size.width) / 3,
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ImageIcon(
+                            AssetImage('assets/images/share.png'),
+                            size: 27,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 10),
+                            child: Text(
+                              'Chia sẻ',
+                              style: TextStyle(
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
               Container(
                 width: double.infinity,
                 height: 5,
@@ -497,7 +570,7 @@ class _MultipleImagesPostScreenState extends State<MultipleImagesPostScreen> {
                     ),
                   ],
                 ),
-                for (int i = 0; i < widget.post.video!.length; i++)
+              for (int i = 0; i < widget.post.video!.length; i++)
                 Column(
                   children: [
                     PostWidget1Child(

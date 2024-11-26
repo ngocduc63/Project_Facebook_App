@@ -15,6 +15,7 @@ class ApiConfig {
   static const String linkVideo = '$api/user/video/';
   static const String getuserInfo = '$api/user/get-user-info';
   static const String getPostsOfUser = '$api/user/get-post-of-user';
+  static const String getPostSingle = '$api/post/post-single';
   static const String getPostsForUser = '$api/post/posts-for-user';
   static const String getComments = '$api/post/list-comments-by-parent-id';
   static const String getRoomChat = '$api/chat/list-room';

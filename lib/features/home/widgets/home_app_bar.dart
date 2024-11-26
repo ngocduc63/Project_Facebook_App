@@ -85,6 +85,7 @@ class _HomeAppBarState extends State<HomeAppBar> {
                       splashRadius: 18,
                       padding: const EdgeInsets.all(0),
                       onPressed: () {
+                        observable.clearUnreadMessCount();
                         Navigator.of(context).pushNamed(RouterConstants.chat);
                       },
                       icon: const ImageIcon(

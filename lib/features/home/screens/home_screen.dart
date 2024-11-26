@@ -26,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int index = 0;
   double toolBarHeight = 60;
   ScrollController scrollController = ScrollController();
-  bool isLoading = false; // Để kiểm tra trạng thái loading
+  bool isLoading = false; 
   late UserModel currentUser;
   late final listIcon = <Map<String, String>>[
     {

@@ -100,16 +100,16 @@ class _SingleNotificationState extends State<SingleNotification> {
     );
   }
 
-  void handleNavigateToPost(BuildContext context) {
-    try {
-      PostModel postData =
-          PostModel.fromJson(widget.notification.options!['post']);
+  Future<void> handleNavigateToPost(BuildContext context) async {
+    final postData = await userController
+        .getPostSingle(widget.notification.options!['postId']);
+    if (postData != null && context.mounted) {
       Navigator.pushNamed(
         context,
         MultipleImagesPostScreen.routeName,
         arguments: postData,
       );
-    } catch (e) {
+    } else {
       Fluttertoast.showToast(
           msg: "Có lỗi xảy ra",
           toastLength: Toast.LENGTH_SHORT,
@@ -121,15 +121,15 @@ class _SingleNotificationState extends State<SingleNotification> {
     }
   }
 
-  void handleClickNotification(BuildContext context) {
+  Future<void> handleClickNotification(BuildContext context) async {
     if (NotificationType.addFriend.value == widget.notification.type) {
       return;
     } else if (NotificationType.acpFriend.value == widget.notification.type) {
       return;
     } else if (NotificationType.likePost.value == widget.notification.type) {
-      handleNavigateToPost(context);
+      await handleNavigateToPost(context);
     } else if (NotificationType.commentPost.value == widget.notification.type) {
-      handleNavigateToPost(context);
+      await handleNavigateToPost(context);
     } else if (NotificationType.sharePost.value == widget.notification.type) {
       return;
     }
@@ -196,8 +196,8 @@ class _SingleNotificationState extends State<SingleNotification> {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () {
-          handleClickNotification(context);
+        onTap: () async {
+          await handleClickNotification(context);
         },
         child: Container(
           decoration: BoxDecoration(
