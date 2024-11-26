@@ -57,18 +57,58 @@ class SplashScreenState extends State<SplashScreen> {
           }
         } else if (type == "POST-002") {
           // like post
+          await NotificationService.showNotification(
+              title:
+                  "${data['user']['name']} đã thả cảm xúc bài viết của bạn",
+              body: '',
+              // largeIcon:
+              //     '${ApiConfig.linkImage}${roomData.lastMessage!.sender!.avatar}',
+              notificationLayout: NotificationLayout.Default,
+            );
           observable.incrementUnreadCount();
         } else if (type == "POST-003") {
           // comment
+          await NotificationService.showNotification(
+              title:
+                  "${data['user']['name']} đã bình luận viết của bạn",
+              body: '',
+              // largeIcon:
+              //     '${ApiConfig.linkImage}${roomData.lastMessage!.sender!.avatar}',
+              notificationLayout: NotificationLayout.Default,
+            );
           observable.incrementUnreadCount();
         } else if (type == "POST-004") {
           // share
+          await NotificationService.showNotification(
+              title:
+                  "${data['user']['name']} đã chia sẻ bài viết của bạn",
+              body: '',
+              // largeIcon:
+              //     '${ApiConfig.linkImage}${roomData.lastMessage!.sender!.avatar}',
+              notificationLayout: NotificationLayout.Default,
+            );
           observable.incrementUnreadCount();
         } else if (type == "FRIEND-001") {
           // add friend
+          await NotificationService.showNotification(
+              title:
+                  "${data['user']['name']} đã gửi lời mời kết bạn",
+              body: '',
+              // largeIcon:
+              //     '${ApiConfig.linkImage}${roomData.lastMessage!.sender!.avatar}',
+              notificationLayout: NotificationLayout.Default,
+            );
           observable.incrementUnreadCount();
         } else if (type == "FRIEND-002") {
           // acp friend
+          await NotificationService.showNotification(
+              title:
+                  "${data['user']['name']} đã chấp nhận kết bạn",
+              body: '',
+              // largeIcon:
+              //     '${ApiConfig.linkImage}${roomData.lastMessage!.sender!.avatar}',
+              notificationLayout: NotificationLayout.Default,
+            );
           observable.incrementUnreadCount();
         }
       });
