@@ -57,11 +57,9 @@ class PostModel {
     this.shareWith
   });
 
-  // Phương thức fromJson để chuyển từ JSON sang PostModel
   factory PostModel.fromJson(Map<String, dynamic> json) =>
       _$PostModelFromJson(json);
 
-  // Phương thức toJson để chuyển từ PostModel sang JSON
   Map<String, dynamic> toJson() => _$PostModelToJson(this);
 
   PostModel copyWith({

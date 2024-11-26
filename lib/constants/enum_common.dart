@@ -76,3 +76,15 @@ enum FriendStatus {
     );
   }
 }
+
+enum NotificationType {
+  createPost('POST-001'),
+  likePost('POST-002'),
+  commentPost('POST-003'),
+  sharePost('POST-004'),
+  addFriend('FRIEND-001'),
+  acpFriend('FRIEND-002');
+  final String value;
+
+  const NotificationType(this.value);
+}

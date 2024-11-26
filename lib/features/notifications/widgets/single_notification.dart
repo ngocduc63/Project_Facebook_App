@@ -1,8 +1,11 @@
-import 'package:facebook/models/noti.dart';
+import 'package:facebook/constants/app_constants.dart';
+import 'package:facebook/constants/enum_common.dart';
+import 'package:facebook/models/notification_model.dart';
+import 'package:facebook/utils/convert_time.dart';
 import 'package:flutter/material.dart';
 
 class SingleNotification extends StatefulWidget {
-  final Noti notification;
+  final NotiModel notification;
   const SingleNotification({super.key, required this.notification});
 
   @override
@@ -10,26 +13,80 @@ class SingleNotification extends StatefulWidget {
 }
 
 class _SingleNotificationState extends State<SingleNotification> {
-  List<String> texts = [];
+  String content = '';
   @override
   void initState() {
     super.initState();
     setState(() {
-      texts = [];
-      int s = 0;
-      if (widget.notification.bold != null) {
-        for (int i = 0; i < widget.notification.bold!.length; i++) {
-          int j =
-              widget.notification.content.indexOf(widget.notification.bold![i]);
-          texts.add(widget.notification.content.substring(s, j));
-          texts.add(widget.notification.bold![i]);
-          s = j + widget.notification.bold![i].length;
-        }
+      if (NotificationType.addFriend.value == widget.notification.type) {
+        content = ' đã gửi lời mời kết bạn cho bạn';
+      } else if (NotificationType.acpFriend.value == widget.notification.type) {
+        content = ' đã chấp nhận lời mời kết bạn của bạn';
+      } else if (NotificationType.likePost.value == widget.notification.type) {
+        content = ' đã thả cảm xúc bài viết của bạn';
+      } else if (NotificationType.commentPost.value ==
+          widget.notification.type) {
+        content = ' đã bình luận bài viết của bạn';
+      } else if (NotificationType.sharePost.value == widget.notification.type) {
+        content = ' đã chia sẻ bài viết của bạn';
       }
-
-      texts.add(widget.notification.content
-          .substring(s, widget.notification.content.length));
     });
+  }
+
+  Widget buildNotificationIcon() {
+    if (widget.notification.type == NotificationType.sharePost.value) {
+      return const Icon(
+        Icons.share,
+        color: Colors.blue,
+        size: 30,
+      );
+    } else if (widget.notification.type == NotificationType.acpFriend.value ||
+        widget.notification.type == NotificationType.addFriend.value) {
+      return const Icon(
+        Icons.person_rounded,
+        color: Colors.white,
+        size: 22,
+      );
+    } else if (widget.notification.type == NotificationType.likePost.value) {
+      final likeCategory = widget.notification.options!['likeCategory'];
+      return _buildReactionIcon(likeCategory);
+    } else if (widget.notification.type == NotificationType.commentPost.value) {
+      return const ImageIcon(
+        AssetImage('assets/images/white-cmt.png'),
+        color: Colors.white,
+        size: 16,
+      );
+    } else {
+      return const Icon(
+        Icons.facebook,
+        color: Colors.blue,
+        size: 30,
+      );
+    }
+  }
+
+  Widget _buildReactionIcon(String likeCategory) {
+    if (likeCategory == Emotion.like.value) {
+      return Image.asset('assets/images/reactions/like.png');
+    } else if (likeCategory == Emotion.love.value) {
+      return Image.asset('assets/images/reactions/love.png');
+    } else if (likeCategory == Emotion.haha.value) {
+      return Image.asset('assets/images/reactions/haha.png');
+    } else if (likeCategory == Emotion.wow.value) {
+      return Image.asset('assets/images/reactions/wow.png');
+    } else if (likeCategory == Emotion.lovelove.value) {
+      return Image.asset('assets/images/reactions/care.png');
+    } else if (likeCategory == Emotion.sad.value) {
+      return Image.asset('assets/images/reactions/sad.png');
+    } else if (likeCategory == Emotion.angry.value) {
+      return Image.asset('assets/images/reactions/angry.png');
+    } else {
+      return const Icon(
+        Icons.facebook,
+        color: Colors.blue,
+        size: 30,
+      );
+    }
   }
 
   @override
@@ -40,9 +97,10 @@ class _SingleNotificationState extends State<SingleNotification> {
         onTap: () {},
         child: Container(
           decoration: BoxDecoration(
-            color: widget.notification.seen == true
-                ? Colors.white.withOpacity(0.1)
-                : Colors.blue.withOpacity(0.1),
+            // color: widget.notification.seen == true
+            //     ? Colors.white.withOpacity(0.1)
+            //     : Colors.blue.withOpacity(0.1),
+            color: Colors.white.withOpacity(0.1),
           ),
           child: Padding(
             padding: const EdgeInsets.only(
@@ -69,8 +127,8 @@ class _SingleNotificationState extends State<SingleNotification> {
                           ),
                         ),
                         child: CircleAvatar(
-                          backgroundImage:
-                              AssetImage(widget.notification.image),
+                          backgroundImage: NetworkImage(
+                              '${ApiConfig.linkImage}${widget.notification.sender.avatar}'),
                           radius: 40,
                         ),
                       ),
@@ -78,119 +136,37 @@ class _SingleNotificationState extends State<SingleNotification> {
                         right: 0,
                         bottom: 0,
                         child: Container(
-                          padding: const EdgeInsets.all(0),
-                          alignment: Alignment.center,
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: widget.notification.type == 'friend'
-                                  ? Colors.blue
-                                  : widget.notification.type == 'comment'
-                                      ? Colors.green[400]
-                                      : widget.notification.type == 'page'
-                                          ? Colors.orange
-                                          : widget.notification.type == 'group'
-                                              ? Colors.blue
-                                              : widget.notification.type ==
-                                                      'security'
-                                                  ? Colors.blue
-                                                  : widget.notification.type ==
-                                                          'date'
-                                                      ? Colors.purple
-                                                      : widget.notification
-                                                                  .type ==
-                                                              'badge'
-                                                          ? Colors
-                                                              .yellow.shade700
-                                                          : Colors.white),
-                          child: (widget.notification.type == 'memory')
-                              ? const Icon(
-                                  Icons.facebook,
-                                  color: Colors.blue,
-                                  size: 30,
-                                )
-                              : (widget.notification.type == 'friend')
-                                  ? const Icon(
-                                      Icons.person_rounded,
-                                      color: Colors.white,
-                                      size: 22,
-                                    )
-                                  : (widget.notification.type == 'comment')
-                                      ? const ImageIcon(
-                                          AssetImage(
-                                              'assets/images/white-cmt.png'),
-                                          color: Colors.white,
-                                          size: 16,
-                                        )
-                                      : (widget.notification.type == 'page')
-                                          ? const CircleAvatar(
-                                              backgroundImage: AssetImage(
-                                                  'assets/images/flag.png'))
-                                          : (widget.notification.type ==
-                                                  'group')
-                                              ? const Icon(
-                                                  Icons.groups_rounded,
-                                                  color: Colors.white,
-                                                  size: 24,
-                                                )
-                                              : (widget.notification.type ==
-                                                      'security')
-                                                  ? const Icon(
-                                                      Icons.security_rounded,
-                                                      color: Colors.white,
-                                                      size: 20,
-                                                    )
-                                                  : (widget.notification.type ==
-                                                          'date')
-                                                      ? const Icon(
-                                                          Icons
-                                                              .favorite_rounded,
-                                                          color: Colors.white,
-                                                          size: 20,
-                                                        )
-                                                      : (widget.notification
-                                                                  .type ==
-                                                              'badge')
-                                                          ? const ImageIcon(
-                                                              AssetImage(
-                                                                'assets/images/trophy.png',
-                                                              ),
-                                                              size: 18,
-                                                              color:
-                                                                  Colors.white,
-                                                            )
-                                                          : (widget.notification
-                                                                      .type ==
-                                                                  'like')
-                                                              ? Image.asset(
-                                                                  'assets/images/reactions/like.png')
-                                                              : (widget.notification
-                                                                          .type ==
-                                                                      'love')
-                                                                  ? Image.asset(
-                                                                      'assets/images/reactions/love.png')
-                                                                  : (widget.notification
-                                                                              .type ==
-                                                                          'haha')
-                                                                      ? Image.asset(
-                                                                          'assets/images/reactions/haha.png')
-                                                                      : (widget.notification.type ==
-                                                                              'wow')
-                                                                          ? Image.asset(
-                                                                              'assets/images/reactions/wow.png')
-                                                                          : (widget.notification.type == 'lovelove')
-                                                                              ? Image.asset('assets/images/reactions/care.png')
-                                                                              : (widget.notification.type == 'sad')
-                                                                                  ? Image.asset('assets/images/reactions/sad.png')
-                                                                                  : (widget.notification.type == 'angry')
-                                                                                      ? Image.asset('assets/images/reactions/angry.png')
-                                                                                      : const Icon(
-                                                                                          Icons.facebook,
-                                                                                          color: Colors.blue,
-                                                                                          size: 30,
-                                                                                        ),
-                        ),
+                            padding: const EdgeInsets.all(0),
+                            alignment: Alignment.center,
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: widget.notification.type ==
+                                            'FRIEND-002' ||
+                                        widget.notification.type == 'FRIEND-001'
+                                    ? Colors.blue
+                                    : widget.notification.type == 'POST-003'
+                                        ? Colors.green[400]
+                                        : widget.notification.type == 'page'
+                                            ? Colors.orange
+                                            : widget.notification.type ==
+                                                    'group'
+                                                ? Colors.blue
+                                                : widget.notification.type ==
+                                                        'security'
+                                                    ? Colors.blue
+                                                    : widget.notification
+                                                                .type ==
+                                                            'date'
+                                                        ? Colors.purple
+                                                        : widget.notification
+                                                                    .type ==
+                                                                'badge'
+                                                            ? Colors
+                                                                .yellow.shade700
+                                                            : Colors.white),
+                            child: buildNotificationIcon()),
                       )
                     ],
                   ),
@@ -206,39 +182,35 @@ class _SingleNotificationState extends State<SingleNotification> {
                           overflow: TextOverflow.ellipsis,
                           maxLines: 3,
                           text: TextSpan(
-                              // Note: Styles for TextSpans must be explicitly defined.
-                              // Child text spans will inherit styles from parent
-                              style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                  height: 1.4),
-                              children: texts
-                                  .map(
-                                    (e) => TextSpan(
-                                      text: e,
-                                      style: TextStyle(
-                                        fontWeight:
-                                            widget.notification.bold != null &&
-                                                    widget.notification.bold!
-                                                        .contains(e)
-                                                ? FontWeight.bold
-                                                : FontWeight.normal,
-                                      ),
-                                    ),
-                                  )
-                                  .toList()),
+                            // Note: Styles for TextSpans must be explicitly defined.
+                            // Child text spans will inherit styles from parent
+                            style: const TextStyle(
+                                color: Colors.black, fontSize: 16, height: 1.4),
+                            children: [
+                              TextSpan(
+                                text: widget.notification.sender.name,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              TextSpan(
+                                text: content,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.normal),
+                              ),
+                            ],
+                          ),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(top: 5),
                           child: Text(
-                            widget.notification.time,
+                            convertToTimeAgo(widget.notification.time),
                             style: const TextStyle(
                               color: Colors.black54,
                               fontSize: 14,
                             ),
                           ),
                         ),
-                        if (widget.notification.type == 'friend')
+                        if (widget.notification.type == 'FRIEND-001')
                           Row(
                             children: [
                               Expanded(

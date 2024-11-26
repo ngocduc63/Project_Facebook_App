@@ -21,6 +21,7 @@ class ApiConfig {
   static const String getMessages = '$api/chat/list-mess';
   static const String getListFriend = '$api/friend/list-friend';
   static const String getRoomInfo = '$api/chat/get-room';
+  static const String getNotifications = '$api/notification/get-notifications';
 
   //api post
   static const String createPost = '$api/post/create-post';
