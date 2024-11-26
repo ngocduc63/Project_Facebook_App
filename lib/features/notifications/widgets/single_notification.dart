@@ -1,8 +1,15 @@
+import 'package:facebook/constants/app_colors.dart';
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/enum_common.dart';
+import 'package:facebook/controllers/user_controller/user_controller.dart';
+import 'package:facebook/features/news-feed/screen/multiple_images_post_screen.dart';
+import 'package:facebook/features/personal-page/screens/personal_page_screen.dart';
 import 'package:facebook/models/notification_model.dart';
+import 'package:facebook/models/post_model.dart';
 import 'package:facebook/utils/convert_time.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SingleNotification extends StatefulWidget {
   final NotiModel notification;
@@ -14,6 +21,8 @@ class SingleNotification extends StatefulWidget {
 
 class _SingleNotificationState extends State<SingleNotification> {
   String content = '';
+  UserController userController = UserController();
+
   @override
   void initState() {
     super.initState();
@@ -31,6 +40,99 @@ class _SingleNotificationState extends State<SingleNotification> {
         content = ' đã chia sẻ bài viết của bạn';
       }
     });
+  }
+
+  Future<void> handleAcpFriend() async {
+    final check = await userController.acpFriendController(
+        widget.notification.sender.id, widget.notification.id);
+
+    if (check) {
+      Fluttertoast.showToast(
+          msg: "Đồng ý kết bạn thành công",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP_LEFT,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    } else {
+      Fluttertoast.showToast(
+          msg: "Có lỗi xảy ra",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP_LEFT,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+  }
+
+  Future<void> handleDeclineFriend() async {
+    final check = await userController.declineFriendController(
+        widget.notification.sender.id, widget.notification.id);
+
+    if (check) {
+      Fluttertoast.showToast(
+          msg: "Từ chối kết bạn thành công",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP_LEFT,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    } else {
+      Fluttertoast.showToast(
+          msg: "Có lỗi xảy ra",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP_LEFT,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+  }
+
+  void handleNagivateToPersonal(BuildContext context) {
+    Navigator.pushNamed(
+      context,
+      PersonalPageScreen.routeName,
+      arguments: widget.notification.sender,
+    );
+  }
+
+  void handleNavigateToPost(BuildContext context) {
+    try {
+      PostModel postData =
+          PostModel.fromJson(widget.notification.options!['post']);
+      Navigator.pushNamed(
+        context,
+        MultipleImagesPostScreen.routeName,
+        arguments: postData,
+      );
+    } catch (e) {
+      Fluttertoast.showToast(
+          msg: "Có lỗi xảy ra",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP_LEFT,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+  }
+
+  void handleClickNotification(BuildContext context) {
+    if (NotificationType.addFriend.value == widget.notification.type) {
+      return;
+    } else if (NotificationType.acpFriend.value == widget.notification.type) {
+      return;
+    } else if (NotificationType.likePost.value == widget.notification.type) {
+      handleNavigateToPost(context);
+    } else if (NotificationType.commentPost.value == widget.notification.type) {
+      handleNavigateToPost(context);
+    } else if (NotificationType.sharePost.value == widget.notification.type) {
+      return;
+    }
   }
 
   Widget buildNotificationIcon() {
@@ -94,7 +196,9 @@ class _SingleNotificationState extends State<SingleNotification> {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          handleClickNotification(context);
+        },
         child: Container(
           decoration: BoxDecoration(
             // color: widget.notification.seen == true
@@ -126,10 +230,22 @@ class _SingleNotificationState extends State<SingleNotification> {
                             width: 3,
                           ),
                         ),
-                        child: CircleAvatar(
-                          backgroundImage: NetworkImage(
-                              '${ApiConfig.linkImage}${widget.notification.sender.avatar}'),
-                          radius: 40,
+                        child: Material(
+                          type: MaterialType.circle,
+                          clipBehavior: Clip.hardEdge,
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              // Xử lý sự kiện click vào avatar
+                              handleNagivateToPersonal(context);
+                            },
+                            child: CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                '${ApiConfig.linkImage}${widget.notification.sender.avatar}',
+                              ),
+                              radius: 40,
+                            ),
+                          ),
                         ),
                       ),
                       Positioned(
@@ -182,20 +298,28 @@ class _SingleNotificationState extends State<SingleNotification> {
                           overflow: TextOverflow.ellipsis,
                           maxLines: 3,
                           text: TextSpan(
-                            // Note: Styles for TextSpans must be explicitly defined.
-                            // Child text spans will inherit styles from parent
                             style: const TextStyle(
-                                color: Colors.black, fontSize: 16, height: 1.4),
+                              color: Colors.black,
+                              fontSize: 16,
+                              height: 1.4,
+                            ),
                             children: [
                               TextSpan(
                                 text: widget.notification.sender.name,
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.blackColor,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    handleNagivateToPersonal(context);
+                                  },
                               ),
                               TextSpan(
                                 text: content,
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.normal),
+                                  fontWeight: FontWeight.normal,
+                                ),
                               ),
                             ],
                           ),
@@ -215,7 +339,7 @@ class _SingleNotificationState extends State<SingleNotification> {
                             children: [
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: handleAcpFriend,
                                   style: ElevatedButton.styleFrom(
                                     elevation: 0,
                                     backgroundColor: Colors.blue,
@@ -245,7 +369,7 @@ class _SingleNotificationState extends State<SingleNotification> {
                                       ),
                                       padding: const EdgeInsets.all(5)),
                                   child: const Text(
-                                    'Xóa',
+                                    'Từ chối',
                                     style: TextStyle(color: Colors.black),
                                   ),
                                 ),

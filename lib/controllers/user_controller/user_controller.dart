@@ -16,7 +16,7 @@ class UserController {
         return false;
       }
     } catch (e) {
-      print('Error fetching posts: $e');
+      print('Error like: $e');
       return false;
     }
   }
@@ -32,7 +32,7 @@ class UserController {
         return false;
       }
     } catch (e) {
-      print('Error fetching posts: $e');
+      print('Error like: $e');
       return false;
     }
   }
@@ -48,7 +48,39 @@ class UserController {
         return false;
       }
     } catch (e) {
-      print('Error fetching posts: $e');
+      print('Error unlike: $e');
+      return false;
+    }
+  }
+
+  Future<bool> acpFriendController(String friendId, String notificationId) async {
+     try {
+      final response = await _apiController
+            .put(ApiConfig.acpFriend, {'friendId': friendId, 'notificationId' : notificationId});
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print('Error acp friend: $e');
+      return false;
+    }
+  }
+
+  Future<bool> declineFriendController(String friendId, String notificationId) async {
+     try {
+      final response = await _apiController
+          .delete(ApiConfig.declineFriend, {'friendId': friendId, 'notificationId': notificationId});
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print('Error decline friend: $e');
       return false;
     }
   }
