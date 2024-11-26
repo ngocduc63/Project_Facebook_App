@@ -5,7 +5,6 @@ import 'package:facebook/controllers/user_controller/user_controller.dart';
 import 'package:facebook/features/news-feed/screen/multiple_images_post_screen.dart';
 import 'package:facebook/features/personal-page/screens/personal_page_screen.dart';
 import 'package:facebook/models/notification_model.dart';
-import 'package:facebook/models/post_model.dart';
 import 'package:facebook/utils/convert_time.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -103,12 +102,14 @@ class _SingleNotificationState extends State<SingleNotification> {
   Future<void> handleNavigateToPost(BuildContext context) async {
     final postData = await userController
         .getPostSingle(widget.notification.options!['postId']);
-    if (postData != null && context.mounted) {
-      Navigator.pushNamed(
-        context,
-        MultipleImagesPostScreen.routeName,
-        arguments: postData,
-      );
+    if (postData != null) {
+      if (context.mounted) {
+        Navigator.pushNamed(
+          context,
+          MultipleImagesPostScreen.routeName,
+          arguments: postData,
+        );
+      }
     } else {
       Fluttertoast.showToast(
           msg: "Có lỗi xảy ra",
