@@ -2,18 +2,20 @@ import 'dart:io';
 
 import 'package:facebook/constants/app_colors.dart';
 import 'package:facebook/constants/app_constants.dart';
+import 'package:facebook/constants/router_constants.dart';
 import 'package:facebook/controllers/api_controller.dart';
 import 'package:facebook/features/auth/widgets/submit_button.dart';
 import 'package:facebook/features/home/screens/home_screen.dart';
 import 'package:facebook/utils/utils.dart';
 import 'package:facebook/features/news-feed/widgets/image_video_view.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
 class CreatePostScreen extends StatefulWidget {
   const CreatePostScreen({super.key});
 
-  static const routeName = '/create-post';
+  static const routeName = RouterConstants.createPost;
 
   @override
   State<CreatePostScreen> createState() => _CreatePostScreenState();
@@ -269,12 +271,29 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       setState(() {
         isLoading = true;
       });
-      await apiController.postForm(
-          ApiConfig.createPost, images, videos, content);
+      try {
+        final response = await apiController.postForm(
+            ApiConfig.createPost, images, videos, content);
+
+        if(response.statusCode == 200) {
+          Fluttertoast.showToast(
+          msg: "Đăng bài viết thành công",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP_LEFT,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0);
+          Get.off(HomeScreen());
+        }else {
+          throw Exception();
+        }
+      } catch (e) {
+        print(e);
+      }
       setState(() {
         isLoading = false;
       });
-      Get.off(HomeScreen());
     }
   }
 }

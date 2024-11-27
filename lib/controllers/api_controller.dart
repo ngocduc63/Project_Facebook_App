@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/models/user_model.dart';
 import 'package:facebook/utils/prefs_user.dart';
-
+import 'package:image_picker/image_picker.dart';
 
 class ApiController {
   final Dio _dio = Dio();
@@ -82,33 +82,58 @@ class ApiController {
     }
   }
 
-  Future<Response> postForm(String endpoint, List<File> listImage, List<File> listVideo, text) async {
+  Future<Response> postForm(
+      String endpoint, List<File> listImage, List<File> listVideo, text) async {
+    try {
+      FormData formData = FormData();
+
+      for (var image in listImage) {
+        formData.files.add(MapEntry(
+          'post',
+          await MultipartFile.fromFile(image.path,
+              filename: image.path.split('/').last,
+              contentType: DioMediaType('image', 'png')),
+        ));
+      }
+
+      for (var video in listVideo) {
+        formData.files.add(MapEntry(
+          'post',
+          await MultipartFile.fromFile(video.path,
+              filename: video.path.split('/').last,
+              contentType: DioMediaType('video', 'mp4')),
+        ));
+      }
+
+      String dataJson = jsonEncode({"post_title": text});
+      formData.fields.add(MapEntry('data', dataJson));
+
+      return await _dio.post(endpoint, data: formData);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Response> storyForm(String endpoint, XFile media, String text, bool isVideo) async {
   try {
     FormData formData = FormData();
-
-    for (var image in listImage) {
+    if (isVideo) {
       formData.files.add(MapEntry(
         'post',
-        await MultipartFile.fromFile(
-          image.path,
-          filename: image.path.split('/').last,
-          contentType: DioMediaType('image', 'png')
-        ),
+        await MultipartFile.fromFile(media.path,
+            filename: media.path.split('/').last,
+            contentType: DioMediaType('video', 'mp4')),
+      ));
+    } else {
+      formData.files.add(MapEntry(
+        'post',
+        await MultipartFile.fromFile(media.path,
+            filename: media.path.split('/').last,
+            contentType: DioMediaType('image', 'png')),
       ));
     }
 
-    for (var video in listVideo) {
-      formData.files.add(MapEntry(
-        'post',
-        await MultipartFile.fromFile(
-          video.path,
-          filename: video.path.split('/').last,
-          contentType: DioMediaType('video', 'mp4')
-        ),
-      ));
-    }
-
-    String dataJson = jsonEncode({"post_title": text});
+    String dataJson = jsonEncode({"story_title": text});
     formData.fields.add(MapEntry('data', dataJson));
 
     return await _dio.post(endpoint, data: formData);
@@ -116,6 +141,7 @@ class ApiController {
     rethrow;
   }
 }
+
 
   Future<Response> put(String endpoint, Map<String, dynamic> body) async {
     try {
@@ -139,11 +165,11 @@ class ApiController {
       final response = await _dio.put('/access/refresh-token', data: {
         'refreshToken': tokens?['refreshToken'],
       });
-      
+
       // Update the token if refresh is successful
       String newTokens = jsonEncode(response.data['metadata']['tokens']);
 
-    //  errorcode == 403 => logout
+      //  errorcode == 403 => logout
 
       // Save the new token using UserServicePref.instance
       await UserServicePref.instance.saveToken(newTokens);

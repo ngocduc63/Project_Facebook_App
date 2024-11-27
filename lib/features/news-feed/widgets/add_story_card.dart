@@ -1,5 +1,6 @@
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/global_variables.dart';
+import 'package:facebook/constants/router_constants.dart';
 import 'package:facebook/models/user_model.dart';
 import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,9 @@ class AddStoryCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
-          onTap: () {},
+          onTap: () {
+            Navigator.of(context).pushNamed(RouterConstants.createStory);
+          },
           child: Stack(
             children: [
               Column(

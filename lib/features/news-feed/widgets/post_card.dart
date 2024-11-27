@@ -348,7 +348,7 @@ class _PostCardState extends State<PostCard> {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 5),
-                      child: PostContent(text: widget.post.content!),
+                      child: PostContent(text: widget.post.content ?? ''),
                     ),
                     ((widget.post.video != null
                                     ? widget.post.video!.length

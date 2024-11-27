@@ -9,6 +9,7 @@ import 'package:facebook/features/home/screens/home_screen.dart';
 import 'package:facebook/features/market_place/screens/product_details_screen.dart';
 import 'package:facebook/features/memory/screens/memory_screen.dart';
 import 'package:facebook/features/news-feed/screen/create_post_screen.dart';
+import 'package:facebook/features/news-feed/screen/create_story_screen.dart';
 import 'package:facebook/features/news-feed/screen/image_fullscreen.dart';
 import 'package:facebook/features/news-feed/screen/multiple_images_post_screen.dart';
 import 'package:facebook/features/news-feed/widgets/story_details.dart';
@@ -63,6 +64,10 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
       return MaterialPageRoute(
         builder: (context) => const CreatePostScreen(),
       );
+    case CreateStoryScreen.routeName:
+    return MaterialPageRoute(
+      builder: (context) => const CreateStoryScreen(),
+    );
     case ProductDetailsScreen.routeName:
       final Product product = routeSettings.arguments as Product;
       return PageRouteBuilder(
