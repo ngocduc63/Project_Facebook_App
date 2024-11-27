@@ -7,6 +7,7 @@ import 'package:facebook/features/news-feed/widgets/post_card.dart';
 import 'package:facebook/features/news-feed/widgets/story_card.dart';
 import 'package:facebook/models/post_model.dart';
 import 'package:facebook/models/story.dart';
+import 'package:facebook/models/story_model.dart';
 import 'package:facebook/models/user.dart';
 import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
@@ -80,13 +81,27 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
   int limit = 5;
   bool hasNextPage = true;
 
+  List<StoryModel> storiesNew = [];
+  bool isLoadingStory = false;
+  bool isLoadingMoreStory = false;
+  int pageStory = 0;
+  int limitStory = 10;
+  bool hasNextPageStory = true;
+
   ScrollController scrollController =
       ScrollController(initialScrollOffset: NewsFeedScreen.offset);
 
   @override
   void initState() {
     super.initState();
-    _fetchPosts();
+    _initData();
+  }
+
+  Future<void> _initData() async {
+    await Future.wait([
+      _fetchPosts(),
+      _fetchStory(),
+    ]);
   }
 
   Future<void> _fetchPosts() async {
@@ -131,6 +146,51 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
       }
       // Xử lý lỗi
       print('Error fetching posts: $e');
+    }
+  }
+
+  Future<void> _fetchStory() async {
+    try {
+      if (mounted) {
+        setState(() {
+          if (page == 0) {
+            isLoadingStory = true;
+          } else {
+            isLoadingMoreStory = true;
+          }
+        });
+      }
+
+      pageStory++;
+      final response = await _apiController.get(ApiConfig.getStory, {
+        'page': pageStory,
+        'limit': limitStory,
+      });
+
+      List<StoryModel> storyNewdata =
+          (response.data['metadata']['storys'] as List)
+              .map((story) => StoryModel.fromJson(story))
+              .toList();
+
+      bool checkNextPage = response.data['metadata']['totalPage'] > page;
+
+      if (mounted) {
+        setState(() {
+          storiesNew.addAll(storyNewdata);
+          isLoadingStory = false;
+          isLoadingMoreStory = false;
+          hasNextPageStory = checkNextPage;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          isLoadingStory = false;
+          isLoadingMoreStory = false;
+        });
+      }
+      // Xử lý lỗi
+      print('Error fetching story: $e');
     }
   }
 
@@ -254,7 +314,7 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
                   ),
                   child: AddStoryCard(),
                 ),
-                ...stories
+                ...storiesNew
                     .map((e) => Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 5,
