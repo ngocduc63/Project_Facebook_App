@@ -38,6 +38,7 @@ class ApiConfig {
   static const String unfriend = '$api/friend/unfriend';
   static const String updateAvatar = '$api/user/update-avatar';
   static const String updateCover = '$api/user/update-cover';
+  static const String updateProfile = '$api/user/update-profile';
 
   // api delete
   static const String unLikePost = '$api/post/delete-like';

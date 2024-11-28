@@ -5,6 +5,7 @@ import 'package:facebook/constants/app_colors.dart';
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/enum_common.dart';
 import 'package:facebook/constants/global_variables.dart';
+import 'package:facebook/constants/router_constants.dart';
 import 'package:facebook/controllers/api_controller.dart';
 import 'package:facebook/features/personal-page/widgets/button_friend.dart';
 import 'package:facebook/models/post_model.dart';
@@ -60,20 +61,21 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
           imageQuality: 85,
         );
 
-        final response = await apiController.imageForm(ApiConfig.updateAvatar, selectedAvatar!, isCover);
+        final response = await apiController.imageForm(
+            ApiConfig.updateAvatar, selectedAvatar!, isCover);
 
         if (response.statusCode == 200) {
           final user = jsonEncode(response.data['metadata']['user']);
           await UserServicePref.instance.saveUser(user);
 
           Fluttertoast.showToast(
-          msg: "Cập nhật ảnh đại diện thành công",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.TOP_LEFT,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 16.0);
+              msg: "Cập nhật ảnh đại diện thành công",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.TOP_LEFT,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+              fontSize: 16.0);
 
           if (context.mounted) {
             Navigator.of(context).pushReplacement(
@@ -91,20 +93,21 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
           maxWidth: 1080,
           imageQuality: 85,
         );
-        final response = await apiController.imageForm(ApiConfig.updateCover, selectedCover!, isCover);
+        final response = await apiController.imageForm(
+            ApiConfig.updateCover, selectedCover!, isCover);
 
         if (response.statusCode == 200) {
           final user = jsonEncode(response.data['metadata']['user']);
           await UserServicePref.instance.saveUser(user);
 
           Fluttertoast.showToast(
-          msg: "Cập nhật ảnh bìa thành công",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.TOP_LEFT,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 16.0);
+              msg: "Cập nhật ảnh bìa thành công",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.TOP_LEFT,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+              fontSize: 16.0);
 
           if (context.mounted) {
             Navigator.of(context).pushReplacement(
@@ -361,38 +364,24 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                               const SizedBox(
                                 height: 10,
                               ),
-                               GestureDetector(
-                                  onTap: () {
-                                    _pickMedia(
-                                        ImageSource.gallery, true, context);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.camera_alt_rounded,
-                                      color: Colors.black,
-                                      size: 22,
-                                    ),
+                              GestureDetector(
+                                onTap: () {
+                                  _pickMedia(
+                                      ImageSource.gallery, true, context);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.camera_alt_rounded,
+                                    color: Colors.black,
+                                    size: 22,
                                   ),
                                 ),
-                              
-                              // Container(
-                              //   padding: const EdgeInsets.all(8),
-                              //   decoration: BoxDecoration(
-                              //     color: Colors.grey[200],
-                              //     shape: BoxShape.circle,
-                              //   ),
-                              //   child: 
-                              //   const Icon(
-                              //     Icons.camera_alt_rounded,
-                              //     color: Colors.black,
-                              //     size: 22,
-                              //   ),
-                              // ),
+                              ),
                             ],
                           ),
                         )
@@ -505,7 +494,10 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                                     children: [
                                       Expanded(
                                         child: ElevatedButton(
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              Navigator.of(context).pushNamed(
+                                                  RouterConstants.createStory);
+                                            },
                                             style: ElevatedButton.styleFrom(
                                               shadowColor: Colors.transparent,
                                               shape: RoundedRectangleBorder(
@@ -542,7 +534,17 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                                     children: [
                                       Expanded(
                                         child: ElevatedButton(
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              Navigator.of(context).pushNamed(
+                                                RouterConstants.updateProfile,
+                                                arguments: {
+                                                  'name': user?.name ?? '',
+                                                  'hometown': user?.hometown ?? '',
+                                                  'address': user?.address ?? '',
+                                                  'bio': user?.bio ?? '',
+                                                },
+                                              );
+                                            },
                                             style: ElevatedButton.styleFrom(
                                               shadowColor: Colors.transparent,
                                               shape: RoundedRectangleBorder(
@@ -1104,7 +1106,17 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                             children: [
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.of(context).pushNamed(
+                                                RouterConstants.updateProfile,
+                                                arguments: {
+                                                  'name': user?.name ?? '',
+                                                  'hometown': user?.hometown ?? '',
+                                                  'address': user?.address ?? '',
+                                                  'bio': user?.bio ?? '',
+                                                },
+                                              );
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.blue[50],
                                     shape: RoundedRectangleBorder(

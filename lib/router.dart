@@ -14,6 +14,7 @@ import 'package:facebook/features/news-feed/screen/image_fullscreen.dart';
 import 'package:facebook/features/news-feed/screen/multiple_images_post_screen.dart';
 import 'package:facebook/features/news-feed/widgets/story_details.dart';
 import 'package:facebook/features/personal-page/screens/personal_page_screen.dart';
+import 'package:facebook/features/personal-page/screens/update_profile_screen.dart';
 import 'package:facebook/models/chat_model.dart';
 import 'package:facebook/models/post_model.dart';
 import 'package:facebook/models/product.dart';
@@ -65,9 +66,19 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
         builder: (context) => const CreatePostScreen(),
       );
     case CreateStoryScreen.routeName:
-    return MaterialPageRoute(
-      builder: (context) => const CreateStoryScreen(),
-    );
+      return MaterialPageRoute(
+        builder: (context) => const CreateStoryScreen(),
+      );
+    case UpdateProfileScreen.routeName:
+      final args = routeSettings.arguments as Map<String, String>;
+      return MaterialPageRoute(
+        builder: (context) => UpdateProfileScreen(
+          name: args['name'] ?? '',
+          hometown: args['hometown'] ?? '',
+          address: args['address'] ?? '',
+          bio: args['bio'] ?? '',
+        ),
+      );
     case ProductDetailsScreen.routeName:
       final Product product = routeSettings.arguments as Product;
       return PageRouteBuilder(
