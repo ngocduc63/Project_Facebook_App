@@ -22,4 +22,12 @@ class StoryModel {
       _$StoryModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$StoryModelToJson(this);
+
+  int get numImages {
+    return listStory.where((story) => story.image!.isNotEmpty).length;
+  }
+
+  int get numVideos {
+    return listStory.where((story) => story.video!.isNotEmpty).length;
+  }
 }

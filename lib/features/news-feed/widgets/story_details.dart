@@ -1,13 +1,16 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:facebook/constants/app_constants.dart';
+import 'package:facebook/constants/enum_common.dart';
 import 'package:facebook/features/news-feed/widgets/video_screen.dart';
-import 'package:facebook/models/story.dart';
+import 'package:facebook/models/story_model.dart';
+import 'package:facebook/utils/convert_time.dart';
 import 'package:flutter/material.dart';
 
 class StoryDetails extends StatefulWidget {
   static const String routeName = '/story-details';
-  final Story story;
+  final StoryModel story;
   const StoryDetails({super.key, required this.story});
 
   @override
@@ -26,18 +29,13 @@ class _StoryDetailsState extends State<StoryDetails>
   bool isInWidgetTree = true;
   @override
   void initState() {
-    for (int i = 0;
-        i <
-            (widget.story.image != null ? widget.story.image!.length : 0) +
-                (widget.story.video != null ? widget.story.video!.length : 0);
-        i++) {
+    for (int i = 0; i < widget.story.listStory.length; i++) {
       progress.add(0);
     }
     const oneSec = Duration(milliseconds: 1);
     _timer = Timer.periodic(oneSec, (Timer timer) {
       if (mounted) {
-        if (index >=
-            (widget.story.image != null ? widget.story.image!.length : 0)) {
+        if (index >= widget.story.numImages) {
           return;
         }
         setState(() {
@@ -54,9 +52,9 @@ class _StoryDetailsState extends State<StoryDetails>
     });
     scrollController.addListener(() {
       if (scrollController.offset > 0) {
-        if (index < widget.story.image!.length) _timer?.cancel();
+        if (index < widget.story.numImages) _timer?.cancel();
       } else {
-        if (index < widget.story.image!.length) {
+        if (index < widget.story.numImages) {
           if (_timer == null || (_timer != null && !_timer!.isActive)) {
             setState(() {
               _timer = Timer.periodic(oneSec, (Timer timer) {
@@ -85,8 +83,7 @@ class _StoryDetailsState extends State<StoryDetails>
       duration: const Duration(microseconds: 1),
     )..addListener(() {
         setState(() {
-          if (index >=
-              (widget.story.image != null ? widget.story.image!.length : 0)) {
+          if (index >= widget.story.numImages) {
             if (VideoPlayerScreen.videoDuration.compareTo(Duration.zero) > 0) {
               videoProgressController.duration =
                   VideoPlayerScreen.videoDuration;
@@ -118,8 +115,7 @@ class _StoryDetailsState extends State<StoryDetails>
 
   @override
   Widget build(BuildContext context) {
-    if (index >=
-        (widget.story.image != null ? widget.story.image!.length : 0)) {
+    if (index >= widget.story.numImages) {
       videoProgressController.repeat();
     }
     return isInWidgetTree
@@ -178,25 +174,18 @@ class _StoryDetailsState extends State<StoryDetails>
                 body: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 50),
                   child: Container(
-                    decoration: (index <
-                                (widget.story.image != null
-                                    ? widget.story.image!.length
-                                    : 0) &&
-                            showFilter)
+                    decoration: (index < widget.story.numImages && showFilter)
                         ? BoxDecoration(
                             image: DecorationImage(
-                              image:
-                                  ExactAssetImage(widget.story.image![index]),
+                              image: NetworkImage(
+                                  '${ApiConfig.linkImage}${widget.story.listStory[index].image!}'),
                               fit: BoxFit.cover,
                             ),
                           )
                         : null,
                     child: Stack(
                       children: [
-                        if (index <
-                            (widget.story.image != null
-                                ? widget.story.image!.length
-                                : 0))
+                        if (index < widget.story.numImages)
                           if (showFilter)
                             BackdropFilter(
                               filter:
@@ -206,22 +195,20 @@ class _StoryDetailsState extends State<StoryDetails>
                                     color: Colors.black.withOpacity(0.1)),
                               ),
                             ),
-                        (index >=
-                                (widget.story.image != null
-                                    ? widget.story.image!.length
-                                    : 0))
+                        (index >= widget.story.numImages)
                             ? Center(
                                 key: Key(index.toString()),
                                 child: VideoPlayerScreen(
-                                  video: widget.story.video![index -
-                                      (widget.story.image != null
-                                          ? widget.story.image!.length
-                                          : 0)],
+                                  video: widget
+                                      .story
+                                      .listStory[index - widget.story.numImages]
+                                      .video!,
                                 ),
                               )
                             : Center(
                                 key: Key(index.toString()),
-                                child: Image.asset(widget.story.image![index]),
+                                child: Image.network(
+                                    '${ApiConfig.linkImage}${widget.story.listStory[index].image!}'),
                               ),
                         Padding(
                           padding: const EdgeInsets.only(top: 10),
@@ -233,10 +220,7 @@ class _StoryDetailsState extends State<StoryDetails>
                                   Row(
                                     children: [
                                       for (int i = 0;
-                                          i <
-                                              (widget.story.image != null
-                                                  ? widget.story.image!.length
-                                                  : 0);
+                                          i < widget.story.numImages;
                                           i++)
                                         Expanded(
                                             child: Padding(
@@ -250,9 +234,9 @@ class _StoryDetailsState extends State<StoryDetails>
                                             minHeight: 2,
                                           ),
                                         )),
-                                      if (widget.story.video != null)
+                                      if (widget.story.numVideos > 0)
                                         for (int i = 0;
-                                            i < widget.story.video!.length;
+                                            i < widget.story.numVideos;
                                             i++)
                                           Expanded(
                                               child: Padding(
@@ -263,23 +247,14 @@ class _StoryDetailsState extends State<StoryDetails>
                                                   Colors.grey.withOpacity(0.4),
                                               color: Colors.white,
                                               value: (index -
-                                                          (widget.story.image !=
-                                                                  null
-                                                              ? widget.story
-                                                                  .image!.length
-                                                              : 0) ==
+                                                          widget.story
+                                                              .numImages ==
                                                       i)
                                                   ? videoProgressController
                                                       .value
                                                   : (index -
-                                                              (widget.story
-                                                                          .image !=
-                                                                      null
-                                                                  ? widget
-                                                                      .story
-                                                                      .image!
-                                                                      .length
-                                                                  : 0) >
+                                                              widget.story
+                                                                  .numImages >
                                                           i)
                                                       ? 1
                                                       : 0,
@@ -320,8 +295,8 @@ class _StoryDetailsState extends State<StoryDetails>
                                                 });
                                               },
                                               child: CircleAvatar(
-                                                backgroundImage: AssetImage(
-                                                    widget.story.user.avatar),
+                                                backgroundImage: NetworkImage(
+                                                    '${ApiConfig.linkImage}${widget.story.user.avatar}'),
                                                 radius: 20,
                                               ),
                                             ),
@@ -344,7 +319,8 @@ class _StoryDetailsState extends State<StoryDetails>
                                               ),
                                             ),
                                             Text(
-                                              widget.story.time[0],
+                                              convertToTimeAgo(widget
+                                                  .story.listStory[index].time),
                                               style: const TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 14,
@@ -355,17 +331,18 @@ class _StoryDetailsState extends State<StoryDetails>
                                                   const EdgeInsets.symmetric(
                                                       horizontal: 10),
                                               child: Icon(
-                                                widget.story.shareWith ==
-                                                        'public'
+                                                widget.story.listStory[index]
+                                                            .shareWith ==
+                                                        PostStatus.public
                                                     ? Icons.public
-                                                    : widget.story.shareWith ==
-                                                            'friends'
+                                                    : widget
+                                                                .story
+                                                                .listStory[
+                                                                    index]
+                                                                .shareWith ==
+                                                            PostStatus.friend
                                                         ? Icons.people
-                                                        : widget.story
-                                                                    .shareWith ==
-                                                                'friends-of-frends'
-                                                            ? Icons.groups
-                                                            : Icons.lock,
+                                                        : Icons.lock,
                                                 color: Colors.white,
                                                 size: 14,
                                               ),

@@ -1,9 +1,11 @@
+import 'package:facebook/constants/app_colors.dart';
+import 'package:facebook/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
   static Duration videoDuration = Duration.zero;
-  final String video;
+  final String video; // Đổi tên biến cho rõ ràng
 
   const VideoPlayerScreen({super.key, required this.video});
 
@@ -13,26 +15,27 @@ class VideoPlayerScreen extends StatefulWidget {
 
 class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   late VideoPlayerController controller;
+
   @override
   void initState() {
     super.initState();
-    // Create and store the VideoPlayerController. The VideoPlayerController
-    // offers several different constructors to play videos from assets, files,
-    // or the internet.
-    controller = VideoPlayerController.asset(widget.video)
-      ..initialize().then((value) {
+    // Sử dụng VideoPlayerController.network để phát video từ URL
+    controller = VideoPlayerController.networkUrl(Uri.parse('${ApiConfig.linkVideo}${widget.video}'))
+      ..initialize().then((_) {
         setState(() {
-          controller.setVolume(1.0);
-          controller.play();
+          controller.setVolume(1.0); // Đặt âm lượng tối đa
+          controller.play(); // Phát video tự động
           VideoPlayerScreen.videoDuration =
               controller.value.duration + const Duration(milliseconds: 500);
         });
+      }).catchError((error) {
+        debugPrint('Error initializing video: $error');
       });
   }
 
   @override
   void dispose() {
-    // Ensure disposing of the VideoPlayerController to free up resources.
+    // Giải phóng tài nguyên
     controller.dispose();
     VideoPlayerScreen.videoDuration = Duration.zero;
     super.dispose();
@@ -42,12 +45,14 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   Widget build(BuildContext context) {
     return controller.value.isInitialized
         ? AspectRatio(
-            aspectRatio: 9 / 16,
+            aspectRatio: controller.value.aspectRatio, // Đặt tỷ lệ video
             child: VideoPlayer(controller),
           )
-        : const CircularProgressIndicator(
-            color: Colors.black,
-            strokeWidth: 5,
+        : const Center(
+            child: CircularProgressIndicator(
+              color: AppColors.lightBlueColor,
+              strokeWidth: 5,
+            ),
           );
   }
 }

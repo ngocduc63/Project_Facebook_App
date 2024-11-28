@@ -31,4 +31,13 @@ class StoryDetailModel {
 
   Map<String, dynamic> toJson() => _$StoryDetailModelToJson(this);
 
+  bool isImage() {
+    return image!.isNotEmpty;
+  }
+
+  bool isVideo() {
+    return video!.isNotEmpty;
+  }
+
+
 }

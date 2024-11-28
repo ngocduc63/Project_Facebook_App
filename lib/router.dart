@@ -17,7 +17,7 @@ import 'package:facebook/features/personal-page/screens/personal_page_screen.dar
 import 'package:facebook/models/chat_model.dart';
 import 'package:facebook/models/post_model.dart';
 import 'package:facebook/models/product.dart';
-import 'package:facebook/models/story.dart';
+import 'package:facebook/models/story_model.dart';
 import 'package:facebook/models/user_model.dart';
 import 'package:flutter/material.dart';
 
@@ -55,7 +55,7 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
         builder: (context) => const HomeScreen(),
       );
     case StoryDetails.routeName:
-      final Story story = routeSettings.arguments as Story;
+      final StoryModel story = routeSettings.arguments as StoryModel;
       return PageRouteBuilder(
         opaque: false,
         pageBuilder: (_, __, ___) => StoryDetails(story: story),
