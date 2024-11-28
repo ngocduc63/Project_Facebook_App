@@ -35,7 +35,7 @@ class _StoryDetailsState extends State<StoryDetails>
     const oneSec = Duration(milliseconds: 1);
     _timer = Timer.periodic(oneSec, (Timer timer) {
       if (mounted) {
-        if (index >= widget.story.numImages) {
+        if (widget.story.listStory[index].isVideo()) {
           return;
         }
         setState(() {
@@ -52,9 +52,9 @@ class _StoryDetailsState extends State<StoryDetails>
     });
     scrollController.addListener(() {
       if (scrollController.offset > 0) {
-        if (index < widget.story.numImages) _timer?.cancel();
+        if (widget.story.listStory[index].isImage()) _timer?.cancel();
       } else {
-        if (index < widget.story.numImages) {
+        if (widget.story.listStory[index].isImage()) {
           if (_timer == null || (_timer != null && !_timer!.isActive)) {
             setState(() {
               _timer = Timer.periodic(oneSec, (Timer timer) {
@@ -76,14 +76,13 @@ class _StoryDetailsState extends State<StoryDetails>
         }
       }
     });
+
     videoProgressController = AnimationController(
-      /// [AnimationController]s can be created with `vsync: this` because of
-      /// [TickerProviderStateMixin].
       vsync: this,
       duration: const Duration(microseconds: 1),
     )..addListener(() {
         setState(() {
-          if (index >= widget.story.numImages) {
+          if (widget.story.listStory[index].isVideo()) {
             if (VideoPlayerScreen.videoDuration.compareTo(Duration.zero) > 0) {
               videoProgressController.duration =
                   VideoPlayerScreen.videoDuration;
@@ -92,6 +91,8 @@ class _StoryDetailsState extends State<StoryDetails>
           if (videoProgressController.value > 0.99) {
             videoProgressController.value = 0;
             if (index < progress.length - 1) {
+              progress[index] = 1;
+              VideoPlayerScreen.videoDuration = Duration.zero;
               index++;
             } else {
               index = 0;
@@ -103,6 +104,8 @@ class _StoryDetailsState extends State<StoryDetails>
         });
       });
 
+
+    
     super.initState();
   }
 
@@ -115,7 +118,7 @@ class _StoryDetailsState extends State<StoryDetails>
 
   @override
   Widget build(BuildContext context) {
-    if (index >= widget.story.numImages) {
+    if (widget.story.listStory[index].isVideo() ) {
       videoProgressController.repeat();
     }
     return isInWidgetTree
@@ -145,19 +148,29 @@ class _StoryDetailsState extends State<StoryDetails>
                 if (details.localPosition.dx >=
                     MediaQuery.of(context).size.width / 2) {
                   setState(() {
-                    videoProgressController.value = 0;
+                    if (widget.story.listStory[index].isVideo()) {
+                      videoProgressController.value = 0;
+                      VideoPlayerScreen.videoDuration = Duration.zero;
+                    }
+
                     progress[index] = 1;
                     if (index < progress.length - 1) {
                       progress[index + 1] = 0;
+
                       index++;
                     } else {
                       progress[0] = 0;
                       index = 0;
+                      for (int i = 0; i < progress.length; i++) {
+                        progress[i] = 0;
+                      }
                     }
                   });
                 } else {
                   setState(() {
                     videoProgressController.value = 0;
+                    VideoPlayerScreen.videoDuration = Duration.zero;
+
                     progress[index] = 0;
                     if (index > 0) {
                       progress[index - 1] = 0;
@@ -165,6 +178,9 @@ class _StoryDetailsState extends State<StoryDetails>
                     } else {
                       progress[progress.length - 1] = 0;
                       index = progress.length - 1;
+                      for (int i = 0; i < progress.length - 1; i++) {
+                        progress[i] = 1;
+                      }
                     }
                   });
                 }
@@ -174,18 +190,19 @@ class _StoryDetailsState extends State<StoryDetails>
                 body: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 50),
                   child: Container(
-                    decoration: (index < widget.story.numImages && showFilter)
-                        ? BoxDecoration(
-                            image: DecorationImage(
-                              image: NetworkImage(
-                                  '${ApiConfig.linkImage}${widget.story.listStory[index].image!}'),
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : null,
+                    decoration:
+                        (widget.story.listStory[index].isImage() && showFilter)
+                            ? BoxDecoration(
+                                image: DecorationImage(
+                                  image: NetworkImage(
+                                      '${ApiConfig.linkImage}${widget.story.listStory[index].image!}'),
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : null,
                     child: Stack(
                       children: [
-                        if (index < widget.story.numImages)
+                        if (widget.story.listStory[index].isImage())
                           if (showFilter)
                             BackdropFilter(
                               filter:
@@ -195,14 +212,11 @@ class _StoryDetailsState extends State<StoryDetails>
                                     color: Colors.black.withOpacity(0.1)),
                               ),
                             ),
-                        (index >= widget.story.numImages)
+                        (widget.story.listStory[index].isVideo())
                             ? Center(
                                 key: Key(index.toString()),
                                 child: VideoPlayerScreen(
-                                  video: widget
-                                      .story
-                                      .listStory[index - widget.story.numImages]
-                                      .video!,
+                                  video: widget.story.listStory[index].video!,
                                 ),
                               )
                             : Center(
@@ -220,7 +234,7 @@ class _StoryDetailsState extends State<StoryDetails>
                                   Row(
                                     children: [
                                       for (int i = 0;
-                                          i < widget.story.numImages;
+                                          i < widget.story.listStory.length;
                                           i++)
                                         Expanded(
                                             child: Padding(
@@ -230,37 +244,16 @@ class _StoryDetailsState extends State<StoryDetails>
                                             backgroundColor:
                                                 Colors.grey.withOpacity(0.4),
                                             color: Colors.white,
-                                            value: progress[i],
+                                            value: widget.story.listStory[index]
+                                                    .isVideo()
+                                                ? (i == index
+                                                    ? videoProgressController
+                                                        .value
+                                                    : progress[i])
+                                                : progress[i],
                                             minHeight: 2,
                                           ),
                                         )),
-                                      if (widget.story.numVideos > 0)
-                                        for (int i = 0;
-                                            i < widget.story.numVideos;
-                                            i++)
-                                          Expanded(
-                                              child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 2),
-                                            child: LinearProgressIndicator(
-                                              backgroundColor:
-                                                  Colors.grey.withOpacity(0.4),
-                                              color: Colors.white,
-                                              value: (index -
-                                                          widget.story
-                                                              .numImages ==
-                                                      i)
-                                                  ? videoProgressController
-                                                      .value
-                                                  : (index -
-                                                              widget.story
-                                                                  .numImages >
-                                                          i)
-                                                      ? 1
-                                                      : 0,
-                                              minHeight: 2,
-                                            ),
-                                          )),
                                     ],
                                   ),
                                   Padding(

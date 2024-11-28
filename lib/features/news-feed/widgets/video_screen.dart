@@ -5,7 +5,7 @@ import 'package:video_player/video_player.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
   static Duration videoDuration = Duration.zero;
-  final String video; // Đổi tên biến cho rõ ràng
+  final String video;
 
   const VideoPlayerScreen({super.key, required this.video});
 
@@ -19,14 +19,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   void initState() {
     super.initState();
-    // Sử dụng VideoPlayerController.network để phát video từ URL
     controller = VideoPlayerController.networkUrl(Uri.parse('${ApiConfig.linkVideo}${widget.video}'))
       ..initialize().then((_) {
         setState(() {
-          controller.setVolume(1.0); // Đặt âm lượng tối đa
-          controller.play(); // Phát video tự động
-          VideoPlayerScreen.videoDuration =
-              controller.value.duration + const Duration(milliseconds: 500);
+          controller.setVolume(1.0);
+          controller.play();
+          VideoPlayerScreen.videoDuration = controller.value.duration + const Duration(milliseconds: 500);
         });
       }).catchError((error) {
         debugPrint('Error initializing video: $error');
@@ -35,9 +33,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   @override
   void dispose() {
-    // Giải phóng tài nguyên
-    controller.dispose();
     VideoPlayerScreen.videoDuration = Duration.zero;
+    controller.dispose();
     super.dispose();
   }
 
@@ -45,7 +42,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   Widget build(BuildContext context) {
     return controller.value.isInitialized
         ? AspectRatio(
-            aspectRatio: controller.value.aspectRatio, // Đặt tỷ lệ video
+            aspectRatio: controller.value.aspectRatio,
             child: VideoPlayer(controller),
           )
         : const Center(
