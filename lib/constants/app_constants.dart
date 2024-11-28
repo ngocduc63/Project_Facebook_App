@@ -36,6 +36,8 @@ class ApiConfig {
   static const String updateLikePost = '$api/post/update-like';
   static const String acpFriend = '$api/friend/accept-friend';
   static const String unfriend = '$api/friend/unfriend';
+  static const String updateAvatar = '$api/user/update-avatar';
+  static const String updateCover = '$api/user/update-cover';
 
   // api delete
   static const String unLikePost = '$api/post/delete-like';

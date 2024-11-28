@@ -114,34 +114,60 @@ class ApiController {
     }
   }
 
-  Future<Response> storyForm(String endpoint, XFile media, String text, bool isVideo) async {
-  try {
-    FormData formData = FormData();
-    if (isVideo) {
-      formData.files.add(MapEntry(
-        'post',
-        await MultipartFile.fromFile(media.path,
-            filename: media.path.split('/').last,
-            contentType: DioMediaType('video', 'mp4')),
-      ));
-    } else {
-      formData.files.add(MapEntry(
-        'post',
-        await MultipartFile.fromFile(media.path,
-            filename: media.path.split('/').last,
-            contentType: DioMediaType('image', 'png')),
-      ));
+  Future<Response> storyForm(
+      String endpoint, XFile media, String text, bool isVideo) async {
+    try {
+      FormData formData = FormData();
+      if (isVideo) {
+        formData.files.add(MapEntry(
+          'post',
+          await MultipartFile.fromFile(media.path,
+              filename: media.path.split('/').last,
+              contentType: DioMediaType('video', 'mp4')),
+        ));
+      } else {
+        formData.files.add(MapEntry(
+          'post',
+          await MultipartFile.fromFile(media.path,
+              filename: media.path.split('/').last,
+              contentType: DioMediaType('image', 'png')),
+        ));
+      }
+
+      String dataJson = jsonEncode({"story_title": text});
+      formData.fields.add(MapEntry('data', dataJson));
+
+      return await _dio.post(endpoint, data: formData);
+    } catch (e) {
+      rethrow;
     }
-
-    String dataJson = jsonEncode({"story_title": text});
-    formData.fields.add(MapEntry('data', dataJson));
-
-    return await _dio.post(endpoint, data: formData);
-  } catch (e) {
-    rethrow;
   }
-}
 
+  Future<Response> imageForm(
+      String endpoint, XFile media, bool isCover) async {
+    try {
+      FormData formData = FormData();
+      if (!isCover) {
+        formData.files.add(MapEntry(
+          'avatar',
+          await MultipartFile.fromFile(media.path,
+              filename: media.path.split('/').last,
+              contentType: DioMediaType('image', 'png')),
+        ));
+      } else {
+        formData.files.add(MapEntry(
+          'cover',
+          await MultipartFile.fromFile(media.path,
+              filename: media.path.split('/').last,
+              contentType: DioMediaType('image', 'png')),
+        ));
+      }
+
+      return await _dio.put(endpoint, data: formData);
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   Future<Response> put(String endpoint, Map<String, dynamic> body) async {
     try {

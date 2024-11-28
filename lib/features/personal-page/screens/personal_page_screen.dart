@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:facebook/constants/app_colors.dart';
@@ -10,6 +11,8 @@ import 'package:facebook/models/post_model.dart';
 import 'package:facebook/models/user_model.dart';
 import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../news-feed/widgets/post_card.dart';
 
 class PersonalPageScreen extends StatefulWidget {
@@ -42,6 +45,82 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
   UserModel? user;
   ScrollController scrollController =
       ScrollController(initialScrollOffset: PersonalPageScreen.offset);
+
+  XFile? selectedAvatar;
+  XFile? selectedCover;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickMedia(
+      ImageSource source, bool isCover, BuildContext context) async {
+    try {
+      if (!isCover) {
+        selectedAvatar = await _picker.pickImage(
+          source: source,
+          maxWidth: 1080,
+          imageQuality: 85,
+        );
+
+        final response = await apiController.imageForm(ApiConfig.updateAvatar, selectedAvatar!, isCover);
+
+        if (response.statusCode == 200) {
+          final user = jsonEncode(response.data['metadata']['user']);
+          await UserServicePref.instance.saveUser(user);
+
+          Fluttertoast.showToast(
+          msg: "Cập nhật ảnh đại diện thành công",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP_LEFT,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0);
+
+          if (context.mounted) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (BuildContext context) => PersonalPageScreen(
+                  user: widget.user,
+                ),
+              ),
+            );
+          }
+        }
+      } else {
+        selectedCover = await _picker.pickImage(
+          source: source,
+          maxWidth: 1080,
+          imageQuality: 85,
+        );
+        final response = await apiController.imageForm(ApiConfig.updateCover, selectedCover!, isCover);
+
+        if (response.statusCode == 200) {
+          final user = jsonEncode(response.data['metadata']['user']);
+          await UserServicePref.instance.saveUser(user);
+
+          Fluttertoast.showToast(
+          msg: "Cập nhật ảnh bìa thành công",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP_LEFT,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0);
+
+          if (context.mounted) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (BuildContext context) => PersonalPageScreen(
+                  user: widget.user,
+                ),
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      print("Error picking media: $e");
+    }
+  }
 
   Future<FriendStatus> checkFriend(dynamic dataStatus) async {
     if (dataStatus == null || dataStatus['friend_status'] == null) {
@@ -239,7 +318,12 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                               Positioned(
                                 bottom: 0,
                                 right: 0,
-                                child: Container(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    _pickMedia(
+                                        ImageSource.gallery, false, context);
+                                  },
+                                  child: Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
                                       color: Colors.grey[200],
@@ -249,7 +333,9 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                                       Icons.camera_alt_rounded,
                                       color: Colors.black,
                                       size: 22,
-                                    )),
+                                    ),
+                                  ),
+                                ),
                               ),
                           ],
                         ),
@@ -275,18 +361,38 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                               const SizedBox(
                                 height: 10,
                               ),
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  shape: BoxShape.circle,
+                               GestureDetector(
+                                  onTap: () {
+                                    _pickMedia(
+                                        ImageSource.gallery, true, context);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.camera_alt_rounded,
+                                      color: Colors.black,
+                                      size: 22,
+                                    ),
+                                  ),
                                 ),
-                                child: const Icon(
-                                  Icons.camera_alt_rounded,
-                                  color: Colors.black,
-                                  size: 22,
-                                ),
-                              ),
+                              
+                              // Container(
+                              //   padding: const EdgeInsets.all(8),
+                              //   decoration: BoxDecoration(
+                              //     color: Colors.grey[200],
+                              //     shape: BoxShape.circle,
+                              //   ),
+                              //   child: 
+                              //   const Icon(
+                              //     Icons.camera_alt_rounded,
+                              //     color: Colors.black,
+                              //     size: 22,
+                              //   ),
+                              // ),
                             ],
                           ),
                         )
