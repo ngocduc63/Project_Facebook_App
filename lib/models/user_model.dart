@@ -20,6 +20,7 @@ class UserModel {
   final bool? guard;
   final String? pageType;
   final String? address;
+  final int? countMutual;
   UserModel({
     required this.id,
     required this.name,
@@ -35,6 +36,7 @@ class UserModel {
     this.guard,
     this.pageType,
     this.address,
+    this.countMutual,
   });
 
   // Phương thức fromJson để chuyển từ JSON sang UserModel
@@ -59,6 +61,7 @@ class UserModel {
     bool? guard,
     String? pageType,
     String? address,
+    int? countMutual
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -74,6 +77,7 @@ class UserModel {
       guard: guard ?? this.guard,
       pageType: pageType ?? this.pageType,
       address: address ?? this.address,
+      countMutual: countMutual ?? this.countMutual,
     );
   }
 }

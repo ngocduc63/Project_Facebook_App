@@ -4,6 +4,8 @@ class RouterConstants {
   static const String createPost = '/create-post';
   static const String createStory = '/create-story';
   static const String updateProfile = '/update-profile';
+  static const String listFriend = '/list-friend';
+  static const String listFollow = '/list-follow';
   static const String chat = '/chat';
   static const String message= '/message-screen';
 }

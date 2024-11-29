@@ -11,7 +11,12 @@ class PostWidget1Child extends StatefulWidget {
   final PostModel post;
   final bool isImage;
   final int index;
-  const PostWidget1Child({Key? key, required this.post, required this.isImage, required this.index}) : super(key: key);
+  const PostWidget1Child(
+      {Key? key,
+      required this.post,
+      required this.isImage,
+      required this.index})
+      : super(key: key);
 
   @override
   State<PostWidget1Child> createState() => _PostWidget1ChildState();
@@ -28,7 +33,8 @@ class _PostWidget1ChildState extends State<PostWidget1Child> {
     if (!widget.isImage) {
       // Chỉ khởi tạo VideoPlayerController khi không có ảnh
       if (widget.post.video != null && widget.post.video!.isNotEmpty) {
-        final linkvideo = '${ApiConfig.linkVideo}${widget.post.video![widget.index]}';
+        final linkvideo =
+            '${ApiConfig.linkVideo}${widget.post.video![widget.index]}';
         videoPlayerController = VideoPlayerController.networkUrl(
           Uri.parse(linkvideo),
         );
@@ -69,62 +75,66 @@ class _PostWidget1ChildState extends State<PostWidget1Child> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        if (widget.isImage) {
-          Navigator.pushNamed(
-            context,
-            ImageFullScreen.routeName,
-            arguments: widget.post,
-          );
-        }
-      },
-      child: (widget.isImage)
-          ? FadeInImage(
-              placeholder: AssetImage('assets/loading.gif'),
-              image: NetworkImage(
-                  '${ApiConfig.linkImage}${widget.post.image![widget.index]}'),
-              fit: BoxFit.cover,
-            )
-          : (widget.post.video != null && widget.post.video!.isNotEmpty)
-              ? FutureBuilder<void>(
-                  future: thumbnailFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      double maxHeight = MediaQuery.of(context).size.height * 0.6;
-                      return Container(
-                        padding: EdgeInsets.all(6.0),
-                        // decoration: BoxDecoration(
-                        //   color: Colors.black,
-                        //   borderRadius: BorderRadius.circular(10),
-                        // ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: AspectRatio(
-                            aspectRatio: videoPlayerController != null &&
-                                    videoPlayerController!.value.isInitialized
-                                ? videoPlayerController!.value.aspectRatio
-                                : 16 / 9,
-                            child: Container(
-                              constraints: BoxConstraints(
-                                maxHeight:
-                                    maxHeight,
-                              ),
-                              child: Chewie(
-                                controller: chewieController!,
+        onTap: () {
+          if (widget.isImage) {
+            Navigator.pushNamed(
+              context,
+              ImageFullScreen.routeName,
+              arguments: widget.post,
+            );
+          }
+        },
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.8),
+          child: (widget.isImage)
+              ? FadeInImage(
+                  placeholder: AssetImage('assets/loading.gif'),
+                  image: NetworkImage(
+                      '${ApiConfig.linkImage}${widget.post.image![widget.index]}'),
+                  fit: BoxFit.cover,
+                )
+              : (widget.post.video != null && widget.post.video!.isNotEmpty)
+                  ? FutureBuilder<void>(
+                      future: thumbnailFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          double maxHeight =
+                              MediaQuery.of(context).size.height * 0.6;
+                          return Container(
+                            padding: EdgeInsets.all(6.0),
+                            // decoration: BoxDecoration(
+                            //   color: Colors.black,
+                            //   borderRadius: BorderRadius.circular(10),
+                            // ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: AspectRatio(
+                                aspectRatio: videoPlayerController != null &&
+                                        videoPlayerController!
+                                            .value.isInitialized
+                                    ? videoPlayerController!.value.aspectRatio
+                                    : 16 / 9,
+                                child: Container(
+                                  constraints: BoxConstraints(
+                                    maxHeight: maxHeight,
+                                  ),
+                                  child: Chewie(
+                                    controller: chewieController!,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                      );
-                    } else {
-                      return Center(
-                          child: CircularProgressIndicator(
-                        color: GlobalVariables.secondaryColor,
-                      ));
-                    }
-                  },
-                )
-              : SizedBox.shrink(),
-    );
+                          );
+                        } else {
+                          return Center(
+                              child: CircularProgressIndicator(
+                            color: GlobalVariables.secondaryColor,
+                          ));
+                        }
+                      },
+                    )
+                  : SizedBox.shrink(),
+        ));
   }
 }

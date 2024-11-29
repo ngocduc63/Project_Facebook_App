@@ -21,6 +21,7 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
       guard: json['guard'] as bool?,
       pageType: json['pageType'] as String?,
       address: json['address'] as String?,
+      countMutual: json['countMutual'] as int?,
     );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
@@ -38,4 +39,5 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'guard': instance.guard,
       'pageType': instance.pageType,
       'address': instance.address,
+      'countMutual': instance.countMutual,
     };

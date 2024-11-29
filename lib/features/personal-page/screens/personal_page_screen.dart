@@ -539,8 +539,10 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                                                 RouterConstants.updateProfile,
                                                 arguments: {
                                                   'name': user?.name ?? '',
-                                                  'hometown': user?.hometown ?? '',
-                                                  'address': user?.address ?? '',
+                                                  'hometown':
+                                                      user?.hometown ?? '',
+                                                  'address':
+                                                      user?.address ?? '',
                                                   'bio': user?.bio ?? '',
                                                 },
                                               );
@@ -1108,14 +1110,14 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                                 child: ElevatedButton(
                                   onPressed: () {
                                     Navigator.of(context).pushNamed(
-                                                RouterConstants.updateProfile,
-                                                arguments: {
-                                                  'name': user?.name ?? '',
-                                                  'hometown': user?.hometown ?? '',
-                                                  'address': user?.address ?? '',
-                                                  'bio': user?.bio ?? '',
-                                                },
-                                              );
+                                      RouterConstants.updateProfile,
+                                      arguments: {
+                                        'name': user?.name ?? '',
+                                        'hometown': user?.hometown ?? '',
+                                        'address': user?.address ?? '',
+                                        'bio': user?.bio ?? '',
+                                      },
+                                    );
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.blue[50],
@@ -1365,7 +1367,10 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
                                 children: [
                                   Expanded(
                                     child: ElevatedButton(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        Navigator.of(context).pushNamed(
+                                            RouterConstants.listFriend);
+                                      },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.grey[200],
                                         shape: RoundedRectangleBorder(
