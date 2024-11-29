@@ -254,10 +254,19 @@ class _PostCardState extends State<PostCard> {
                                     width: 0.5,
                                   ),
                                 ),
-                                child: CircleAvatar(
-                                  radius: 20,
-                                  backgroundImage: CachedNetworkImageProvider(
-                                      '${ApiConfig.linkImage}${widget.post.user!.avatar}'),
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      PersonalPageScreen.routeName,
+                                      arguments: widget.post.user,
+                                    );
+                                  },
+                                  child: CircleAvatar(
+                                    radius: 20,
+                                    backgroundImage: CachedNetworkImageProvider(
+                                        '${ApiConfig.linkImage}${widget.post.user!.avatar}'),
+                                  ),
                                 ),
                               ),
                               Padding(
