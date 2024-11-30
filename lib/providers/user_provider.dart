@@ -6,12 +6,12 @@ import '../models/story.dart';
 
 class UserProvider extends ChangeNotifier {
   final User _user = User(
-    name: 'Lê Công Đắt',
+    name: 'Nguyễn Ngọc Đức',
     avatar: 'assets/images/user/lcd.jpg',
     educations: [
       Education(
         majors: 'Software Engineering',
-        school: 'Trường Đại học Khoa học Tự nhiên, Đại học Quốc gia TP.HCM',
+        school: '',
       ),
     ],
     hometown: 'Cai Lậy (huyện)',
@@ -39,7 +39,7 @@ class UserProvider extends ChangeNotifier {
     stories: [
       Story(
         user: User(
-          name: 'Lê Công Đắt',
+          name: 'Nguyễn Ngọc Đức',
           avatar: 'assets/images/user/lcd.jpg',
         ),
         image: ['assets/images/story/3.jpg'],
@@ -49,7 +49,7 @@ class UserProvider extends ChangeNotifier {
       ),
       Story(
         user: User(
-          name: 'Lê Công Đắt',
+          name: 'Nguyễn Ngọc Đức',
           avatar: 'assets/images/user/lcd.jpg',
         ),
         image: [
@@ -65,7 +65,7 @@ class UserProvider extends ChangeNotifier {
       ),
       Story(
         user: User(
-          name: 'Lê Công Đắt',
+          name: 'Nguyễn Ngọc Đức',
           avatar: 'assets/images/user/lcd.jpg',
         ),
         video: ['assets/videos/3.mp4'],
@@ -106,7 +106,7 @@ class UserProvider extends ChangeNotifier {
     posts: [
       Post(
         user: User(
-          name: 'Lê Công Đắt',
+          name: 'Nguyễn Ngọc Đức',
           avatar: 'assets/images/user/lcd.jpg',
         ),
         time: '3 phút',
@@ -121,7 +121,7 @@ class UserProvider extends ChangeNotifier {
       ),
       Post(
         user: User(
-          name: 'Lê Công Đắt',
+          name: 'Nguyễn Ngọc Đức',
           avatar: 'assets/images/user/lcd.jpg',
         ),
         time: '3 phút',
@@ -148,7 +148,7 @@ class UserProvider extends ChangeNotifier {
       ),
       Post(
         user: User(
-          name: 'Lê Công Đắt',
+          name: 'Nguyễn Ngọc Đức',
           avatar: 'assets/images/user/lcd.jpg',
         ),
         time: '3 phút',

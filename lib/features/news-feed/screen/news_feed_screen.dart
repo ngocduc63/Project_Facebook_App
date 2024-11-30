@@ -5,10 +5,9 @@ import 'package:facebook/controllers/api_controller.dart';
 import 'package:facebook/features/news-feed/widgets/add_story_card.dart';
 import 'package:facebook/features/news-feed/widgets/post_card.dart';
 import 'package:facebook/features/news-feed/widgets/story_card.dart';
+import 'package:facebook/features/personal-page/screens/personal_page_screen.dart';
 import 'package:facebook/models/post_model.dart';
-import 'package:facebook/models/story.dart';
 import 'package:facebook/models/story_model.dart';
-import 'package:facebook/models/user.dart';
 import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 
@@ -24,55 +23,6 @@ class NewsFeedScreen extends StatefulWidget {
 class _NewsFeedScreenState extends State<NewsFeedScreen> {
   Color colorNewPost = Colors.transparent;
   final ApiController _apiController = ApiController();
-
-  final stories = [
-    Story(
-      user: User(
-        name: 'Doraemon',
-        avatar: 'assets/images/user/doraemon.jpg',
-        type: 'page',
-      ),
-      image: ['assets/images/story/1.jpg'],
-      time: ['12 phút'],
-      shareWith: 'public',
-    ),
-    Story(
-      user: User(
-          name: 'Sách Cũ Ngọc', avatar: 'assets/images/user/sachcungoc.jpg'),
-      image: ['assets/images/story/2.jpg'],
-      time: ['3 giờ'],
-      shareWith: 'friends',
-    ),
-    Story(
-      user: User(
-        name: 'Vietnamese Argentina Football Fan Club (VAFFC)',
-        avatar: 'assets/images/user/vaffc.jpg',
-        type: 'page',
-      ),
-      image: ['assets/images/story/3.jpg'],
-      time: ['5 giờ'],
-      shareWith: 'friends-of-friends',
-    ),
-    Story(
-      user:
-          User(name: 'Minh Hương', avatar: 'assets/images/user/minhhuong.jpg'),
-      image: [
-        'assets/images/story/4.jpg',
-        'assets/images/story/5.jpg',
-        'assets/images/story/6.jpg',
-        'assets/images/story/7.jpg',
-      ],
-      video: ['assets/videos/2.mp4', 'assets/videos/1.mp4'],
-      time: ['1 phút'],
-      shareWith: 'friends',
-    ),
-    Story(
-      user: User(name: 'Khánh Vy', avatar: 'assets/images/user/khanhvy.jpg'),
-      video: ['assets/videos/3.mp4'],
-      time: ['1 phút'],
-      shareWith: 'friends',
-    ),
-  ];
 
   List<PostModel> postsNew = [];
   bool isLoading = false;
@@ -236,11 +186,16 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
                   padding: const EdgeInsets.only(
                     right: 10,
                   ),
-                  child: CircleAvatar(
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, PersonalPageScreen.routeName, arguments: userInfo);
+                    },
+                    child: CircleAvatar(
                     backgroundImage: NetworkImage(
                         '${ApiConfig.linkImage}${userInfo.avatar}'),
                     radius: 20,
                   ),
+                  )
                 ),
                 Expanded(
                   child: InkWell(

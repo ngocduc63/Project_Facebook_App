@@ -51,6 +51,13 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
   XFile? selectedCover;
   final ImagePicker _picker = ImagePicker();
 
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   Future<void> _pickMedia(
       ImageSource source, bool isCover, BuildContext context) async {
     try {

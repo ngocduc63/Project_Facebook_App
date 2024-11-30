@@ -3,6 +3,7 @@ import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/enum_common.dart';
 import 'package:facebook/controllers/user_controller/user_controller.dart';
 import 'package:facebook/features/news-feed/screen/multiple_images_post_screen.dart';
+import 'package:facebook/features/notifications/screens/list_follow_screen.dart';
 import 'package:facebook/features/personal-page/screens/personal_page_screen.dart';
 import 'package:facebook/models/notification_model.dart';
 import 'package:facebook/utils/convert_time.dart';
@@ -124,9 +125,15 @@ class _SingleNotificationState extends State<SingleNotification> {
 
   Future<void> handleClickNotification(BuildContext context) async {
     if (NotificationType.addFriend.value == widget.notification.type) {
-      return;
+      Navigator.pushNamed(
+          context,
+          FollowScreen.routeName,
+        );
     } else if (NotificationType.acpFriend.value == widget.notification.type) {
-      return;
+      Navigator.pushNamed(
+          context,
+          FollowScreen.routeName,
+        );
     } else if (NotificationType.likePost.value == widget.notification.type) {
       await handleNavigateToPost(context);
     } else if (NotificationType.commentPost.value == widget.notification.type) {

@@ -20,7 +20,8 @@ class UserModel {
   final bool? guard;
   final String? pageType;
   final String? address;
-  final int? countMutual;
+  int? countMutual;
+
   UserModel({
     required this.id,
     required this.name,

@@ -13,6 +13,7 @@ import 'package:facebook/features/news-feed/screen/create_story_screen.dart';
 import 'package:facebook/features/news-feed/screen/image_fullscreen.dart';
 import 'package:facebook/features/news-feed/screen/multiple_images_post_screen.dart';
 import 'package:facebook/features/news-feed/widgets/story_details.dart';
+import 'package:facebook/features/notifications/screens/list_follow_screen.dart';
 import 'package:facebook/features/personal-page/screens/list_friend_screen.dart';
 import 'package:facebook/features/personal-page/screens/personal_page_screen.dart';
 import 'package:facebook/features/personal-page/screens/update_profile_screen.dart';
@@ -73,6 +74,10 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
     case FriendScreen.routeName:
       return MaterialPageRoute(
         builder: (context) => const FriendScreen(),
+      );
+    case FollowScreen.routeName:
+      return MaterialPageRoute(
+        builder: (context) => const FollowScreen(),
       );
     case UpdateProfileScreen.routeName:
       final args = routeSettings.arguments as Map<String, String>;

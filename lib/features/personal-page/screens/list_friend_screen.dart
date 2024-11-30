@@ -115,7 +115,7 @@ class _FriendScreenState extends State<FriendScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  friend.name!,
+                                  friend.name,
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                   overflow: TextOverflow.ellipsis,
                                 ),
