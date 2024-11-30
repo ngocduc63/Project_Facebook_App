@@ -8,4 +8,5 @@ class RouterConstants {
   static const String listFollow = '/list-follow';
   static const String chat = '/chat';
   static const String message= '/message-screen';
+  static const String search= '/search-screen';
 }

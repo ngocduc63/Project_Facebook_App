@@ -186,10 +186,7 @@ class _PersonalPageScreenState extends State<PersonalPageScreen> {
         isLoadingInfo = false;
       });
     } catch (e) {
-      setState(() {
         print(e);
-        isLoadingInfo = false;
-      });
     }
   }
 

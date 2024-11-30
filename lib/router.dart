@@ -6,6 +6,7 @@ import 'package:facebook/features/friends/screens/friends_screen.dart';
 import 'package:facebook/features/friends/screens/friends_search_screen.dart';
 import 'package:facebook/features/friends/screens/friends_suggest_screen.dart';
 import 'package:facebook/features/home/screens/home_screen.dart';
+import 'package:facebook/features/home/screens/search_screen.dart';
 import 'package:facebook/features/market_place/screens/product_details_screen.dart';
 import 'package:facebook/features/memory/screens/memory_screen.dart';
 import 'package:facebook/features/news-feed/screen/create_post_screen.dart';
@@ -78,6 +79,10 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
     case FollowScreen.routeName:
       return MaterialPageRoute(
         builder: (context) => const FollowScreen(),
+      );
+    case SearchScreen.routeName:
+      return MaterialPageRoute(
+        builder: (context) => const SearchScreen(),
       );
     case UpdateProfileScreen.routeName:
       final args = routeSettings.arguments as Map<String, String>;

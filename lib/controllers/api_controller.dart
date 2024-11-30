@@ -189,7 +189,7 @@ class ApiController {
   Future<void> _refreshToken() async {
     try {
       final response = await _dio.put('/access/refresh-token', data: {
-        'refreshToken': tokens?['refreshToken'],
+        'refreshToken': UserServicePref.instance.tokenAsJson?['refreshToken'],
       });
 
       // Update the token if refresh is successful

@@ -60,7 +60,9 @@ class _HomeAppBarState extends State<HomeAppBar> {
                 child: IconButton(
                   splashRadius: 18,
                   padding: const EdgeInsets.all(0),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(context, RouterConstants.search);
+                  },
                   icon: const ImageIcon(
                     AssetImage('assets/images/search.png'),
                     size: 22,
