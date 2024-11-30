@@ -25,59 +25,8 @@ class _WatchScreenState extends State<WatchScreen> {
   ScrollController headerScrollController = ScrollController();
   int index = 0;
   List<VideoControllerWrapper> videoController = [];
-  final posts = [
-    Post(
-      user: User(name: 'Aki Michio', avatar: 'assets/images/user/aki.jpg'),
-      time: '14 thg 7, 2022',
-      shareWith: 'public',
-      content: 'Kawaiii quá vậy\nAnime : Con của mẹ kế là bạn gái cũ',
-      like: 15000,
-      angry: 3,
-      comment: 210,
-      haha: 3000,
-      love: 1100,
-      lovelove: 78,
-      sad: 36,
-      share: 98,
-      wow: 18,
-      video: ['assets/videos/4.mp4'],
-    ),
-    Post(
-      user: User(
-          name: 'Đài Phát Thanh.',
-          avatar: 'assets/images/user/daiphatthanh.jpg'),
-      time: '17 thg 1, 2021',
-      shareWith: 'public',
-      content:
-          'Bên anh đến khi già nếu anh cũng muốn ta cùng già ..\n-\nGià Cùng Anh Nếu Anh Cũng Muốn Già Cùng Em\nHIỀN MAI / Live Session…',
-      like: 12000,
-      angry: 1,
-      comment: 902,
-      haha: 21,
-      love: 2100,
-      lovelove: 67,
-      sad: 20,
-      share: 98,
-      wow: 5,
-      video: ['assets/videos/5.mp4'],
-    ),
-    Post(
-      user: User(name: 'Spezon', avatar: 'assets/images/user/spezon.jpg'),
-      time: '27 tháng 8',
-      shareWith: 'public',
-      content: 'Lionel Messi World cup Champion [Messi EP. FINAL]',
-      like: 4100,
-      angry: 1,
-      comment: 72,
-      haha: 21,
-      love: 888,
-      lovelove: 100,
-      sad: 20,
-      share: 98,
-      wow: 5,
-      video: ['assets/videos/6.mp4'],
-    ),
-  ];
+  final posts = [];
+    
   List<GlobalKey> key = [];
 
   @override
@@ -112,7 +61,7 @@ class _WatchScreenState extends State<WatchScreen> {
         controller: headerScrollController,
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
-            toolbarHeight: 120,
+            toolbarHeight: 60,
             titleSpacing: 0,
             pinned: true,
             floating: true,
@@ -136,14 +85,14 @@ class _WatchScreenState extends State<WatchScreen> {
                           IconButton(
                             splashRadius: 20,
                             onPressed: () {},
-                            icon: const ImageIcon(
-                              AssetImage('assets/images/menu.png'),
-                              color: Colors.black,
+                            icon: const Icon(
+                              Icons.video_camera_front_rounded,
                               size: 50,
+                              color: Colors.red,
                             ),
                           ),
                           const Text(
-                            'Video',
+                            'Live Stream',
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 21,
@@ -200,183 +149,7 @@ class _WatchScreenState extends State<WatchScreen> {
                       ),
                     ],
                   ),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Padding(
-                      padding: const EdgeInsets.all(15),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              onTap: () {
-                                setState(() {
-                                  index = 0;
-                                });
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 8,
-                                ),
-                                decoration: (index == 0)
-                                    ? BoxDecoration(
-                                        color: Colors.blue.withOpacity(0.1),
-                                        shape: BoxShape.rectangle,
-                                        borderRadius: BorderRadius.circular(20),
-                                      )
-                                    : const BoxDecoration(),
-                                child: Text(
-                                  'Dành cho bạn',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: index == 0
-                                        ? Colors.blue[800]
-                                        : Colors.black,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              onTap: () {
-                                setState(() {
-                                  index = 1;
-                                });
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 8,
-                                ),
-                                decoration: (index == 1)
-                                    ? BoxDecoration(
-                                        color: Colors.blue.withOpacity(0.1),
-                                        shape: BoxShape.rectangle,
-                                        borderRadius: BorderRadius.circular(20),
-                                      )
-                                    : const BoxDecoration(),
-                                child: Text(
-                                  'Trực tiếp',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: index == 1
-                                        ? Colors.blue[800]
-                                        : Colors.black,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              onTap: () {
-                                setState(() {
-                                  index = 2;
-                                });
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 8,
-                                ),
-                                decoration: (index == 2)
-                                    ? BoxDecoration(
-                                        color: Colors.blue.withOpacity(0.1),
-                                        shape: BoxShape.rectangle,
-                                        borderRadius: BorderRadius.circular(20),
-                                      )
-                                    : const BoxDecoration(),
-                                child: Text(
-                                  'Chơi game',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: index == 2
-                                        ? Colors.blue[800]
-                                        : Colors.black,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              onTap: () {
-                                setState(() {
-                                  index = 3;
-                                });
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 8,
-                                ),
-                                decoration: (index == 3)
-                                    ? BoxDecoration(
-                                        color: Colors.blue.withOpacity(0.1),
-                                        shape: BoxShape.rectangle,
-                                        borderRadius: BorderRadius.circular(20),
-                                      )
-                                    : const BoxDecoration(),
-                                child: Text(
-                                  'Reels',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: index == 3
-                                        ? Colors.blue[800]
-                                        : Colors.black,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              onTap: () {
-                                setState(() {
-                                  index = 4;
-                                });
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 8,
-                                ),
-                                decoration: (index == 4)
-                                    ? BoxDecoration(
-                                        color: Colors.blue.withOpacity(0.1),
-                                        shape: BoxShape.rectangle,
-                                        borderRadius: BorderRadius.circular(20),
-                                      )
-                                    : const BoxDecoration(),
-                                child: Text(
-                                  'Đang theo dõi',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: index == 4
-                                        ? Colors.blue[800]
-                                        : Colors.black,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                ],
+                  ],
               ),
             ),
           )
