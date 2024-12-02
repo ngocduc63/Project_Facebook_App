@@ -45,6 +45,7 @@ class ApiConfig {
 
   // api delete
   static const String unLikePost = '$api/post/delete-like';
+  static const String deletePost = '$api/post/delete-post';
   static const String declineFriend = '$api/friend/decline-friend';
 
 }
