@@ -135,17 +135,36 @@ class _StoryCardState extends State<StoryCard> {
                           left: 5,
                           bottom: 5,
                         ),
-                        child: Text(
-                          widget.story.user.name,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
+                        child: Stack(
+                          children: [
+                            // Viền chữ
+                            Text(
+                              widget.story.user.name,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                foreground: Paint()
+                                  ..style = PaintingStyle.stroke
+                                  ..strokeWidth = 0.7
+                                  ..color = Colors.black,
+                              ),
+                            ),
+                            // Nội dung chữ
+                            Text(
+                              widget.story.user.name,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
+                      )
                   ],
                 ),
               ),

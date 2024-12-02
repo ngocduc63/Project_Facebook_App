@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:facebook/constants/app_constants.dart';
+import 'package:facebook/constants/enum_common.dart';
 import 'package:facebook/models/user_model.dart';
 import 'package:facebook/utils/prefs_user.dart';
 import 'package:image_picker/image_picker.dart';
@@ -83,7 +84,7 @@ class ApiController {
   }
 
   Future<Response> postForm(
-      String endpoint, List<File> listImage, List<File> listVideo, text) async {
+      String endpoint, List<File> listImage, List<File> listVideo, text, PostStatus postStatus) async {
     try {
       FormData formData = FormData();
 
@@ -105,7 +106,7 @@ class ApiController {
         ));
       }
 
-      String dataJson = jsonEncode({"post_title": text});
+      String dataJson = jsonEncode({"post_title": text, 'post_status' : postStatus.value});
       formData.fields.add(MapEntry('data', dataJson));
 
       return await _dio.post(endpoint, data: formData);
@@ -115,7 +116,7 @@ class ApiController {
   }
 
   Future<Response> storyForm(
-      String endpoint, XFile media, String text, bool isVideo) async {
+      String endpoint, XFile media, String text, bool isVideo, PostStatus postStatus) async {
     try {
       FormData formData = FormData();
       if (isVideo) {
@@ -134,7 +135,7 @@ class ApiController {
         ));
       }
 
-      String dataJson = jsonEncode({"story_title": text});
+      String dataJson = jsonEncode({"story_title": text, 'story_status': postStatus.value});
       formData.fields.add(MapEntry('data', dataJson));
 
       return await _dio.post(endpoint, data: formData);

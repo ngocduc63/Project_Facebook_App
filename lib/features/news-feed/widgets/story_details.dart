@@ -104,8 +104,6 @@ class _StoryDetailsState extends State<StoryDetails>
         });
       });
 
-
-    
     super.initState();
   }
 
@@ -118,7 +116,7 @@ class _StoryDetailsState extends State<StoryDetails>
 
   @override
   Widget build(BuildContext context) {
-    if (widget.story.listStory[index].isVideo() ) {
+    if (widget.story.listStory[index].isVideo()) {
       videoProgressController.repeat();
     }
     return isInWidgetTree
@@ -231,6 +229,7 @@ class _StoryDetailsState extends State<StoryDetails>
                             children: [
                               Column(
                                 children: [
+                                  
                                   Row(
                                     children: [
                                       for (int i = 0;
@@ -256,6 +255,7 @@ class _StoryDetailsState extends State<StoryDetails>
                                         )),
                                     ],
                                   ),
+                                  
                                   Padding(
                                     padding: const EdgeInsets.only(
                                       left: 10,
@@ -267,6 +267,7 @@ class _StoryDetailsState extends State<StoryDetails>
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
+                                        
                                         Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.start,
@@ -439,6 +440,13 @@ class _StoryDetailsState extends State<StoryDetails>
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
+                                      Text(
+                                    widget.story.listStory[index].title,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                       Padding(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 5),

@@ -126,6 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return [
             SliverAppBar(
               toolbarHeight: toolBarHeight,
+              automaticallyImplyLeading: false,
               titleSpacing: 0,
               title: AnimatedContainer(
                 onEnd: () {

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:facebook/constants/app_colors.dart';
 import 'package:facebook/constants/app_constants.dart';
+import 'package:facebook/constants/enum_common.dart';
 import 'package:facebook/constants/router_constants.dart';
 import 'package:facebook/controllers/api_controller.dart';
 import 'package:facebook/features/auth/widgets/submit_button.dart';
@@ -23,6 +24,7 @@ class CreatePostScreen extends StatefulWidget {
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
   late final TextEditingController _postController;
+  PostStatus _postStatus = PostStatus.public;
   ApiController apiController = ApiController();
   bool isLoaing = false;
   List<File> images = [];
@@ -55,6 +57,19 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     });
   }
 
+  String _getStatusText(PostStatus status) {
+    switch (status) {
+      case PostStatus.public:
+        return "Công khai";
+      case PostStatus.private:
+        return "Riêng tư";
+      case PostStatus.friend:
+        return "Bạn bè";
+      default:
+        return "";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,6 +93,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               // Post text field
               TextField(
                 controller: _postController,
+                cursorColor: AppColors.lightBlueColor,
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                   hintText: 'Bạn đang nghĩ gì?',
@@ -90,6 +106,53 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 minLines: 1,
                 maxLines: 10,
               ),
+
+              const SizedBox(height: 20),
+              const Text(
+                "Chọn trạng thái bài viết:",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: PostStatus.values.map((status) {
+                  return Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _postStatus = status;
+                        });
+                      },
+                      child: Row(
+                        children: [
+                          Radio<PostStatus>(
+                            value: status,
+                            groupValue: _postStatus,
+                            onChanged: (PostStatus? value) {
+                              setState(() {
+                                _postStatus = value!;
+                              });
+                            },
+                            activeColor: Colors.blue,
+                          ),
+                          Text(
+                            _getStatusText(status),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: _postStatus == status
+                                  ? Colors.blue
+                                  : Colors.black,
+                              fontWeight: _postStatus == status
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+
               const SizedBox(height: 20),
               if (images.length + videos.length < 10)
                 PickFileWidget(
@@ -273,19 +336,19 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       });
       try {
         final response = await apiController.postForm(
-            ApiConfig.createPost, images, videos, content);
+            ApiConfig.createPost, images, videos, content, _postStatus);
 
-        if(response.statusCode == 200) {
+        if (response.statusCode == 200) {
           Fluttertoast.showToast(
-          msg: "Đăng bài viết thành công",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.TOP_LEFT,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 16.0);
+              msg: "Đăng bài viết thành công",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.TOP_LEFT,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+              fontSize: 16.0);
           Get.off(HomeScreen());
-        }else {
+        } else {
           throw Exception();
         }
       } catch (e) {

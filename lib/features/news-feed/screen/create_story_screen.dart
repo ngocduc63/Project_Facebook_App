@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:facebook/constants/app_colors.dart';
 import 'package:facebook/constants/app_constants.dart';
+import 'package:facebook/constants/enum_common.dart';
 import 'package:facebook/constants/router_constants.dart';
 import 'package:facebook/controllers/api_controller.dart';
 import 'package:facebook/features/auth/widgets/input_fields.dart';
@@ -29,6 +30,7 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
   VideoPlayerController? _videoController;
   ChewieController? _chewieController;
   TextEditingController _titleController = TextEditingController();
+  PostStatus _postStatus = PostStatus.public;
 
   ApiController apiController = ApiController();
   bool isLoading = false;
@@ -43,6 +45,19 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
       print(e);
     }
     super.dispose();
+  }
+
+  String _getStatusText(PostStatus status) {
+    switch (status) {
+      case PostStatus.public:
+        return "Công khai";
+      case PostStatus.private:
+        return "Riêng tư";
+      case PostStatus.friend:
+        return "Bạn bè";
+      default:
+        return "";
+    }
   }
 
   Future<void> _pickMedia(ImageSource source, bool isVideo) async {
@@ -129,7 +144,7 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
 
     try {
       final response = await apiController.storyForm(
-          ApiConfig.createStory, _mediaFile!, _titleController.text, _isVideo);
+          ApiConfig.createStory, _mediaFile!, _titleController.text, _isVideo, _postStatus);
       if (response.statusCode == 200) {
         Fluttertoast.showToast(
           msg: "Đăng story thành công",
@@ -178,7 +193,47 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                       : Image.file(File(_mediaFile!.path)),
             ),
           ),
-          InputTextFieldWidget(_titleController, 'Nhập tiêu đề'),
+          // InputTextFieldWidget(_titleController, 'Nhập tiêu đề'),
+          Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: PostStatus.values.map((status) {
+                  return Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _postStatus = status;
+                        });
+                      },
+                      child: Row(
+                        children: [
+                          Radio<PostStatus>(
+                            value: status,
+                            groupValue: _postStatus,
+                            onChanged: (PostStatus? value) {
+                              setState(() {
+                                _postStatus = value!;
+                              });
+                            },
+                            activeColor: Colors.blue,
+                          ),
+                          Text(
+                            _getStatusText(status),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: _postStatus == status
+                                  ? Colors.blue
+                                  : Colors.black,
+                              fontWeight: _postStatus == status
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
