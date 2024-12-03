@@ -98,10 +98,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
       );
       return;
     }
-    if (selectedFriends.isEmpty) {
+    if (selectedFriends.length < 3) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Vui lòng chọn ít nhất một thành viên!'),
+          content: Text('Vui lòng chọn ít nhất hai thành viên!'),
         ),
       );
       return;
