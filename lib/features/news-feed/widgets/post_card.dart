@@ -9,7 +9,7 @@ import 'package:facebook/controllers/api_controller.dart';
 import 'package:facebook/controllers/socket_controller.dart';
 import 'package:facebook/controllers/user_controller/user_controller.dart';
 import 'package:facebook/features/comment/screens/comment_screen.dart';
-import 'package:facebook/features/home/screens/home_screen.dart';
+// import 'package:facebook/features/home/screens/home_screen.dart';
 import 'package:facebook/features/news-feed/screen/multiple_images_post_screen.dart';
 import 'package:facebook/features/news-feed/widgets/post_1_child.dart';
 import 'package:facebook/features/news-feed/widgets/post_content.dart';
@@ -380,7 +380,7 @@ class _PostCardState extends State<PostCard> {
                           PopupMenuButton<String>(
                           onSelected: (value) {
                             if (value == 'edit') {
-                              print("Chỉnh sửa bài viết");
+                              Navigator.pushNamed(context, RouterConstants.editPost, arguments: widget.post);
                             } else if (value == 'delete') {
                               handleDeletePost(widget.post.id);
                             }

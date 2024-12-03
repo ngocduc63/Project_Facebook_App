@@ -2,6 +2,7 @@ class RouterConstants {
   static const String routerHome = '/home';
   static const String routerAuth = '/auth';
   static const String createPost = '/create-post';
+  static const String editPost = '/edit-post';
   static const String createStory = '/create-story';
   static const String updateProfile = '/update-profile';
   static const String listFriend = '/list-friend';

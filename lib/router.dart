@@ -11,6 +11,7 @@ import 'package:facebook/features/market_place/screens/product_details_screen.da
 import 'package:facebook/features/memory/screens/memory_screen.dart';
 import 'package:facebook/features/news-feed/screen/create_post_screen.dart';
 import 'package:facebook/features/news-feed/screen/create_story_screen.dart';
+import 'package:facebook/features/news-feed/screen/edit_post_screen.dart';
 import 'package:facebook/features/news-feed/screen/image_fullscreen.dart';
 import 'package:facebook/features/news-feed/screen/multiple_images_post_screen.dart';
 import 'package:facebook/features/news-feed/widgets/story_details.dart';
@@ -83,6 +84,11 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
     case SearchScreen.routeName:
       return MaterialPageRoute(
         builder: (context) => const SearchScreen(),
+      );
+    case EditPostScreen.routeName:
+      final postData = routeSettings.arguments as PostModel;
+      return MaterialPageRoute(
+        builder: (context) => EditPostScreen( post: postData,),
       );
     case UpdateProfileScreen.routeName:
       final args = routeSettings.arguments as Map<String, String>;
