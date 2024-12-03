@@ -30,6 +30,7 @@ class ApiConfig {
 
   //api post
   static const String createPost = '$api/post/create-post';
+  static const String createGroupChat = '$api/chat/create-group';
   static const String createStory = '$api/story/create-story';
   static const String likePost = '$api/post/create-like';
   static const String commentPost = '$api/post/create-comment';

@@ -138,7 +138,7 @@ class _BodyState extends State<Body> {
                     controller: _scrollController,
                     itemCount: chatsData.length,
                     itemBuilder: (context, index) {
-                      if (index == chatsData.length) {
+                      if (index == chatsData.length && isLoadingMore) {
                         return Center(
                           child: CircularProgressIndicator(
                             color: AppColors.lightBlueColor,

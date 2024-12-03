@@ -16,6 +16,8 @@ class ChatModel {
   final MessageModel? lastMessage;
   @JsonKey(name: 'sender_by_user')
   final String? userSendLastMessage;
+  @JsonKey(name: 'image_room')
+  final String? image;
   final bool watched;
   @JsonKey(name: 'createdAt')
   final String time;
@@ -27,6 +29,7 @@ class ChatModel {
     required this.membersInfo,
     required this.name,
     this.lastMessage,
+    this.image,
     this.userSendLastMessage,
     required this.watched,
     required this.time,
@@ -38,6 +41,10 @@ class ChatModel {
     UserModel? currentUser = UserServicePref.instance.getUserInfo;
     
     return membersInfo[0].id == currentUser.id ? membersInfo[1] : membersInfo[0];
+  }
+
+  get isGroup {
+    return membersInfo.length > 2;
   }
 
   factory ChatModel.fromJson(Map<String, dynamic> json) =>

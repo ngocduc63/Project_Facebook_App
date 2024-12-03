@@ -30,7 +30,7 @@ class ChatCard extends StatelessWidget {
                       child: FadeInImage(
                         placeholder: AssetImage('assets/loading.gif'),
                         image: NetworkImage(
-                            '${ApiConfig.linkImage}${chat.friend.avatar}'),
+                            '${ApiConfig.linkImage}${chat.isGroup ? chat.image : chat.friend.avatar}'),
                         fit: BoxFit.cover,
                         width: 48,
                         height: 48,
@@ -61,7 +61,7 @@ class ChatCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      chat.friend.name,
+                      chat.isGroup ? chat.name! : chat.friend.name,
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.w500),
                     ),

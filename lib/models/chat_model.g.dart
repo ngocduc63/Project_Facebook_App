@@ -12,6 +12,7 @@ ChatModel _$ChatModelFromJson(Map<String, dynamic> json) => ChatModel(
           .map((e) => UserModel.fromJson(e as Map<String, dynamic>))
           .toList(),
       name: json['room_name'] as String?,
+      image: json['image_room'] as String?,
       lastMessage: json['last_message_data'] == null
           ? null
           : MessageModel.fromJson(
@@ -26,6 +27,7 @@ Map<String, dynamic> _$ChatModelToJson(ChatModel instance) => <String, dynamic>{
       '_id': instance.id,
       'membersInfo': instance.membersInfo,
       'room_name': instance.name,
+      'image_room': instance.image,
       'last_message_data': instance.lastMessage,
       'sender_by_user': instance.userSendLastMessage,
       'watched': instance.watched,

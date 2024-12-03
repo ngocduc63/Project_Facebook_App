@@ -38,13 +38,13 @@ class MessagesScreen extends StatelessWidget {
             const BackButton(color: AppColors.whiteColor),
             CircleAvatar(
               backgroundImage:
-                  NetworkImage('${ApiConfig.linkImage}${chat.friend.avatar}'),
+                  NetworkImage('${ApiConfig.linkImage}${chat.isGroup ? chat.image : chat.friend.avatar}'),
             ),
             const SizedBox(width: 20 * 0.75),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(chat.friend.name,
+                Text(chat.isGroup ? chat.name! : chat.friend.name,
                     style: TextStyle(
                       fontSize: 16,
                       color: AppColors.whiteColor,
