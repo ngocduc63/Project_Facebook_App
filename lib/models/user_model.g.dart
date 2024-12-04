@@ -22,7 +22,7 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
       pageType: json['pageType'] as String?,
       address: json['address'] as String?,
       countMutual: json['countMutual'] as int?,
-      friendStatus: json['friendStatus'] as bool?,
+      isOnline: json['isOnline'] as bool?,
     );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
@@ -41,5 +41,5 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'pageType': instance.pageType,
       'address': instance.address,
       'countMutual': instance.countMutual,
-      'friendStatus': instance.friendStatus,
+      'isOnline': instance.isOnline,
     };

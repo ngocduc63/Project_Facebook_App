@@ -27,6 +27,7 @@ class ApiConfig {
   static const String listFriend = '$api/friend/list-friend';
   static const String listFollow = '$api/friend/list-follow';
   static const String searchUser = '$api/user/search-user';
+  static const String getUserOnline = '$api/user/get-user-online';
 
   //api post
   static const String createPost = '$api/post/create-post';

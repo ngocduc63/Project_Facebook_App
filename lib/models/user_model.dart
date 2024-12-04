@@ -1,4 +1,3 @@
-import 'package:facebook/utils/user_online_observable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'user_model.g.dart';
@@ -22,7 +21,7 @@ class UserModel {
   final String? pageType;
   final String? address;
   int? countMutual;
-  final bool? friendStatus;
+  final bool? isOnline;
 
   UserModel({
     required this.id,
@@ -40,7 +39,7 @@ class UserModel {
     this.pageType,
     this.address,
     this.countMutual,
-    this.friendStatus,
+    this.isOnline,
   });
 
   // Phương thức fromJson để chuyển từ JSON sang UserModel
@@ -66,7 +65,7 @@ class UserModel {
     String? pageType,
     String? address,
     int? countMutual,
-    bool? friendStatus,
+    bool? isOnline,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -83,7 +82,7 @@ class UserModel {
       pageType: pageType ?? this.pageType,
       address: address ?? this.address,
       countMutual: countMutual ?? this.countMutual,
-      friendStatus: friendStatus ?? this.friendStatus,
+      isOnline: isOnline ?? this.isOnline,
     );
   }
 }
