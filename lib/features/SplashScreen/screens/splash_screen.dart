@@ -9,6 +9,7 @@ import 'package:facebook/models/user_model.dart';
 import 'package:facebook/utils/notification_observable.dart';
 import 'package:facebook/utils/notification_service.dart';
 import 'package:facebook/utils/prefs_user.dart';
+import 'package:facebook/utils/user_online_observable.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
@@ -23,6 +24,7 @@ class SplashScreen extends StatefulWidget {
 class SplashScreenState extends State<SplashScreen> {
   late io.Socket? socket;
   final NotificationObservable observable = NotificationObservable();
+  final UserOnlineObservable observableUserOnline = UserOnlineObservable();
   @override
   void initState() {
     super.initState();
@@ -34,6 +36,11 @@ class SplashScreenState extends State<SplashScreen> {
     if (socket != null && UserServicePref.instance.getUserInfo.id != 'error') {
       socket!.emit('join_noti_for_user',
           {"userId": UserServicePref.instance.getUserInfo.id});
+
+      socket!.on('user_online', (data) {
+        List<String> userList = List<String>.from(data.map((e) => e.toString()));
+        observableUserOnline.updateUserOnlineList(userList);
+      });
 
       socket!.on('receive_noti', (data) async {
         String type = data['noti_type'];

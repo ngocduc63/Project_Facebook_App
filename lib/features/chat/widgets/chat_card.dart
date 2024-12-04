@@ -1,9 +1,10 @@
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/models/chat_model.dart';
 import 'package:facebook/utils/convert_time.dart';
+import 'package:facebook/utils/user_online_observable.dart';
 import 'package:flutter/material.dart';
 
-class ChatCard extends StatelessWidget {
+class ChatCard extends StatefulWidget {
   const ChatCard({
     Key? key,
     required this.chat,
@@ -14,9 +15,32 @@ class ChatCard extends StatelessWidget {
   final VoidCallback press;
 
   @override
+  State<ChatCard> createState() => _ChatCardState();
+}
+
+class _ChatCardState extends State<ChatCard> {
+  late bool isOnline;
+  final userOnlineObservable = UserOnlineObservable();
+
+  @override
+  void initState() {
+    super.initState();
+
+    isOnline = userOnlineObservable.listOnline.contains(widget.chat.friend.id);
+
+    userOnlineObservable.userOnlineStream.listen((onlineList) {
+      if (mounted) {
+        setState(() {
+          isOnline = onlineList.contains(widget.chat.friend.id);
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: press,
+      onTap: widget.press,
       child: Padding(
         padding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: 20 * 0.75),
@@ -30,13 +54,13 @@ class ChatCard extends StatelessWidget {
                       child: FadeInImage(
                         placeholder: AssetImage('assets/loading.gif'),
                         image: NetworkImage(
-                            '${ApiConfig.linkImage}${chat.isGroup ? chat.image : chat.friend.avatar}'),
+                            '${ApiConfig.linkImage}${widget.chat.isGroup ? widget.chat.image : widget.chat.friend.avatar}'),
                         fit: BoxFit.cover,
                         width: 48,
                         height: 48,
                       ),
                     )),
-                if (true)
+                if (isOnline)
                   Positioned(
                     bottom: 0,
                     right: 0,
@@ -47,8 +71,9 @@ class ChatCard extends StatelessWidget {
                         color: Color(0xFF00BF6D),
                         shape: BoxShape.circle,
                         border: Border.all(
-                            color: Theme.of(context).scaffoldBackgroundColor,
-                            width: 3),
+                          color: Theme.of(context).scaffoldBackgroundColor,
+                          width: 3,
+                        ),
                       ),
                     ),
                   ),
@@ -61,16 +86,18 @@ class ChatCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      chat.isGroup ? chat.name! : chat.friend.name,
+                      widget.chat.isGroup
+                          ? widget.chat.name!
+                          : widget.chat.friend.name,
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(height: 8),
-                    if (chat.lastMessage != null)
+                    if (widget.chat.lastMessage != null)
                       Opacity(
                           opacity: 0.64,
                           child: Text(
-                            '${chat.lastMessage!.isSender() ? 'Bạn: ' : '${chat.lastMessage?.sender?.name}: '}${chat.lastMessage?.data?.content ?? ""}',
+                            '${widget.chat.lastMessage!.isSender() ? 'Bạn: ' : '${widget.chat.lastMessage?.sender?.name}: '}${widget.chat.lastMessage?.data?.content ?? ""}',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           )),
@@ -80,7 +107,7 @@ class ChatCard extends StatelessWidget {
             ),
             Opacity(
               opacity: 0.64,
-              child: Text(convertToTimeAgo(chat.timeUpdate)),
+              child: Text(convertToTimeAgo(widget.chat.timeUpdate)),
             ),
           ],
         ),

@@ -18,7 +18,9 @@ void main() async {
   await NotificationService.initializeNotification();
 
   runApp(MultiProvider(
-    providers: [ChangeNotifierProvider(create: (context) => UserProvider())],
+    providers: [
+      ChangeNotifierProvider(create: (context) => UserProvider()), 
+    ],
     child: const MyApp(),
   ));
 }
