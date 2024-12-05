@@ -1,8 +1,13 @@
-import 'dart:math';
-
+import 'package:facebook/constants/app_colors.dart';
+import 'package:facebook/constants/app_constants.dart';
+import 'package:facebook/controllers/api_controller.dart';
+import 'package:facebook/features/chat/screen/message_screen.dart';
+import 'package:facebook/models/chat_model.dart';
+import 'package:facebook/models/user_model.dart';
+import 'package:facebook/utils/convert_time.dart';
+import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
-
-import '../../../models/user.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class FriendsSearchScreen extends StatefulWidget {
   static const String routeName = '/friends-search-screen';
@@ -12,132 +17,128 @@ class FriendsSearchScreen extends StatefulWidget {
   State<FriendsSearchScreen> createState() => _FriendsSearchScreenState();
 }
 
-class FriendRequest {
-  final User user;
-  final String time;
-  final int? mutualFriends;
-  final User? f1;
-  final User? f2;
-  FriendRequest({
-    required this.user,
-    required this.time,
-    this.mutualFriends,
-    this.f1,
-    this.f2,
-  });
-}
-
 class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
-  final today = DateTime.now();
-
-  final friends = [
-    FriendRequest(
-      user: User(
-        name: 'Minh Hương',
-        avatar: 'assets/images/user/minhhuong.jpg',
-      ),
-      time: '1 tuần',
-      mutualFriends: 25,
-      f1: User(
-        name: 'Khánh Vy',
-        avatar: 'assets/images/user/khanhvy.jpg',
-      ),
-      f2: User(
-        name: 'Leo Messi',
-        avatar: 'assets/images/user/messi.jpg',
-      ),
-    ),
-    FriendRequest(
-      user: User(
-        name: 'Khánh Vy',
-        avatar: 'assets/images/user/khanhvy.jpg',
-      ),
-      time: '3 tuần',
-      mutualFriends: 1,
-      f1: User(
-        name: 'Bảo Ngân',
-        avatar: 'assets/images/user/baongan.jpg',
-      ),
-    ),
-    FriendRequest(
-      mutualFriends: 25,
-      user: User(
-        name: 'Vương Hồng Thúy',
-        avatar: 'assets/images/user/vuonghongthuy.jpg',
-      ),
-      time: '2 tuần',
-    ),
-    FriendRequest(
-      user: User(
-        name: 'Leo Messi',
-        avatar: 'assets/images/user/messi.jpg',
-      ),
-      mutualFriends: 455,
-      f1: User(
-        name: 'Minh Hương',
-        avatar: 'assets/images/user/minhhuong.jpg',
-      ),
-      f2: User(
-        name: 'Hà Linhh',
-        avatar: 'assets/images/user/halinh.jpg',
-      ),
-      time: '2 năm',
-    ),
-    FriendRequest(
-      mutualFriends: 10,
-      user: User(
-        name: 'Nguyễn Thị Minh Tuyền',
-        avatar: 'assets/images/user/minhtuyen.jpg',
-      ),
-      time: '2 năm',
-    ),
-    FriendRequest(
-      mutualFriends: 66,
-      user: User(
-        name: 'Hà Linhh',
-        avatar: 'assets/images/user/halinh.jpg',
-      ),
-      time: '4 năm',
-    ),
-    FriendRequest(
-      mutualFriends: 23,
-      user: User(
-        name: 'Bảo Ngân',
-        avatar: 'assets/images/user/baongan.jpg',
-      ),
-      time: '5 năm',
-    ),
-    FriendRequest(
-      mutualFriends: 12,
-      user: User(
-        name: 'Doraemon',
-        avatar: 'assets/images/user/doraemon.jpg',
-      ),
-      time: '1 tuần',
-    ),
-    FriendRequest(
-      mutualFriends: 654,
-      user: User(
-        name: 'Minh Trí',
-        avatar: 'assets/images/user/minhtri.jpg',
-      ),
-      time: '4 tuần',
-    ),
-    FriendRequest(
-      mutualFriends: 123,
-      user: User(
-        name: 'Sách Cũ Ngọc',
-        avatar: 'assets/images/user/sachcungoc.jpg',
-      ),
-      time: '1 tuần',
-    ),
-  ];
   final TextEditingController searchController = TextEditingController();
-  final Random random = Random();
+
+  List<UserModel> friends = [];
+  ApiController apiController = ApiController();
+  int page = 0;
+  int limit = 20;
+  bool isLoading = false;
+  bool isFetchingMore = false;
+  bool hasNextPage = true;
+  int total = 0;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
+    fetchFriends();
+    _scrollController.addListener(_onScroll);
+  }
+
+  Future<void> fetchFriends() async {
+    if (isLoading) return;
+
+    setState(() {
+      if (page == 0) {
+        isLoading = true;
+      } else {
+        isFetchingMore = true;
+      }
+    });
+
+    try {
+      page++;
+      final userId = UserServicePref.instance.getUserInfo.id;
+      final response = await apiController.get(ApiConfig.listFriend,
+          {'friendId': userId, 'page': page, 'limit': limit});
+
+      List<UserModel> data = (response.data['metadata']['friends'] as List)
+          .map((user) => UserModel.fromJson(user))
+          .toList();
+
+      bool checkNextPage = response.data['metadata']['totalPage'] > page;
+
+      setState(() {
+        friends.addAll(data);
+        hasNextPage = checkNextPage;
+        total = response.data['metadata']['totalFriend'];
+      });
+    } catch (e) {
+      print(e);
+    } finally {
+      setState(() {
+        isLoading = false;
+        isFetchingMore = false;
+      });
+    }
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent &&
+        !isLoading &&
+        !isFetchingMore &&
+        hasNextPage) {
+      fetchFriends();
+    }
+  }
+
+  Future<void> handleNavigateChat(BuildContext context, String friendId) async {
+    try {
+      final response = await apiController.get(
+        ApiConfig.getRoomInfo,
+        {'friendId': friendId},
+      );
+      if (response.statusCode == 200) {
+        final ChatModel dataRoom =
+            ChatModel.fromJson(response.data['metadata']);
+
+        if (context.mounted) {
+          Navigator.pushNamed(
+            context,
+            MessagesScreen.routeName,
+            arguments: dataRoom,
+          );
+        }
+      }
+    } catch (e) {
+      print(e);
+    } 
+  }
+
+  Future<void> handleUnfriend(String friendId) async {
+    try {
+      final response =
+          await apiController.put(ApiConfig.unfriend, {'friendId': friendId});
+      if (response.statusCode == 200) {
+
+        friends.removeWhere((value) => value.id == friendId);
+        total--;
+        setState(() {});
+
+        Fluttertoast.showToast(
+            msg: "Từ chối kết bạn thành công",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP_LEFT,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      } else {
+        Fluttertoast.showToast(
+            msg: "Có lỗi xảy ra",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP_LEFT,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -236,6 +237,7 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
         ),
       ),
       body: SingleChildScrollView(
+        controller: _scrollController,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -249,8 +251,8 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    '1.151 bạn bè',
+                  Text(
+                    '$total bạn bè',
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -348,6 +350,12 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
                 ],
               ),
             ),
+            if (isLoading)
+              Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.lightBlueColor,
+                ),
+              ),
             for (int i = 0; i < friends.length; i++)
               Padding(
                 padding: const EdgeInsets.only(
@@ -367,7 +375,8 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
                         ),
                       ),
                       child: CircleAvatar(
-                        backgroundImage: AssetImage(friends[i].user.avatar),
+                        backgroundImage: NetworkImage(
+                            '${ApiConfig.linkImage}${friends[i].avatar}'),
                         radius: 30,
                       ),
                     ),
@@ -383,21 +392,21 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Text(
-                                friends[i].user.name,
+                                friends[i].name,
                                 style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
-                              if (friends[i].mutualFriends != null &&
-                                  friends[i].mutualFriends! > 0)
+                              if (friends[i].countMutual != null &&
+                                  friends[i].countMutual! > 0)
                                 Padding(
                                   padding: const EdgeInsets.only(
                                     top: 2,
                                   ),
                                   child: Text(
-                                    '${friends[i].mutualFriends} bạn chung',
+                                    '${friends[i].countMutual} bạn chung',
                                     style: const TextStyle(
                                       color: Colors.black54,
                                       fontSize: 14,
@@ -444,8 +453,8 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
                                                   ),
                                                 ),
                                                 child: CircleAvatar(
-                                                  backgroundImage: AssetImage(
-                                                    friends[i].user.avatar,
+                                                  backgroundImage: NetworkImage(
+                                                    '${ApiConfig.linkImage}${friends[i].avatar}',
                                                   ),
                                                   radius: 25,
                                                 ),
@@ -460,7 +469,7 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    friends[i].user.name,
+                                                    friends[i].name,
                                                     style: const TextStyle(
                                                       color: Colors.black,
                                                       fontSize: 18,
@@ -472,7 +481,7 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
                                                     height: 5,
                                                   ),
                                                   Text(
-                                                    'Là bạn bè từ tháng ${1 + random.nextInt(12)} năm ${2023 - random.nextInt(15)}',
+                                                    'Là bạn bè từ ${convertTimeToDate(friends[i].time!)}',
                                                     style: const TextStyle(
                                                       color: Colors.black54,
                                                       fontSize: 15,
@@ -492,6 +501,9 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
                                           height: 5,
                                         ),
                                         ListTile(
+                                          onTap: () async {
+                                            await handleNavigateChat(context, friends[i].id);
+                                          },
                                           minLeadingWidth: 10,
                                           leading: const ImageIcon(
                                             AssetImage(
@@ -500,7 +512,7 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
                                             color: Colors.black,
                                           ),
                                           title: Text(
-                                            'Nhắn tin cho ${friends[i].user.name}',
+                                            'Nhắn tin cho ${friends[i].name}',
                                             style: const TextStyle(
                                               color: Colors.black,
                                               fontWeight: FontWeight.w500,
@@ -509,72 +521,10 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
                                           ),
                                         ),
                                         ListTile(
-                                          minLeadingWidth: 10,
-                                          leading: const ImageIcon(
-                                            AssetImage(
-                                                'assets/images/unfollow.png'),
-                                            size: 25,
-                                            color: Colors.black,
-                                          ),
-                                          title: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Bỏ theo dõi ${friends[i].user.name}',
-                                                style: const TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                              const SizedBox(
-                                                height: 5,
-                                              ),
-                                              const Text(
-                                                'Không nhìn thấy bài viết nữa nhưng vẫn là bạn bè.',
-                                                style: TextStyle(
-                                                  color: Colors.black54,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        ListTile(
-                                          minLeadingWidth: 10,
-                                          leading: const ImageIcon(
-                                            AssetImage(
-                                                'assets/images/block.png'),
-                                            size: 25,
-                                            color: Colors.black,
-                                          ),
-                                          title: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Chặn trang cá nhân của ${friends[i].user.name}',
-                                                style: const TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                              const SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                '${friends[i].user.name} sẽ không thể nhìn thấy bạn hoặc liên hệ với bạn trên Facebook.',
-                                                style: const TextStyle(
-                                                  color: Colors.black54,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        ListTile(
+                                          onTap: () async{
+                                            await handleUnfriend(friends[i].id);
+                                            if (context.mounted) Navigator.pop(context); 
+                                          },
                                           minLeadingWidth: 10,
                                           leading: const ImageIcon(
                                             AssetImage(
@@ -587,7 +537,7 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                'Hủy kết bạn với ${friends[i].user.name}',
+                                                'Hủy kết bạn với ${friends[i].name}',
                                                 style: const TextStyle(
                                                   color: Colors.red,
                                                   fontWeight: FontWeight.w500,
@@ -598,7 +548,7 @@ class _FriendsSearchScreenState extends State<FriendsSearchScreen> {
                                                 height: 5,
                                               ),
                                               Text(
-                                                'Hủy kết bạn với ${friends[i].user.name}',
+                                                'Hủy kết bạn với ${friends[i].name}',
                                                 style: const TextStyle(
                                                   color: Colors.black54,
                                                   fontSize: 14,

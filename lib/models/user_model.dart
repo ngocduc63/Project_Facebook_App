@@ -22,6 +22,8 @@ class UserModel {
   final String? address;
   int? countMutual;
   final bool? isOnline;
+  @JsonKey(name: 'createdAt')
+  String? time;
 
   UserModel({
     required this.id,
@@ -40,6 +42,7 @@ class UserModel {
     this.address,
     this.countMutual,
     this.isOnline,
+    this.time,
   });
 
   // Phương thức fromJson để chuyển từ JSON sang UserModel
@@ -66,6 +69,7 @@ class UserModel {
     String? address,
     int? countMutual,
     bool? isOnline,
+    String? time,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -83,6 +87,7 @@ class UserModel {
       address: address ?? this.address,
       countMutual: countMutual ?? this.countMutual,
       isOnline: isOnline ?? this.isOnline,
+      time: time ?? this.time,
     );
   }
 }

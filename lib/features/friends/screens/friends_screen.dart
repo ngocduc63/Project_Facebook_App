@@ -1,8 +1,13 @@
+import 'package:facebook/constants/app_colors.dart';
+import 'package:facebook/constants/app_constants.dart';
+import 'package:facebook/controllers/api_controller.dart';
+import 'package:facebook/controllers/user_controller/user_controller.dart';
 import 'package:facebook/features/friends/screens/friends_search_screen.dart';
-import 'package:facebook/features/friends/screens/friends_suggest_screen.dart';
+import 'package:facebook/models/user_model.dart';
+import 'package:facebook/utils/convert_time.dart';
+import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
-
-import '../../../models/user.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class FriendsScreen extends StatefulWidget {
   static const String routeName = '/friends-screen';
@@ -12,122 +17,110 @@ class FriendsScreen extends StatefulWidget {
   State<FriendsScreen> createState() => _FriendsScreenState();
 }
 
-class FriendRequest {
-  final User user;
-  final String time;
-  final int? mutualFriends;
-  final User? f1;
-  final User? f2;
-  FriendRequest({
-    required this.user,
-    required this.time,
-    this.mutualFriends,
-    this.f1,
-    this.f2,
-  });
-}
-
 class _FriendsScreenState extends State<FriendsScreen> {
-  final today = DateTime.now();
-  final friends = [
-    FriendRequest(
-      user: User(
-        name: 'Minh Hương',
-        avatar: 'assets/images/user/minhhuong.jpg',
-      ),
-      time: '1 tuần',
-      mutualFriends: 25,
-      f1: User(
-        name: 'Khánh Vy',
-        avatar: 'assets/images/user/khanhvy.jpg',
-      ),
-      f2: User(
-        name: 'Leo Messi',
-        avatar: 'assets/images/user/messi.jpg',
-      ),
-    ),
-    FriendRequest(
-      user: User(
-        name: 'Khánh Vy',
-        avatar: 'assets/images/user/khanhvy.jpg',
-      ),
-      time: '3 tuần',
-      mutualFriends: 1,
-      f1: User(
-        name: 'Bảo Ngân',
-        avatar: 'assets/images/user/baongan.jpg',
-      ),
-    ),
-    FriendRequest(
-      user: User(
-        name: 'Vương Hồng Thúy',
-        avatar: 'assets/images/user/vuonghongthuy.jpg',
-      ),
-      time: '2 tuần',
-    ),
-    FriendRequest(
-      user: User(
-        name: 'Leo Messi',
-        avatar: 'assets/images/user/messi.jpg',
-      ),
-      mutualFriends: 455,
-      f1: User(
-        name: 'Minh Hương',
-        avatar: 'assets/images/user/minhhuong.jpg',
-      ),
-      f2: User(
-        name: 'Hà Linhh',
-        avatar: 'assets/images/user/halinh.jpg',
-      ),
-      time: '2 năm',
-    ),
-    FriendRequest(
-      user: User(
-        name: 'Nguyễn Thị Minh Tuyền',
-        avatar: 'assets/images/user/minhtuyen.jpg',
-      ),
-      time: '2 năm',
-    ),
-    FriendRequest(
-      user: User(
-        name: 'Hà Linhh',
-        avatar: 'assets/images/user/halinh.jpg',
-      ),
-      time: '4 năm',
-    ),
-    FriendRequest(
-      user: User(
-        name: 'Bảo Ngân',
-        avatar: 'assets/images/user/baongan.jpg',
-      ),
-      time: '5 năm',
-    ),
-    FriendRequest(
-      user: User(
-        name: 'Doraemon',
-        avatar: 'assets/images/user/doraemon.jpg',
-      ),
-      time: '1 tuần',
-    ),
-    FriendRequest(
-      user: User(
-        name: 'Minh Trí',
-        avatar: 'assets/images/user/minhtri.jpg',
-      ),
-      time: '4 tuần',
-    ),
-    FriendRequest(
-      user: User(
-        name: 'Sách Cũ Ngọc',
-        avatar: 'assets/images/user/sachcungoc.jpg',
-      ),
-      time: '1 tuần',
-    ),
-  ];
+  List<UserModel> listFriends = [];
+  ApiController apiController = ApiController();
+  UserController userController = UserController();
+  int page = 0;
+  int limit = 20;
+  bool isLoading = false;
+  bool hasNextPage = true;
+  int total = 0;
 
   @override
   void initState() {
     super.initState();
+    fetchFriends();
+  }
+
+  Future<void> fetchFriends() async {
+    setState(() {
+      isLoading = true;
+    });
+    page++;
+    try {
+      final userId = UserServicePref.instance.getUserInfo.id;
+      final response = await apiController.get(ApiConfig.listFollow,
+          {'userId': userId, 'page': page, 'limit': limit});
+
+      List<UserModel> data =
+          (response.data['metadata']['friends'] as List).map((friend) {
+        UserModel user = UserModel.fromJson(friend['created_by_user']);
+        user.countMutual = friend['countMutual'];
+        user.time = friend['createdAt'];
+
+        return user;
+      }).toList();
+
+      bool checkNextPage = response.data['metadata']['totalPage'] > page;
+
+      setState(() {
+        listFriends.addAll(data);
+        isLoading = false;
+        hasNextPage = checkNextPage;
+        total = response.data['metadata']['totalFriend'];
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> handleAcpFriend(String friendId) async {
+    final check = await userController.acpFriendController(
+        friendId, '');
+
+    if (check) {
+      listFriends.removeWhere((value) => value.id == friendId);
+      total--;
+      setState(() {});
+
+      Fluttertoast.showToast(
+          msg: "Đồng ý kết bạn thành công",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP_LEFT,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    } else {
+      Fluttertoast.showToast(
+          msg: "Có lỗi xảy ra",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP_LEFT,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
+  }
+
+  Future<void> handleDeclineFriend(String friendId) async {
+    final check = await userController.declineFriendController(
+        friendId, '');
+
+    if (check) {
+      listFriends.removeWhere((value) => value.id == friendId);
+      total--;
+      setState(() {});
+
+      Fluttertoast.showToast(
+          msg: "Từ chối kết bạn thành công",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP_LEFT,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    } else {
+      Fluttertoast.showToast(
+          msg: "Có lỗi xảy ra",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP_LEFT,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
   }
 
   @override
@@ -198,33 +191,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
                     onTap: () {
                       Navigator.pushNamed(
                         context,
-                        FriendsSuggestScreen.routeName,
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: const EdgeInsets.all(10),
-                      child: const Text(
-                        'Gợi ý',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
                         FriendsSearchScreen.routeName,
                       );
                     },
@@ -236,7 +202,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                       ),
                       padding: const EdgeInsets.all(10),
                       child: const Text(
-                        'Bạn bè',
+                        'Danh sách bạn bè',
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 16,
@@ -255,7 +221,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
               indent: 10,
               endIndent: 10,
             ),
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: 10,
               ),
@@ -279,7 +245,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                         width: 10,
                       ),
                       Text(
-                        '568',
+                        '$total',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -288,21 +254,19 @@ class _FriendsScreenState extends State<FriendsScreen> {
                       ),
                     ],
                   ),
-                  Text(
-                    'Xem tất cả',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.blueAccent,
-                    ),
-                  )
                 ],
               ),
             ),
             const SizedBox(
               height: 10,
             ),
-            for (int i = 0; i < friends.length; i++)
+            if (isLoading)
+              Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.lightBlueColor,
+                ),
+              ),
+            for (int i = 0; i < listFriends.length; i++)
               Padding(
                 padding: const EdgeInsets.all(10),
                 child: Row(
@@ -316,7 +280,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
                         ),
                       ),
                       child: CircleAvatar(
-                        backgroundImage: AssetImage(friends[i].user.avatar),
+                        backgroundImage: NetworkImage(
+                            '${ApiConfig.linkImage}${listFriends[i].avatar}'),
                         radius: 46,
                       ),
                     ),
@@ -332,7 +297,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                friends[i].user.name,
+                                listFriends[i].name,
                                 style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 16,
@@ -340,7 +305,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                 ),
                               ),
                               Text(
-                                friends[i].time,
+                                convertToTimeAgo(listFriends[i].time!),
                                 style: const TextStyle(
                                   color: Colors.black54,
                                   fontSize: 14,
@@ -348,60 +313,18 @@ class _FriendsScreenState extends State<FriendsScreen> {
                               ),
                             ],
                           ),
-                          if (friends[i].mutualFriends != null &&
-                              friends[i].mutualFriends! > 0)
+                          if (listFriends[i].countMutual! > 0)
                             Padding(
                               padding: const EdgeInsets.only(
                                 top: 2,
                               ),
                               child: Row(
                                 children: [
-                                  Stack(
-                                    children: [
-                                      friends[i].f2 != null
-                                          ? const SizedBox(
-                                              width: 46,
-                                              height: 28,
-                                            )
-                                          : const SizedBox(
-                                              width: 28,
-                                              height: 28,
-                                            ),
-                                      if (friends[i].f2 != null)
-                                        Positioned(
-                                          left: 22,
-                                          top: 2,
-                                          child: CircleAvatar(
-                                            backgroundImage: AssetImage(
-                                                friends[i].f2!.avatar),
-                                            radius: 12,
-                                          ),
-                                        ),
-                                      Positioned(
-                                        left: 0,
-                                        top: 0,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: Colors.white,
-                                              width: 2,
-                                            ),
-                                          ),
-                                          child: CircleAvatar(
-                                            backgroundImage: AssetImage(
-                                                friends[i].f1!.avatar),
-                                            radius: 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
                                   const SizedBox(
                                     width: 5,
                                   ),
                                   Text(
-                                    '${friends[i].mutualFriends} bạn chung',
+                                    '${listFriends[i].countMutual} bạn chung',
                                     style: const TextStyle(
                                       color: Colors.black54,
                                       fontSize: 14,
@@ -417,10 +340,12 @@ class _FriendsScreenState extends State<FriendsScreen> {
                             children: [
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () async{
+                                   await handleAcpFriend(listFriends[i].id);
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     shadowColor: Colors.transparent,
-                                    backgroundColor: Colors.blue[700],
+                                    backgroundColor: AppColors.lightBlueColor,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -440,7 +365,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
                               ),
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () async{
+                                   await handleDeclineFriend(listFriends[i].id);
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     shadowColor: Colors.transparent,
                                     backgroundColor: Colors.grey[300],
