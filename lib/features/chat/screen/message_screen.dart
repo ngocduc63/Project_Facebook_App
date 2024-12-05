@@ -1,5 +1,6 @@
 import 'package:facebook/constants/app_colors.dart';
 import 'package:facebook/constants/app_constants.dart';
+import 'package:facebook/constants/router_constants.dart';
 import 'package:facebook/features/chat/screen/call_screen.dart';
 import 'package:facebook/features/chat/widgets/message/body_message.dart';
 import 'package:facebook/models/chat_model.dart';
@@ -25,16 +26,18 @@ class _MessagesScreenState extends State<MessagesScreen> {
   void initState() {
     super.initState();
 
-    isOnline = userOnlineObservable.listOnline.contains(widget.chat.friend.id);
+    if (!widget.chat.isGroup) {
+      isOnline =
+          userOnlineObservable.listOnline.contains(widget.chat.friend.id);
 
-    userOnlineObservable.userOnlineStream.listen((onlineList) {
-      if(mounted) {
-        setState(() {
-        isOnline = onlineList.contains(widget.chat.friend.id);
+      userOnlineObservable.userOnlineStream.listen((onlineList) {
+        if (mounted) {
+          setState(() {
+            isOnline = onlineList.contains(widget.chat.friend.id);
+          });
+        }
       });
-      }
-    });
-
+    }
   }
 
   void handleCall(BuildContext context) {
@@ -59,69 +62,87 @@ class _MessagesScreenState extends State<MessagesScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: AppColors.lightBlueColor,
-        title: Row(
-          children: [
-            const BackButton(color: AppColors.whiteColor),
-            Stack(
-              children: [
-                CircleAvatar(
-                  backgroundImage: NetworkImage(
-                      '${ApiConfig.linkImage}${widget.chat.isGroup ? widget.chat.image : widget.chat.friend.avatar}'),
-                ),
-                if (!widget.chat.isGroup && isOnline)
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      height: 16,
-                      width: 16,
-                      decoration: BoxDecoration(
-                        color: Color(0xFF00BF6D),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Theme.of(context).scaffoldBackgroundColor,
-                          width: 3,
+        title: GestureDetector(
+          onTap: () {
+            if (widget.chat.isGroup) return;
+
+            Navigator.pushNamed(context, RouterConstants.personalScreen,
+                arguments: widget.chat.friend);
+          },
+          child: Row(
+            children: [
+              const BackButton(color: AppColors.whiteColor),
+              Stack(
+                children: [
+                  CircleAvatar(
+                    backgroundImage: NetworkImage(
+                        '${ApiConfig.linkImage}${widget.chat.isGroup ? widget.chat.image : widget.chat.friend.avatar}'),
+                  ),
+                  if (!widget.chat.isGroup && isOnline)
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        height: 16,
+                        width: 16,
+                        decoration: BoxDecoration(
+                          color: Color(0xFF00BF6D),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                            width: 3,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-            const SizedBox(width: 20 * 0.75),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.chat.isGroup
-                      ? widget.chat.name!
-                      : widget.chat.friend.name,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: AppColors.whiteColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                if (!widget.chat.isGroup)
+                ],
+              ),
+              const SizedBox(width: 20 * 0.75),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    isOnline ? 'Đang hoạt động' : 'Không hoạt động',
-                    style: TextStyle(fontSize: 12, color: AppColors.whiteColor),
+                    widget.chat.isGroup
+                        ? widget.chat.name!
+                        : widget.chat.friend.name,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: AppColors.whiteColor,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-              ],
-            ),
-          ],
+                  if (!widget.chat.isGroup)
+                    Text(
+                      isOnline ? 'Đang hoạt động' : 'Không hoạt động',
+                      style:
+                          TextStyle(fontSize: 12, color: AppColors.whiteColor),
+                    ),
+                ],
+              ),
+            ],
+          ),
         ),
         actions: [
-          IconButton(
-            onPressed: () => {handleCall(context)},
-            icon: Icon(
-              Icons.call,
-              color: AppColors.whiteColor,
+          if (!widget.chat.isGroup)
+            IconButton(
+              onPressed: () => {handleCall(context)},
+              icon: Icon(
+                Icons.call,
+                color: AppColors.whiteColor,
+              ),
             ),
-          ),
-          IconButton(
-            onPressed: () => {handleCall(context)},
-            icon: Icon(Icons.videocam, color: AppColors.whiteColor),
-          ),
+          if (!widget.chat.isGroup)
+            IconButton(
+              onPressed: () => {handleCall(context)},
+              icon: Icon(Icons.videocam, color: AppColors.whiteColor),
+            ),
+          if (widget.chat.isGroup)  
+            IconButton(
+              onPressed: () => {
+                Navigator.pushNamed(context, RouterConstants.menuChatScreen, arguments: widget.chat)
+              },
+              icon: Icon(Icons.menu, color: AppColors.whiteColor),
+            ),
           SizedBox(
             width: 20 / 2,
           )

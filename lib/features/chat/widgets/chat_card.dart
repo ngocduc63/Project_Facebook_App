@@ -26,15 +26,18 @@ class _ChatCardState extends State<ChatCard> {
   void initState() {
     super.initState();
 
-    isOnline = userOnlineObservable.listOnline.contains(widget.chat.friend.id);
+    if (!widget.chat.isGroup) {
+      isOnline =
+          userOnlineObservable.listOnline.contains(widget.chat.friend.id);
 
-    userOnlineObservable.userOnlineStream.listen((onlineList) {
-      if (mounted) {
-        setState(() {
-          isOnline = onlineList.contains(widget.chat.friend.id);
-        });
-      }
-    });
+      userOnlineObservable.userOnlineStream.listen((onlineList) {
+        if (mounted) {
+          setState(() {
+            isOnline = onlineList.contains(widget.chat.friend.id);
+          });
+        }
+      });
+    }
   }
 
   @override
@@ -60,7 +63,7 @@ class _ChatCardState extends State<ChatCard> {
                         height: 48,
                       ),
                     )),
-                if (isOnline)
+                if (!widget.chat.isGroup && isOnline)
                   Positioned(
                     bottom: 0,
                     right: 0,

@@ -12,4 +12,5 @@ class RouterConstants {
   static const String search= '/search-screen';
   static const String createGroupChat= '/create-group-chat';
   static const String personalScreen= '/personal-page';
+  static const String menuChatScreen= '/menu-chat';
 }

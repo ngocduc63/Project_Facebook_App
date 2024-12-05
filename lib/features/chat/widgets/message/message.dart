@@ -1,22 +1,24 @@
 import 'package:facebook/constants/app_colors.dart';
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/enum_common.dart';
+import 'package:facebook/constants/router_constants.dart';
 import 'package:facebook/features/chat/widgets/message/audio_message.dart';
 import 'package:facebook/features/chat/widgets/message/text_message.dart';
 import 'package:facebook/features/chat/widgets/message/video_message.dart';
 import 'package:facebook/models/message_model.dart';
 import 'package:facebook/utils/convert_time.dart';
+import 'package:facebook/utils/user_online_observable.dart';
 import 'package:flutter/material.dart';
 
 class Message extends StatefulWidget {
   const Message({
     Key? key,
     required this.message,
-    required this.isLastMessage, 
+    required this.isLastMessage,
   }) : super(key: key);
 
   final MessageModel message;
-  final bool isLastMessage; 
+  final bool isLastMessage;
 
   @override
   State<Message> createState() => _MessageState();
@@ -24,11 +26,31 @@ class Message extends StatefulWidget {
 
 class _MessageState extends State<Message> {
   bool showTime = false;
+  bool isOnline = false;
+  final userOnlineObservable = UserOnlineObservable();
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.isLastMessage) {
+      isOnline =
+          userOnlineObservable.listOnline.contains(widget.message.senderId);
+
+      userOnlineObservable.userOnlineStream.listen((onlineList) {
+        if (mounted) {
+          setState(() {
+            isOnline = onlineList.contains(widget.message.senderId);
+          });
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isSender = widget.message.isSender();
 
-    // Hàm trả về widget hiển thị nội dung tin nhắn
     Widget messageContent(MessageModel message) {
       switch (message.data!.type) {
         case MessageType.text:
@@ -49,39 +71,92 @@ class _MessageState extends State<Message> {
         });
       },
       child: Padding(
-        padding: const EdgeInsets.only(top: 20),
+        padding: const EdgeInsets.only(top: 20,),
         child: Row(
-          mainAxisAlignment: isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
+          mainAxisAlignment:
+              isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
           children: [
             if (!isSender) ...[
               if (widget.isLastMessage)
-                CircleAvatar(
-                  radius: 12,
-                  backgroundImage: NetworkImage('${ApiConfig.linkImage}${widget.message.sender!.avatar}'),
+                Stack(
+                  children: [
+                    PopupMenuButton<String>(
+                      padding: const EdgeInsets.all(0),
+                      onSelected: (value) {
+                        if (value == 'personal') {
+                          Navigator.pushNamed(context, RouterConstants.personalScreen, arguments: widget.message.sender);
+                        }
+                      },
+                      icon: CircleAvatar(
+                        backgroundImage: NetworkImage(
+                            '${ApiConfig.linkImage}${widget.message.sender!.avatar}'),
+                      ),
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'name',
+                          child: Row(
+                            children: [
+                              Icon(Icons.person_sharp, size: 18),
+                              SizedBox(width: 10),
+                              Text(widget.message.sender!.name),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'personal',
+                          child: Row(
+                            children: [
+                              Icon(Icons.view_agenda, size: 18),
+                              SizedBox(width: 10),
+                              Text("Xem trang cá nhân"),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (isOnline)
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          height: 16,
+                          width: 16,
+                          decoration: BoxDecoration(
+                            color: Color(0xFF00BF6D),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Theme.of(context).scaffoldBackgroundColor,
+                              width: 3,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               SizedBox(
-                width: widget.isLastMessage  ? 20 / 2 : 34,
+                width: widget.isLastMessage ? 5 : 52,
               ),
             ],
-            
             Column(
-              crossAxisAlignment: isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-              children: [
-                messageContent(widget.message),
-                if (showTime)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4.0, left: 8.0),
-                    child: Text(
-                      'Đã gửi ${convertToTimeAgo(widget.message.time)}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isSender ? AppColors.lightBlueColor : AppColors.blackColor,
-                        fontWeight: FontWeight.bold
+                crossAxisAlignment: isSender
+                    ? CrossAxisAlignment.end
+                    : CrossAxisAlignment.start,
+                children: [
+                  messageContent(widget.message),
+                  if (showTime)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4.0, left: 8.0),
+                      child: Text(
+                        'Đã gửi ${convertToTimeAgo(widget.message.time)}',
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: isSender
+                                ? AppColors.lightBlueColor
+                                : AppColors.blackColor,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
-                  ),
-              ]
-            )
+                ])
           ],
         ),
       ),

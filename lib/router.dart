@@ -1,6 +1,7 @@
 import 'package:facebook/features/auth/auth_screen.dart';
 import 'package:facebook/features/chat/screen/chat_screen.dart';
 import 'package:facebook/features/chat/screen/create_group_screen.dart';
+import 'package:facebook/features/chat/screen/menu_chat_screen.dart';
 import 'package:facebook/features/chat/screen/message_screen.dart';
 import 'package:facebook/features/comment/screens/comment_screen.dart';
 import 'package:facebook/features/friends/screens/friends_screen.dart';
@@ -88,6 +89,11 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
     case CreateGroupScreen.routeName:
       return MaterialPageRoute(
         builder: (context) => const CreateGroupScreen(),
+      );
+    case MenuChatScreen.routeName:
+      final ChatModel chatRoom = routeSettings.arguments as ChatModel;
+      return MaterialPageRoute(
+        builder: (context) => MenuChatScreen( chat: chatRoom,),
       );
     case EditPostScreen.routeName:
       final postData = routeSettings.arguments as PostModel;

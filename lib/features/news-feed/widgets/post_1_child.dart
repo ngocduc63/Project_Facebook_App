@@ -46,7 +46,7 @@ class _PostWidget1ChildState extends State<PostWidget1Child> {
         chewieController = ChewieController(
           videoPlayerController: videoPlayerController!,
           autoPlay: false,
-          looping: false,
+          looping: true,
           materialProgressColors: ChewieProgressColors(
             playedColor: GlobalVariables.secondaryColor,
             handleColor: Colors.white,
@@ -62,7 +62,7 @@ class _PostWidget1ChildState extends State<PostWidget1Child> {
     await videoPlayerController!.initialize();
     await videoPlayerController!.pause();
     await videoPlayerController!.seekTo(Duration.zero);
-    await videoPlayerController!.setVolume(0);
+    await videoPlayerController!.setVolume(100);
   }
 
   @override

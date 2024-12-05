@@ -114,7 +114,7 @@ class _BodyState extends State<Body> {
             : Expanded(
                 child: Padding(
                   padding:
-                      const EdgeInsets.only(bottom: 20, left: 20, right: 20),
+                      const EdgeInsets.only(bottom: 20, left: 10, right: 10),
                   child: ListView.builder(
                     reverse: true,
                     controller: _scrollController,
