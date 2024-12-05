@@ -5,7 +5,6 @@ import 'package:facebook/features/chat/screen/message_screen.dart';
 import 'package:facebook/features/comment/screens/comment_screen.dart';
 import 'package:facebook/features/friends/screens/friends_screen.dart';
 import 'package:facebook/features/friends/screens/friends_search_screen.dart';
-import 'package:facebook/features/friends/screens/friends_suggest_screen.dart';
 import 'package:facebook/features/home/screens/home_screen.dart';
 import 'package:facebook/features/home/screens/search_screen.dart';
 import 'package:facebook/features/market_place/screens/product_details_screen.dart';
@@ -205,24 +204,6 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
       return PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
             const FriendsScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0);
-          const end = Offset.zero;
-          const curve = Curves.ease;
-
-          var tween =
-              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-          return SlideTransition(
-            position: animation.drive(tween),
-            child: child,
-          );
-        },
-      );
-    case FriendsSuggestScreen.routeName:
-      return PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const FriendsSuggestScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
