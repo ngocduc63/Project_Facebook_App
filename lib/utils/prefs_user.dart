@@ -31,8 +31,8 @@ class UserServicePref {
 
   Future<void> saveToken(String token) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString(AppConstants.tokenKey, token);
     _token = token;
+    await prefs.setString(AppConstants.tokenKey, token);
   }
 
   Future<void> saveApiKey(String apiKey) async {

@@ -12,6 +12,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  flutter_launcher_icons: ^0.13.1
+
   cupertino_icons: ^1.0.2
   video_player: ^2.7.1
   carousel_slider: ^5.0.0
@@ -57,3 +59,8 @@ flutter:
     - assets/images/menu/
     - assets/images/nav/
     - assets/
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo.png"
