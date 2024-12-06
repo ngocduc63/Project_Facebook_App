@@ -2,27 +2,26 @@ import 'package:facebook/constants/app_colors.dart';
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/router_constants.dart';
 import 'package:facebook/controllers/api_controller.dart';
-import 'package:facebook/features/auth/widgets/input_fields.dart';
-import 'package:facebook/features/chat/screen/chat_screen.dart';
+import 'package:facebook/models/chat_model.dart';
 import 'package:facebook/models/user_model.dart';
 import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart';
 
-class CreateGroupScreen extends StatefulWidget {
-  static const String routeName = RouterConstants.createGroupChat;
+class MemberGroupScreen extends StatefulWidget {
+  static const String routeName = RouterConstants.membersGroupScreen;
+  final ChatModel chat;
 
-  const CreateGroupScreen({super.key});
+  const MemberGroupScreen({super.key, required this.chat});
 
   @override
-  State<CreateGroupScreen> createState() => _CreateGroupScreenState();
+  State<MemberGroupScreen> createState() => _MemberGroupScreenState();
 }
 
-class _CreateGroupScreenState extends State<CreateGroupScreen> {
+class _MemberGroupScreenState extends State<MemberGroupScreen> {
   final TextEditingController groupNameController = TextEditingController();
   List<UserModel> friends = [];
-  final List<UserModel> selectedFriends = [UserServicePref.instance.getUserInfo];
+  final List<UserModel> selectedFriends = [];
 
   ApiController apiController = ApiController();
   int page = 0;
@@ -64,20 +63,20 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
     try {
       page++;
-      final userId = UserServicePref.instance.getUserInfo.id;
-      final response = await apiController.get(ApiConfig.listFriend,
-          {'friendId': userId, 'page': page, 'limit': limit});
+      final response = await apiController.get(ApiConfig.getMembersInRoom,
+          {'roomId': widget.chat.id, 'page': page, 'limit': limit});
 
-      List<UserModel> data = (response.data['metadata']['friends'] as List)
+      List<UserModel> data = (response.data['metadata'] as List)
           .map((user) => UserModel.fromJson(user))
           .toList();
 
-      bool checkNextPage = response.data['metadata']['totalPage'] > page;
+      // bool checkNextPage = response.data['metadata']['totalPage'] > page;
 
       setState(() {
         friends.addAll(data);
-        hasNextPage = checkNextPage;
-        total = response.data['metadata']['totalFriend'];
+        hasNextPage = false;
+        // total = response.data['metadata']['totalFriend'];
+        total = data.length;
       });
     } catch (e) {
       print(e);
@@ -89,63 +88,18 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     }
   }
 
-  Future<void> _handleCreateGroup() async {
-    if (groupNameController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng nhập tên nhóm!'),
-        ),
-      );
-      return;
-    }
-    if (selectedFriends.length < 2) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng chọn ít nhất một thành viên!'),
-        ),
-      );
-      return;
-    }
-
-    try {
-      setState(() {
-        isLoading = true;
-      });
-      final members = selectedFriends.map((friend) => friend.id).toList();
-      final roomName = groupNameController.text.trim();
-      final response = await apiController.post(ApiConfig.createGroupChat, {'members': members, 'roomName' : roomName});
-
-      if(response.statusCode == 200) {
-        Fluttertoast.showToast(
-              msg: "Tạo nhóm thành công",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.TOP_LEFT,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.green,
-              textColor: Colors.white,
-              fontSize: 16.0);
-          Get.off(ChatsScreen());
-      }
-
-    } catch (e) {
-      print(e);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tạo nhóm mới'),
+        title: Text('Thành viên trong nhóm ($total)'),
         actions: [
           TextButton(
-            onPressed: _handleCreateGroup,
+            onPressed: () {},
             child: Text(
-              'Tạo',
+              'Xoá${selectedFriends.isNotEmpty ? ' (${selectedFriends.length})' : ''}',
               style: TextStyle(
-                  color: AppColors.lightBlueColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold),
+                  color: Colors.red, fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -160,7 +114,6 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
               )
             : Column(
                 children: [
-                  InputTextFieldWidget(groupNameController, 'Tên nhóm'),
                   const SizedBox(height: 10),
                   Expanded(
                     child: ListView.builder(
@@ -178,13 +131,24 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                             ),
                           );
                         }
-
                         return GestureDetector(
                           onTap: () {
                             setState(() {
                               if (isSelected) {
                                 selectedFriends.remove(friend);
                               } else {
+                                if (friend.id ==
+                                    UserServicePref.instance.getUserInfo.id) {
+                                  Fluttertoast.showToast(
+                                      msg: "Không chọn bản thân",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.TOP_LEFT,
+                                      timeInSecForIosWeb: 1,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+                                  return;
+                                }
                                 selectedFriends.add(friend);
                               }
                             });
@@ -212,20 +176,33 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                                   radius: 20,
                                 ),
                                 const SizedBox(width: 10),
-                                Expanded(
-                                  child: Text(
-                                    friend.name,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: isSelected
-                                          ? AppColors.lightBlueColor
-                                          : Colors.black,
-                                      fontWeight: isSelected
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      friend.name,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: isSelected
+                                            ? AppColors.lightBlueColor
+                                            : Colors.black,
+                                        fontWeight: isSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      ),
                                     ),
-                                  ),
-                                ),
+                                    Text(
+                                      friend.bio!,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: isSelected
+                                            ? AppColors.lightBlueColor
+                                            : AppColors.darkGreyColor,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                    ),
+                                  ],
+                                )
                               ],
                             ),
                           ),

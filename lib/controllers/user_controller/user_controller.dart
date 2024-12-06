@@ -97,4 +97,21 @@ class UserController {
       return false;
     }
   }
+
+  Future<bool> outGroupController(String roomId, String userId) async {
+    try {
+      final response = await _apiController
+            .put(ApiConfig.leaveGroup, {'roomId': roomId, 'friendId': userId});
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print('Error acp friend: $e');
+      return false;
+    }
+
+  }
 }

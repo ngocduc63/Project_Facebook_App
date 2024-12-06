@@ -32,8 +32,24 @@ class _ChatsScreenState extends State<ChatsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         backgroundColor: AppColors.lightBlueColor,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: AppColors.whiteColor,
+          ),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/home',
+                (route) => false,
+              );
+            }
+          },
+        ),
         actions: [
           IconButton(
             onPressed: () {},
@@ -45,7 +61,6 @@ class _ChatsScreenState extends State<ChatsScreen> {
         ],
         title: Row(
           children: [
-            const BackButton(color: AppColors.whiteColor),
             const Text(
               'Đoạn chat',
               style: TextStyle(
@@ -62,18 +77,18 @@ class _ChatsScreenState extends State<ChatsScreen> {
             visible: _selectedIndex == 0,
             child: const Expanded(child: Body()),
           ),
-          
+
           Visibility(
             visible: _selectedIndex == 1,
             child: const Expanded(child: UserOnlineScreen()),
           ),
-          
+
           // // 3. Empty container for calls tab
           // Visibility(
           //   visible: _selectedIndex == 2,
           //   child: Container(),
           // ),
-          
+
           Visibility(
             visible: _selectedIndex == 2,
             child: Expanded(
@@ -110,9 +125,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
               Icons.chat_bubble,
             ),
             label: 'Nhắn tin'),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Mọi Người'),
+        BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Mọi Người'),
         // BottomNavigationBarItem(
         //     icon: Icon(Icons.call),
         //     label: 'Gọi điện'),

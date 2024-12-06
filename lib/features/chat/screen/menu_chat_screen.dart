@@ -2,9 +2,11 @@ import 'package:facebook/constants/app_colors.dart';
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/router_constants.dart';
 import 'package:facebook/controllers/api_controller.dart';
+import 'package:facebook/controllers/user_controller/user_controller.dart';
 import 'package:facebook/models/chat_model.dart';
 import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 
 class MenuChatScreen extends StatefulWidget {
@@ -19,9 +21,10 @@ class MenuChatScreen extends StatefulWidget {
 
 class _MenuChatScreenState extends State<MenuChatScreen> {
   String groupName = '';
-  XFile? selectedAvatar;
+  XFile? selectedImage;
   final ImagePicker _picker = ImagePicker();
   ApiController apiController = ApiController();
+  UserController userController = UserController();
 
   @override
   void initState() {
@@ -29,31 +32,47 @@ class _MenuChatScreenState extends State<MenuChatScreen> {
     groupName = widget.chat.name!;
   }
 
-  Future<void> _pickMedia(
-      ImageSource source, BuildContext context) async {
+  Future<void> _pickMedia(ImageSource source, BuildContext context) async {
     try {
-        selectedAvatar = await _picker.pickImage(
-          source: source,
-          maxWidth: 1080,
-          imageQuality: 85,
-        );
+      selectedImage = await _picker.pickImage(
+        source: source,
+        maxWidth: 1080,
+        imageQuality: 85,
+      );
 
-        // final response = await apiController.imageForm(
-        //     ApiConfig.updateAvatar, selectedAvatar!, isCover);
+      Fluttertoast.showToast(
+          msg: "Vui lòng chờ giây lát",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP_LEFT,
+          timeInSecForIosWeb: 1,
+          backgroundColor: AppColors.lightBlueColor,
+          textColor: Colors.white,
+          fontSize: 16.0);
 
-        // if (response.statusCode == 200) {
-        //   final user = jsonEncode(response.data['metadata']['user']);
-        //   await UserServicePref.instance.saveUser(user);
+      final response = await apiController.updateImageRoom(
+        ApiConfig.updateImageRoom,
+        selectedImage!,
+        widget.chat.id!,
+      );
 
-        //   Fluttertoast.showToast(
-        //       msg: "Cập nhật ảnh đại diện thành công",
-        //       toastLength: Toast.LENGTH_SHORT,
-        //       gravity: ToastGravity.TOP_LEFT,
-        //       timeInSecForIosWeb: 1,
-        //       backgroundColor: Colors.green,
-        //       textColor: Colors.white,
-        //       fontSize: 16.0);
-        // }
+      if (response.statusCode == 200) {
+        if (context.mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            RouterConstants.chat,
+            (Route<dynamic> route) => false, // Xóa tất cả các route trước đó
+          );
+        }
+
+        Fluttertoast.showToast(
+            msg: "Cập nhật ảnh đại diện thành công",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP_LEFT,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      }
     } catch (e) {
       print("Error picking media: $e");
     }
@@ -99,12 +118,51 @@ class _MenuChatScreenState extends State<MenuChatScreen> {
     );
   }
 
-  void _viewProfile() {
-    print("Xem trang cá nhân");
+  void _viewProfile(BuildContext context) {
+    Navigator.pushNamed(context, RouterConstants.membersGroupScreen, arguments: widget.chat);
+  }
+
+  void _inviteMembers() {
+  }
+
+  Future<void> _outGroup(BuildContext context) async {
+    try {
+      Fluttertoast.showToast(
+          msg: "Vui lòng chờ giây lát",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP_LEFT,
+          timeInSecForIosWeb: 1,
+          backgroundColor: AppColors.lightBlueColor,
+          textColor: Colors.white,
+          fontSize: 16.0);
+
+      final check = await userController.outGroupController(
+          widget.chat.id!, UserServicePref.instance.getUserInfo.id);
+
+      if (check) {
+        if (context.mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+              context, RouterConstants.chat, (Route<dynamic> route) => false);
+        }
+
+        Fluttertoast.showToast(
+            msg: "Rời nhóm thành công",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP_LEFT,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      }
+    } catch (e) {
+      print("Error picking media: $e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    bool isLeadRoom = widget.chat.membersInfo[0].id ==
+        UserServicePref.instance.getUserInfo.id;
     return Scaffold(
       appBar: AppBar(
         title: Text('Thông tin nhóm chat'),
@@ -122,14 +180,13 @@ class _MenuChatScreenState extends State<MenuChatScreen> {
                       '${ApiConfig.linkImage}${widget.chat.image}',
                     ),
                   ),
-                  if(widget.chat.membersInfo[0].id == UserServicePref.instance.getUserInfo.id)
+                  if (isLeadRoom)
                     Positioned(
                       bottom: 0,
                       right: 0,
                       child: GestureDetector(
-                        onTap: () {
-                          _pickMedia(
-                              ImageSource.gallery, context);
+                        onTap: () async {
+                          await _pickMedia(ImageSource.gallery, context);
                         },
                         child: Container(
                           padding: const EdgeInsets.all(8),
@@ -158,25 +215,52 @@ class _MenuChatScreenState extends State<MenuChatScreen> {
                 'Số thành viên : ${widget.chat.membersInfo.length}',
                 style: const TextStyle(fontSize: 18),
               ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: _renameGroup,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
+              if (isLeadRoom)
+                Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: _renameGroup,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: const Icon(Icons.drive_file_rename_outline),
+                      label: const Text("Đổi tên nhóm"),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: _inviteMembers,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: const Icon(Icons.person_add_alt_1),
+                      label: const Text("Mời thêm thành viên"),
+                    ),
+                  ],
                 ),
-                icon: const Icon(Icons.drive_file_rename_outline),
-                label: const Text("Đổi tên nhóm"),
-              ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
-                onPressed: _viewProfile,
+                onPressed: () {_viewProfile(context);},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
                 ),
                 icon: const Icon(Icons.person),
                 label: const Text("Xem thành viên"),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  await _outGroup(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
+                icon: const Icon(Icons.output),
+                label: const Text("Rời nhóm"),
               ),
             ],
           ),

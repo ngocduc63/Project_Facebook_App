@@ -13,4 +13,5 @@ class RouterConstants {
   static const String createGroupChat= '/create-group-chat';
   static const String personalScreen= '/personal-page';
   static const String menuChatScreen= '/menu-chat';
+  static const String membersGroupScreen= '/members-group';
 }

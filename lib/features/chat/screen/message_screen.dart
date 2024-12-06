@@ -124,22 +124,26 @@ class _MessagesScreenState extends State<MessagesScreen> {
         ),
         actions: [
           if (!widget.chat.isGroup)
-            IconButton(
-              onPressed: () => {handleCall(context)},
-              icon: Icon(
-                Icons.call,
-                color: AppColors.whiteColor,
-              ),
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () => {handleCall(context)},
+                  icon: Icon(
+                    Icons.call,
+                    color: AppColors.whiteColor,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => {handleCall(context)},
+                  icon: Icon(Icons.videocam, color: AppColors.whiteColor),
+                ),
+              ],
             ),
-          if (!widget.chat.isGroup)
-            IconButton(
-              onPressed: () => {handleCall(context)},
-              icon: Icon(Icons.videocam, color: AppColors.whiteColor),
-            ),
-          if (widget.chat.isGroup)  
+          if (widget.chat.isGroup)
             IconButton(
               onPressed: () => {
-                Navigator.pushNamed(context, RouterConstants.menuChatScreen, arguments: widget.chat)
+                Navigator.pushNamed(context, RouterConstants.menuChatScreen,
+                    arguments: widget.chat)
               },
               icon: Icon(Icons.menu, color: AppColors.whiteColor),
             ),

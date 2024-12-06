@@ -44,7 +44,7 @@ class ChatModel {
   }
 
   get isGroup {
-    return membersInfo.length > 2;
+    return name != null && name!.isNotEmpty;
   }
 
   factory ChatModel.fromJson(Map<String, dynamic> json) =>

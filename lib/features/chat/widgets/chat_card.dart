@@ -100,7 +100,7 @@ class _ChatCardState extends State<ChatCard> {
                       Opacity(
                           opacity: 0.64,
                           child: Text(
-                            '${widget.chat.lastMessage!.isSender() ? 'Bạn: ' : '${widget.chat.lastMessage?.sender?.name}: '}${widget.chat.lastMessage?.data?.content ?? ""}',
+                            '${widget.chat.lastMessage!.isSender() ? 'Bạn: ' : widget.chat.isGroup ? '${widget.chat.lastMessage?.sender?.name}: ' : ''}${widget.chat.lastMessage?.data?.content ?? ""}',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           )),

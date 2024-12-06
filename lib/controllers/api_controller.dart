@@ -170,6 +170,26 @@ class ApiController {
     }
   }
 
+  Future<Response> updateImageRoom(String endpoint, XFile media, String roomId) async {
+    try {
+      FormData formData = FormData();
+      
+        formData.files.add(MapEntry(
+          'room',
+          await MultipartFile.fromFile(media.path,
+              filename: media.path.split('/').last,
+              contentType: DioMediaType('image', 'png')),
+        ));
+
+      String dataJson = jsonEncode({"roomId": roomId,});
+      formData.fields.add(MapEntry('data', dataJson));
+
+      return await _dio.put(endpoint, data: formData);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<Response> put(String endpoint, Map<String, dynamic> body) async {
     try {
       return await _dio.put(endpoint, data: body);

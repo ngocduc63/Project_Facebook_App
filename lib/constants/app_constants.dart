@@ -28,6 +28,7 @@ class ApiConfig {
   static const String listFollow = '$api/friend/list-follow';
   static const String searchUser = '$api/user/search-user';
   static const String getUserOnline = '$api/user/get-user-online';
+  static const String getMembersInRoom = '$api/chat/get-members';
 
   //api post
   static const String createPost = '$api/post/create-post';
@@ -42,9 +43,11 @@ class ApiConfig {
   static const String acpFriend = '$api/friend/accept-friend';
   static const String unfriend = '$api/friend/unfriend';
   static const String updateAvatar = '$api/user/update-avatar';
+  static const String updateImageRoom = '$api/chat/update-image-room';
   static const String updateCover = '$api/user/update-cover';
   static const String updateProfile = '$api/user/update-profile';
   static const String editPost = '$api/post/update-post';
+  static const String leaveGroup = '$api/chat/leave-room';
 
   // api delete
   static const String unLikePost = '$api/post/delete-like';
