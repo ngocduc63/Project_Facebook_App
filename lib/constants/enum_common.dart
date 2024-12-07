@@ -44,7 +44,8 @@ enum MessageType {
   text('text'),
   audio('audio'),
   image('image'),
-  video('video');
+  video('video'),
+  noti('noti');
 
   final String value;
 

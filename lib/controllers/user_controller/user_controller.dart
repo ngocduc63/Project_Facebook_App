@@ -112,6 +112,21 @@ class UserController {
       print('Error acp friend: $e');
       return false;
     }
+  }
 
+  Future<bool> renameGroupController(String roomId, String name) async {
+    try {
+      final response = await _apiController
+            .put(ApiConfig.renameGroup, {'roomId': roomId, 'name': name});
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print('Error acp friend: $e');
+      return false;
+    }
   }
 }

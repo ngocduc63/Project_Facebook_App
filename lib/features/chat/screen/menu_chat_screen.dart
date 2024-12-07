@@ -78,7 +78,7 @@ class _MenuChatScreenState extends State<MenuChatScreen> {
     }
   }
 
-  void _renameGroup() {
+  void _renameGroup(BuildContext contextMenu) {
     showDialog(
       context: context,
       builder: (context) {
@@ -88,6 +88,7 @@ class _MenuChatScreenState extends State<MenuChatScreen> {
           title: const Text("Đổi tên nhóm"),
           content: TextField(
             controller: nameController,
+            cursorColor: AppColors.lightBlueColor,
             decoration: const InputDecoration(labelText: "Tên mới"),
           ),
           actions: [
@@ -101,11 +102,20 @@ class _MenuChatScreenState extends State<MenuChatScreen> {
               ),
             ),
             TextButton(
-              onPressed: () {
-                setState(() {
-                  groupName = nameController.text;
-                });
-                Navigator.pop(context);
+              onPressed: () async {
+                final name = nameController.text.trim();
+                if (name.isEmpty) {
+                  return;
+                }
+                
+                final check = await userController.renameGroupController(
+                    widget.chat.id!, name);
+                if (check) {
+                  if (contextMenu.mounted) {
+                    Navigator.pushNamedAndRemoveUntil(contextMenu,
+                        RouterConstants.chat, (Route<dynamic> route) => false);
+                  }
+                } 
               },
               child: const Text(
                 "Xác nhận",
@@ -119,11 +129,11 @@ class _MenuChatScreenState extends State<MenuChatScreen> {
   }
 
   void _viewProfile(BuildContext context) {
-    Navigator.pushNamed(context, RouterConstants.membersGroupScreen, arguments: widget.chat);
+    Navigator.pushNamed(context, RouterConstants.membersGroupScreen,
+        arguments: widget.chat);
   }
 
-  void _inviteMembers() {
-  }
+  void _inviteMembers() {}
 
   Future<void> _outGroup(BuildContext context) async {
     try {
@@ -164,6 +174,7 @@ class _MenuChatScreenState extends State<MenuChatScreen> {
     bool isLeadRoom = widget.chat.membersInfo[0].id ==
         UserServicePref.instance.getUserInfo.id;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text('Thông tin nhóm chat'),
       ),
@@ -220,7 +231,9 @@ class _MenuChatScreenState extends State<MenuChatScreen> {
                   children: [
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
-                      onPressed: _renameGroup,
+                      onPressed: () {
+                        _renameGroup(context);
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
@@ -242,7 +255,9 @@ class _MenuChatScreenState extends State<MenuChatScreen> {
                 ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
-                onPressed: () {_viewProfile(context);},
+                onPressed: () {
+                  _viewProfile(context);
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,

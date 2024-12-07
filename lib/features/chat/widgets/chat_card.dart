@@ -19,7 +19,7 @@ class ChatCard extends StatefulWidget {
 }
 
 class _ChatCardState extends State<ChatCard> {
-  late bool isOnline;
+  late bool isOnline = false;
   final userOnlineObservable = UserOnlineObservable();
 
   @override

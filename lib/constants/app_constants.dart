@@ -48,6 +48,7 @@ class ApiConfig {
   static const String updateProfile = '$api/user/update-profile';
   static const String editPost = '$api/post/update-post';
   static const String leaveGroup = '$api/chat/leave-room';
+  static const String renameGroup = '$api/chat/update-name-room';
 
   // api delete
   static const String unLikePost = '$api/post/delete-like';
