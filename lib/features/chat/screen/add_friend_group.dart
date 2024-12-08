@@ -2,24 +2,25 @@ import 'package:facebook/constants/app_colors.dart';
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/router_constants.dart';
 import 'package:facebook/controllers/api_controller.dart';
+import 'package:facebook/features/chat/screen/chat_screen.dart';
 import 'package:facebook/models/chat_model.dart';
 import 'package:facebook/models/user_model.dart';
 import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 
-class MemberGroupScreen extends StatefulWidget {
-  static const String routeName = RouterConstants.membersGroupScreen;
+class AddFriendGroup extends StatefulWidget {
+  static const String routeName = RouterConstants.addFriendGroup;
   final ChatModel chat;
 
-  const MemberGroupScreen({super.key, required this.chat});
+  const AddFriendGroup({super.key, required this.chat});
 
   @override
-  State<MemberGroupScreen> createState() => _MemberGroupScreenState();
+  State<AddFriendGroup> createState() => _AddFriendGroupState();
 }
 
-class _MemberGroupScreenState extends State<MemberGroupScreen> {
-  final TextEditingController groupNameController = TextEditingController();
+class _AddFriendGroupState extends State<AddFriendGroup> {
   List<UserModel> friends = [];
   final List<UserModel> selectedFriends = [];
 
@@ -63,20 +64,23 @@ class _MemberGroupScreenState extends State<MemberGroupScreen> {
 
     try {
       page++;
-      final response = await apiController.get(ApiConfig.getMembersInRoom,
-          {'roomId': widget.chat.id, 'page': page, 'limit': limit});
+      final userId = UserServicePref.instance.getUserInfo.id;
+      final response = await apiController.get(ApiConfig.listFriend,
+          {'friendId': userId, 'page': page, 'limit': limit});
 
-      List<UserModel> data = (response.data['metadata'] as List)
+      final membersGroupId =
+          widget.chat.membersInfo.map((member) => member.id).toList();
+      List<UserModel> data = (response.data['metadata']['friends'] as List)
+          .where((user) => !membersGroupId.contains(user['_id']))
           .map((user) => UserModel.fromJson(user))
           .toList();
 
-      // bool checkNextPage = response.data['metadata']['totalPage'] > page;
+      bool checkNextPage = response.data['metadata']['totalPage'] > page;
 
       setState(() {
         friends.addAll(data);
-        hasNextPage = false;
-        // total = response.data['metadata']['totalFriend'];
-        total = data.length;
+        hasNextPage = checkNextPage;
+        total = response.data['metadata']['totalFriend'];
       });
     } catch (e) {
       print(e);
@@ -88,7 +92,7 @@ class _MemberGroupScreenState extends State<MemberGroupScreen> {
     }
   }
 
-  Future<void> _handleRemoveteFriendGroup(BuildContext context) async {
+  Future<void> _handleAddFriendGroup(BuildContext context) async {
     if (selectedFriends.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -103,24 +107,24 @@ class _MemberGroupScreenState extends State<MemberGroupScreen> {
         isLoading = true;
       });
       final members = selectedFriends.map((friend) => friend.id).toList();
-      final response = await apiController.put(ApiConfig.removeMembersGroup, {'userIds': members, 'roomId' : widget.chat.id});
+      final response = await apiController.put(ApiConfig.addFriendGroup,
+          {'userIds': members, 'roomId': widget.chat.id});
 
-      if(response.statusCode == 200) {
+      if (response.statusCode == 200) {
         Fluttertoast.showToast(
-              msg: "Xóa ${selectedFriends.length} thành viên thành công",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.TOP_LEFT,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.green,
-              textColor: Colors.white,
-              fontSize: 16.0);
+            msg: "Thêm ${selectedFriends.length} thành viên thành công",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP_LEFT,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0);
 
         if(context.mounted) {
           Navigator.pushNamedAndRemoveUntil(
             context, RouterConstants.chat, (Route<dynamic> route) => false);
         }
       }
-
     } catch (e) {
       print(e);
     }
@@ -130,16 +134,18 @@ class _MemberGroupScreenState extends State<MemberGroupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Thành viên trong nhóm ($total)'),
+        title: const Text('Thêm thành viên mới'),
         actions: [
           TextButton(
-            onPressed: () async{
-              await _handleRemoveteFriendGroup(context);
+            onPressed: () async {
+              await _handleAddFriendGroup(context);
             },
             child: Text(
-              'Xoá${selectedFriends.isNotEmpty ? ' (${selectedFriends.length})' : ''}',
+              'Thêm${selectedFriends.isNotEmpty ? ' (${selectedFriends.length})' : ''}',
               style: TextStyle(
-                  color: Colors.red, fontSize: 16, fontWeight: FontWeight.bold),
+                  color: AppColors.lightBlueColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -171,24 +177,13 @@ class _MemberGroupScreenState extends State<MemberGroupScreen> {
                             ),
                           );
                         }
+
                         return GestureDetector(
                           onTap: () {
                             setState(() {
                               if (isSelected) {
                                 selectedFriends.remove(friend);
                               } else {
-                                if (friend.id ==
-                                    UserServicePref.instance.getUserInfo.id) {
-                                  Fluttertoast.showToast(
-                                      msg: "Không chọn bản thân",
-                                      toastLength: Toast.LENGTH_SHORT,
-                                      gravity: ToastGravity.TOP_LEFT,
-                                      timeInSecForIosWeb: 1,
-                                      backgroundColor: Colors.red,
-                                      textColor: Colors.white,
-                                      fontSize: 16.0);
-                                  return;
-                                }
                                 selectedFriends.add(friend);
                               }
                             });
@@ -216,33 +211,20 @@ class _MemberGroupScreenState extends State<MemberGroupScreen> {
                                   radius: 20,
                                 ),
                                 const SizedBox(width: 10),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      friend.name,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: isSelected
-                                            ? AppColors.lightBlueColor
-                                            : Colors.black,
-                                        fontWeight: isSelected
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                      ),
+                                Expanded(
+                                  child: Text(
+                                    friend.name,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: isSelected
+                                          ? AppColors.lightBlueColor
+                                          : Colors.black,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
                                     ),
-                                    Text(
-                                      friend.bio!,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: isSelected
-                                            ? AppColors.lightBlueColor
-                                            : AppColors.darkGreyColor,
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                    ),
-                                  ],
-                                )
+                                  ),
+                                ),
                               ],
                             ),
                           ),

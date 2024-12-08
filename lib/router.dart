@@ -1,4 +1,5 @@
 import 'package:facebook/features/auth/auth_screen.dart';
+import 'package:facebook/features/chat/screen/add_friend_group.dart';
 import 'package:facebook/features/chat/screen/chat_screen.dart';
 import 'package:facebook/features/chat/screen/create_group_screen.dart';
 import 'package:facebook/features/chat/screen/member_group_screen.dart';
@@ -100,6 +101,11 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
       final ChatModel chatRoom = routeSettings.arguments as ChatModel;
       return MaterialPageRoute(
         builder: (context) => MemberGroupScreen( chat: chatRoom,),
+      );
+    case AddFriendGroup.routeName:
+      final ChatModel chatRoom = routeSettings.arguments as ChatModel;
+      return MaterialPageRoute(
+        builder: (context) => AddFriendGroup( chat: chatRoom,),
       );
     case EditPostScreen.routeName:
       final postData = routeSettings.arguments as PostModel;

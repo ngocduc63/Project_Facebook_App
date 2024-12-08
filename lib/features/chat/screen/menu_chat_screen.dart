@@ -107,7 +107,7 @@ class _MenuChatScreenState extends State<MenuChatScreen> {
                 if (name.isEmpty) {
                   return;
                 }
-                
+
                 final check = await userController.renameGroupController(
                     widget.chat.id!, name);
                 if (check) {
@@ -115,7 +115,7 @@ class _MenuChatScreenState extends State<MenuChatScreen> {
                     Navigator.pushNamedAndRemoveUntil(contextMenu,
                         RouterConstants.chat, (Route<dynamic> route) => false);
                   }
-                } 
+                }
               },
               child: const Text(
                 "Xác nhận",
@@ -133,7 +133,10 @@ class _MenuChatScreenState extends State<MenuChatScreen> {
         arguments: widget.chat);
   }
 
-  void _inviteMembers() {}
+  void _inviteMembers(BuildContext context) {
+    Navigator.pushNamed(context, RouterConstants.addFriendGroup,
+        arguments: widget.chat);
+  }
 
   Future<void> _outGroup(BuildContext context) async {
     try {
@@ -243,7 +246,9 @@ class _MenuChatScreenState extends State<MenuChatScreen> {
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
-                      onPressed: _inviteMembers,
+                      onPressed: () {
+                        _inviteMembers(context);
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
