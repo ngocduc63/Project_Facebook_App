@@ -2,13 +2,11 @@ import 'package:facebook/constants/app_colors.dart';
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/router_constants.dart';
 import 'package:facebook/controllers/api_controller.dart';
-import 'package:facebook/features/chat/screen/chat_screen.dart';
 import 'package:facebook/models/chat_model.dart';
 import 'package:facebook/models/user_model.dart';
 import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart';
 
 class AddFriendGroup extends StatefulWidget {
   static const String routeName = RouterConstants.addFriendGroup;
