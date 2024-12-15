@@ -3,10 +3,12 @@ import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/enum_common.dart';
 import 'package:facebook/constants/global_variables.dart';
 import 'package:facebook/controllers/api_controller.dart';
+import 'package:facebook/controllers/socket_controller.dart';
 import 'package:facebook/features/comment/widgets/single_comment.dart';
 import 'package:facebook/models/comment_model.dart';
 import 'package:facebook/models/post_model.dart';
 import 'package:flutter/material.dart';
+import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class CommentScreen extends StatefulWidget {
   static const String routeName = '/comment-screen';
@@ -31,6 +33,9 @@ class _CommentScreenState extends State<CommentScreen> {
   int page = 0;
   int limit = 10;
   String? parentCommentId = "";
+
+  late io.Socket? socket;
+
 
   Future<void> _fetchComments() async {
     setState(() {
@@ -75,7 +80,6 @@ class _CommentScreenState extends State<CommentScreen> {
           CommentModel.fromJson(response.data['metadata']);
 
       setState(() {
-        print(parentCommentId!.isEmpty);
         if (parentCommentId!.isEmpty) {
           listCommnets.insert(0, dataComment);
         } else {
@@ -127,7 +131,29 @@ class _CommentScreenState extends State<CommentScreen> {
         }
       }
     });
+    connectSocket();
     super.initState();
+  }
+
+  void connectSocket() {
+    socket = SocketController.instance.getSocket();
+    if (socket != null) {
+      socket!.emit('join_comment_noti', {"postId": widget.post.id});
+
+      socket!.on('noti_for_post_comment_${widget.post.id}', (data) {
+        final CommentModel dataComment = CommentModel.fromJson(data);
+        String parentId = data?['commnet_parentId'] ?? '';
+        setState(() {
+        if (parentId.isEmpty) {
+          listCommnets.insert(0, dataComment);
+        } else {
+          var parentComment = listCommnets.firstWhere((comment) => comment.id == parentId);
+          parentComment.incrementChildCount();
+        }
+        commentController.clear();
+      });
+      });
+    }
   }
 
   @override

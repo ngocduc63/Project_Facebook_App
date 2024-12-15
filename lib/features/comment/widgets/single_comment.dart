@@ -4,10 +4,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:facebook/constants/app_constants.dart';
 import 'package:facebook/constants/global_variables.dart';
 import 'package:facebook/controllers/api_controller.dart';
+import 'package:facebook/features/comment/screens/comment_screen.dart';
 import 'package:facebook/features/personal-page/screens/personal_page_screen.dart';
 import 'package:facebook/models/comment_model.dart';
 import 'package:facebook/utils/convert_time.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SingleComment extends StatefulWidget {
   final CommentModel comment;
