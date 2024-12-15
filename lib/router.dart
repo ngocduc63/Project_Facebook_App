@@ -6,6 +6,7 @@ import 'package:facebook/features/chat/screen/member_group_screen.dart';
 import 'package:facebook/features/chat/screen/menu_chat_screen.dart';
 import 'package:facebook/features/chat/screen/message_screen.dart';
 import 'package:facebook/features/comment/screens/comment_screen.dart';
+import 'package:facebook/features/comment/screens/list_like_screen.dart';
 import 'package:facebook/features/friends/screens/friends_screen.dart';
 import 'package:facebook/features/friends/screens/friends_search_screen.dart';
 import 'package:facebook/features/home/screens/home_screen.dart';
@@ -148,6 +149,27 @@ Route<dynamic> generateRoute(RouteSettings routeSettings) {
       return PageRouteBuilder(
         opaque: false,
         pageBuilder: (context, animation, secondaryAnimation) => CommentScreen(
+          post: post,
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+      );
+    case ListLikeScreen.routeName:
+      final PostModel post = routeSettings.arguments as PostModel;
+      return PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (context, animation, secondaryAnimation) => ListLikeScreen(
           post: post,
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {

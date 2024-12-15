@@ -74,10 +74,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text('Tạo bài viết'),
         actions: [
           TextButton(
             onPressed: uploadPostHandle,
-            child: const Text('Post'),
+            child: const Text('Đăng', style: TextStyle(color: AppColors.lightBlueColor),),
           ),
         ],
       ),

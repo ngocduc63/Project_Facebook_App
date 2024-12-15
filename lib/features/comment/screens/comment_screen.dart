@@ -4,9 +4,11 @@ import 'package:facebook/constants/enum_common.dart';
 import 'package:facebook/constants/global_variables.dart';
 import 'package:facebook/controllers/api_controller.dart';
 import 'package:facebook/controllers/socket_controller.dart';
+import 'package:facebook/features/comment/screens/list_like_screen.dart';
 import 'package:facebook/features/comment/widgets/single_comment.dart';
 import 'package:facebook/models/comment_model.dart';
 import 'package:facebook/models/post_model.dart';
+import 'package:facebook/utils/prefs_user.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
@@ -35,7 +37,6 @@ class _CommentScreenState extends State<CommentScreen> {
   String? parentCommentId = "";
 
   late io.Socket? socket;
-
 
   Future<void> _fetchComments() async {
     setState(() {
@@ -83,7 +84,8 @@ class _CommentScreenState extends State<CommentScreen> {
         if (parentCommentId!.isEmpty) {
           listCommnets.insert(0, dataComment);
         } else {
-          var parentComment = listCommnets.firstWhere((comment) => comment.id == parentCommentId);
+          var parentComment = listCommnets
+              .firstWhere((comment) => comment.id == parentCommentId);
           parentComment.incrementChildCount();
         }
         parentCommentId = "";
@@ -143,15 +145,19 @@ class _CommentScreenState extends State<CommentScreen> {
       socket!.on('noti_for_post_comment_${widget.post.id}', (data) {
         final CommentModel dataComment = CommentModel.fromJson(data);
         String parentId = data?['commnet_parentId'] ?? '';
-        setState(() {
-        if (parentId.isEmpty) {
-          listCommnets.insert(0, dataComment);
-        } else {
-          var parentComment = listCommnets.firstWhere((comment) => comment.id == parentId);
-          parentComment.incrementChildCount();
+
+        if (dataComment.user.id != UserServicePref.instance.getUserInfo.id) {
+          setState(() {
+            if (parentId.isEmpty) {
+              listCommnets.insert(0, dataComment);
+            } else {
+              var parentComment =
+                  listCommnets.firstWhere((comment) => comment.id == parentId);
+              parentComment.incrementChildCount();
+            }
+            commentController.clear();
+          });
         }
-        commentController.clear();
-      });
       });
     }
   }
@@ -160,6 +166,10 @@ class _CommentScreenState extends State<CommentScreen> {
   void dispose() {
     scrollController.dispose();
     commentFocusNode.dispose();
+    if (socket != null) {
+      socket!.emit('leave_comment_noti', {"postId": widget.post.id});
+      socket!.off('noti_for_post_comment_${widget.post.id}');
+    }
     super.dispose();
   }
 
@@ -209,116 +219,124 @@ class _CommentScreenState extends State<CommentScreen> {
                         ),
                         child: Column(
                           children: [
-                            Container(
-                              height: 60,
-                              padding: const EdgeInsets.only(
-                                left: 15,
-                                right: 15,
-                                top: 15,
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  icons.isNotEmpty
-                                      ? Row(
-                                          children: [
-                                            SizedBox(
-                                              width: icons.length < 3
-                                                  ? icons.length * 25
-                                                  : 100,
-                                              height: 34,
-                                              child: Stack(
-                                                children: [
-                                                  if (icons.isNotEmpty)
-                                                    Positioned(
-                                                      top: 0,
-                                                      left: 0,
-                                                      child: Container(
-                                                        width: 26,
-                                                        height: 26,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          shape:
-                                                              BoxShape.circle,
-                                                          border: Border.all(
-                                                            color: Colors.white,
-                                                            width: 2,
-                                                          ),
-                                                        ),
-                                                        child: Image.asset(
-                                                          icons[0],
+                            GestureDetector(
+                              onTap: () => {
+                                Navigator.pushNamed(context, ListLikeScreen.routeName, arguments: widget.post)
+                              },
+                              child: Container(
+                                height: 60,
+                                padding: const EdgeInsets.only(
+                                  left: 15,
+                                  right: 15,
+                                  top: 15,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    icons.isNotEmpty
+                                        ? Row(
+                                            children: [
+                                              SizedBox(
+                                                width: icons.length < 3
+                                                    ? icons.length * 25
+                                                    : 100,
+                                                height: 34,
+                                                child: Stack(
+                                                  children: [
+                                                    if (icons.isNotEmpty)
+                                                      Positioned(
+                                                        top: 0,
+                                                        left: 0,
+                                                        child: Container(
                                                           width: 26,
                                                           height: 26,
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  if (icons.length > 1)
-                                                    Positioned(
-                                                      top: 2,
-                                                      left: 18,
-                                                      child: Container(
-                                                        width: 26,
-                                                        height: 26,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          shape:
-                                                              BoxShape.circle,
-                                                          border: Border.all(
-                                                            color: Colors.white,
-                                                            width: 2,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            shape:
+                                                                BoxShape.circle,
+                                                            border: Border.all(
+                                                              color:
+                                                                  Colors.white,
+                                                              width: 2,
+                                                            ),
+                                                          ),
+                                                          child: Image.asset(
+                                                            icons[0],
+                                                            width: 26,
+                                                            height: 26,
+                                                            fit: BoxFit.cover,
                                                           ),
                                                         ),
-                                                        child: Image.asset(
-                                                          icons[1],
+                                                      ),
+                                                    if (icons.length > 1)
+                                                      Positioned(
+                                                        top: 2,
+                                                        left: 18,
+                                                        child: Container(
                                                           width: 26,
                                                           height: 26,
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  if (icons.length > 2)
-                                                    Positioned(
-                                                      top: 4,
-                                                      left: 36,
-                                                      child: Container(
-                                                        width: 26,
-                                                        height: 26,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          shape:
-                                                              BoxShape.circle,
-                                                          border: Border.all(
-                                                            color: Colors.white,
-                                                            width: 2,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            shape:
+                                                                BoxShape.circle,
+                                                            border: Border.all(
+                                                              color:
+                                                                  Colors.white,
+                                                              width: 2,
+                                                            ),
+                                                          ),
+                                                          child: Image.asset(
+                                                            icons[1],
+                                                            width: 26,
+                                                            height: 26,
+                                                            fit: BoxFit.cover,
                                                           ),
                                                         ),
-                                                        child: Image.asset(
-                                                          icons[2],
+                                                      ),
+                                                    if (icons.length > 2)
+                                                      Positioned(
+                                                        top: 4,
+                                                        left: 36,
+                                                        child: Container(
                                                           width: 26,
                                                           height: 26,
-                                                          fit: BoxFit.cover,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            shape:
+                                                                BoxShape.circle,
+                                                            border: Border.all(
+                                                              color:
+                                                                  Colors.white,
+                                                              width: 2,
+                                                            ),
+                                                          ),
+                                                          child: Image.asset(
+                                                            icons[2],
+                                                            width: 26,
+                                                            height: 26,
+                                                            fit: BoxFit.cover,
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
-                                                ],
+                                                  ],
+                                                ),
                                               ),
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              widget.post.numLike.toString(),
-                                              style: TextStyle(
-                                                color: AppColors.blackColor,
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                widget.post.numLike.toString(),
+                                                style: TextStyle(
+                                                  color: AppColors.blackColor,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
-                                            ),
-                                            const SizedBox(width: 4),
-                                          ],
-                                        )
-                                      : Container(),
-                                ],
+                                              const SizedBox(width: 4),
+                                            ],
+                                          )
+                                        : Container(),
+                                  ],
+                                ),
                               ),
                             ),
                             const Divider(

@@ -171,7 +171,7 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create Story'),
+        title: Text('Tạo story'),
         actions: [
           if (_mediaFile != null)
             IconButton(

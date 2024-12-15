@@ -141,16 +141,17 @@ class _PostCardState extends State<PostCard> {
 
   Future<void> handleDeletePost(String postId) async {
     try {
-      final response = await apiController.delete(ApiConfig.deletePost, {'postId': postId});
-      if(response.statusCode == 200) { 
+      final response =
+          await apiController.delete(ApiConfig.deletePost, {'postId': postId});
+      if (response.statusCode == 200) {
         Fluttertoast.showToast(
-                msg: "Xóa bài viết thành công",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.TOP_LEFT,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.green,
-                textColor: Colors.white,
-                fontSize: 16.0);
+            msg: "Xóa bài viết thành công",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP_LEFT,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0);
         Get.offNamed(RouterConstants.routerHome);
       }
     } catch (e) {
@@ -224,12 +225,14 @@ class _PostCardState extends State<PostCard> {
         final postData = PostModel.fromJson(data);
 
         if (postData.id == widget.post.id) {
-          setState(() {
-            numLike = postData.numLike ?? 0;
-            numComment = postData.numComment ?? 0;
-            numShare = postData.numShare ?? 0;
-            setListReactions(postData.reactions ?? []);
-          });
+          if (mounted) {
+            setState(() {
+              numLike = postData.numLike ?? 0;
+              numComment = postData.numComment ?? 0;
+              numShare = postData.numShare ?? 0;
+              setListReactions(postData.reactions ?? []);
+            });
+          }
         }
       });
     }
@@ -375,41 +378,43 @@ class _PostCardState extends State<PostCard> {
                             )
                           ],
                         ),
-                        
-                        if(UserServicePref.instance.getUserInfo.id == widget.post.user!.id)
+                        if (UserServicePref.instance.getUserInfo.id ==
+                            widget.post.user!.id)
                           PopupMenuButton<String>(
-                          onSelected: (value) {
-                            if (value == 'edit') {
-                              Navigator.pushNamed(context, RouterConstants.editPost, arguments: widget.post);
-                            } else if (value == 'delete') {
-                              handleDeletePost(widget.post.id);
-                            }
-                          },
-                          icon: const Icon(Icons.more_horiz,
-                              color: Colors.black54),
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: 'edit',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.edit, size: 18),
-                                  SizedBox(width: 10),
-                                  Text("Chỉnh sửa"),
-                                ],
+                            onSelected: (value) {
+                              if (value == 'edit') {
+                                Navigator.pushNamed(
+                                    context, RouterConstants.editPost,
+                                    arguments: widget.post);
+                              } else if (value == 'delete') {
+                                handleDeletePost(widget.post.id);
+                              }
+                            },
+                            icon: const Icon(Icons.more_horiz,
+                                color: Colors.black54),
+                            itemBuilder: (context) => [
+                              const PopupMenuItem(
+                                value: 'edit',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.edit, size: 18),
+                                    SizedBox(width: 10),
+                                    Text("Chỉnh sửa"),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const PopupMenuItem(
-                              value: 'delete',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.delete, size: 18),
-                                  SizedBox(width: 10),
-                                  Text("Xóa"),
-                                ],
+                              const PopupMenuItem(
+                                value: 'delete',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.delete, size: 18),
+                                    SizedBox(width: 10),
+                                    Text("Xóa"),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ), 
+                            ],
+                          ),
                       ],
                     ),
                   ),
